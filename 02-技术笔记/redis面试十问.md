@@ -245,3 +245,49 @@ redis2.8之前使用sync(runId)(offset)同步命令，reidis2.8之后使用psync
 
 ==**面试官：比较主流的解决方案是什么呢？**==
 
+哨兵机制
+
+![img](https://raw.githubusercontent.com/lission/markdownPics/main/redisPic/redis-sentinel.png)
+
+redis sentinel 哨兵主要功能包括主节点存活检测、主从运行情况检测、自动故障转移、主从切换。redis sentinel最小配置一主一从。
+
+redis 的sentinel可以用来管理多个redis服务器，该系统可以执行以下4个任务：
+
+- 监控：不断检查主服务器和从服务器是否正常运行
+- 通知：当被监控的某个redis服务器出现问题，sentinel通过api脚本向管理员或其他应用程序发出通知
+- 自动故障转移：当主节点不能正常工作时，sentinel会自动开始一次自动的故障转移操作，它会将与失效主节点是主从关系的其中一个从节点升级为新的主节点，并且将其他的从节点指向新的主节点，避免人工干预
+- 配置提供者：在redis sentinel模式下，客户端应用在初始化时连接是sentinel节点集合，从中获取主节点的信息
+
+==**面试官：哨兵的工作原理**==
+
+![img](https://raw.githubusercontent.com/lission/markdownPics/main/redisPic/redis-sentinel-work.png)
+
+- 1、每个sentinel节点都需要定期执行以下任务：每个sentinel以每秒一次的频率，向它所知的主服务器、从服务器以及其他的sentinel实例发送一个PING命令。如上图
+
+![img](https://raw.githubusercontent.com/lission/markdownPics/main/redisPic/redis-sentinel-work-1.png)
+
+- 2、如果一个实例距离最后一次有效回复PING命令的时间超过down-after-milliseconds所指定的值，那么这个实例会被sentinel标记为主观下线。如上图
+
+![img](https://raw.githubusercontent.com/lission/markdownPics/main/redisPic/redis-sentinel-work-2.png)
+
+- 3、如果一个主服务器被标记为主观下线，那么正在监视这个服务器的所有sentinel节点，要以**每秒一次的频率**确认主服务器的确进入了主观下线状态，如上图
+
+![img](https://raw.githubusercontent.com/lission/markdownPics/main/redisPic/redis-sentinel-work-3.png)
+
+- 4、如果一个主服务器被标记为主观下线，并且有足够数量的sentinel(至少要达到配置文件指定的数量)在指定时间范围内同意这一判断，那么这个主服务器被标记为客观下线。如上图
+
+![img](https://raw.githubusercontent.com/lission/markdownPics/main/redisPic/redis-sentinel-work-4.png)
+
+- 5、一般情况下，每个sentinel会以每10秒一次的频率向它已知的所有主服务器和从服务器发送INFO命令，当一个主服务器被标记为客观下线时，sentinel向下线主服务器所有服务器发送INFO命令的频率，会从10秒一次改为每秒一次
+
+![img](https://raw.githubusercontent.com/lission/markdownPics/main/redisPic/redis-sentinel-work-5.png)
+
+- 6、sentinel和其他sentinel协商客观下线的主节点状态，如果处于SDOWN状态，则投票自动选出新的主节点，将剩余从节点指向新的主节点进行数据复制。
+
+![img](https://raw.githubusercontent.com/lission/markdownPics/main/redisPic/redis-sentinel-work-6.png)
+
+- 7、当没有足够数量的sentinel同意主服务器下线时，主服务器的客观下线状态就会被移除。当主服务器重新向sentinel的PING命令返回有效回复时，主服务器的主观下线状态就会被移除。
+
+# 11、参考
+
+https://juejin.im/post/5b7d226a6fb9a01a1e01ff64
