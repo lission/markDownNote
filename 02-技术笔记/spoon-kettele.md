@@ -23,7 +23,11 @@ jumpserver：
 | ssh227      |                 |
 | ssh887      |                 |
 
+kettle安装路径：
 
+```properties
+/opt/docker-data/webspoon/data-integration/kitchen.sh
+```
 
 后台任务启动命令：
 
@@ -38,8 +42,6 @@ kettle文件存放路径
 ```properties
 /opt/docker-data/webspoon/announce
 ```
-
-
 
 kettle配置文件路径
 
