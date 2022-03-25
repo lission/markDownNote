@@ -8,6 +8,14 @@
 
 
 
+kettle本地配置文件存储目录
+
+```properties
+/Users/lission/.kettle/kettle.properties
+```
+
+
+
 
 
 # 2、广西部署实践
