@@ -48,3 +48,14 @@
 　　　　(1)find /tmp -size +10000c -and -mtime +2 　　#在/tmp目录下查找大于10000字节并在最后2分钟内修改的文件
    　　    (2)find / -user fred -or -user george 　　#在/目录下查找用户是fred或者george的文件文件
    　　    (3)find /tmp ! -user panda　　#在/tmp目录中查找所有不属于panda用户的文件
+
+### 4.结合find大量删除文件
+
+
+通过 find 来完成，更加安全智能，支持的参数更多。
+
+可以先使用 ls 命令列出需要删除的文件看是否正确，然后再执行删除命令。例如，通过如下指令，删除 文件：
+
+```
+find /opt/logs/ -name "spring.log.2021-12*" |xargs rm -r
+```
