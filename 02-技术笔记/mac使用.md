@@ -15,10 +15,19 @@ xxx.app是出问题的APP名称，有时候app的名字难以输入正确，这�
 
 
 
-sudo xattr -d com.apple.quarantine /Applications/xxx.app
+sudo xattr -d com.apple.quarantine /Applications/Clipboard\ Center.app
 
 
 
 sudo xattr -d com.apple.quarantine /Applications/Ummy\ Video\ Downloader.app
 
 sudo codesign --force --deep --sign - /Applications/Ummy\ Video\ Downloader.app
+
+
+
+sudo spctl --master-disable
+
+sudo xattr -r -d com.apple.quarantine /Applications/Paste.app
+
+sudo codesign --force --deep --sign - /Applications/Paste.app
+

@@ -1,5 +1,17 @@
 [TOC]
 
+说一下ThreadLocal？
+
+threadLocal是线程本地存储工具，可以实现线程间的数据隔离，将数据缓存在线程内部，在该线程的任意时刻，任意方法中获取缓存的数据
+
+ThreadLocal底层通过ThreadLocalMap实现，每一个线程都存在一个ThreadLocalMap，Map的key为ThreadLocal对象，value为需要缓存的对象。
+
+线程池中使用ThreadLocalMap会造成内存泄露，因为线程池中线程不会回收，线程对象通过强引用指向ThreadLocalMap，ThreadLocalMap也是强引用指向Entry对象，线程不回收，Entry对象也不回收，从而出现内存泄露，为避免内存泄露需要手动调用ThreadLocal的remove方法，手动清除Entry对象
+
+典型应用:连接管理
+
+
+
 ThreadLocal为Java并发提供了一个新的思路， 它用来**存储Thread的局部变量**， 从而达到**各个Thread之间的隔离运行**。它被广泛应用于框架之间的**用户资源隔离、事务隔离等**。==**用不好会导致内存泄露**==
 
 # 1、内存泄露原因探索
