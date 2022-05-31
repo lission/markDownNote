@@ -22,6 +22,8 @@ watch命令，可以用来查看方法的入参及返回值
 
 ```shell
 watch com.etcc.monitor.warning.business.company.provider.SCompanyDataReportStatProviderImpl getReportDataCount  "{params,returnObj}" -x 3 
+
+watch com.swan.smartcity.etc.pre.warning.business.service.MonitorStrategyServiceImpl findMonitorStrategyPage "{params,returnObj}" -x 3 
 ```
 
 
