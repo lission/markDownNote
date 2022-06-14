@@ -2,9 +2,9 @@
 
 说一下ThreadLocal？
 
-threadLocal是线程本地存储工具，可以实现线程间的数据隔离，将数据缓存在线程内部，在该线程的任意时刻，任意方法中获取缓存的数据
+ThreadLocal是java线程本地存储工具，可以实现线程间的数据隔离，将数据缓存在线程内部，在该线程的任意时刻、任意方法中都可以获取缓存的数据
 
-ThreadLocal底层通过ThreadLocalMap实现，每一个线程都存在一个ThreadLocalMap，Map的key为ThreadLocal对象，value为需要缓存的对象。
+ThreadLocal底层通过ThreadLocalMap实现，每一个线程Thread都存在一个ThreadLocalMap成员变量，ThreadLocalMap由Entry数组构成，Entry继承自WeakReference<ThreadLocal<?>>，一个Entry由ThreadLocal对象和Object对象构成，Entry的key为ThreadLocal对象,并且是一个弱引用，value为需要缓存的对象。
 
 线程池中使用ThreadLocalMap会造成内存泄露，因为线程池中线程不会回收，线程对象通过强引用指向ThreadLocalMap，ThreadLocalMap也是强引用指向Entry对象，线程不回收，Entry对象也不回收，从而出现内存泄露，为避免内存泄露需要手动调用ThreadLocal的remove方法，手动清除Entry对象
 
@@ -18,7 +18,7 @@ ThreadLocal为Java并发提供了一个新的思路， 它用来**存储Thread�
 
 ThreadLocal操作不当会引发内存泄露，主要原因在于它的内部类ThreadLocalMap中的Entry的设计。
 
-Entry继承了WeakReference<ThreadLocal<?>>，即Entry的key是弱引用，所以**key会在垃圾回收的时候被回收掉，而key对应的value则不会被回收，这会导致一种现象：key为null，value有值。**key为空的话value是无效数据，久而久之，value累加会导致内存泄露。
+Entry继承了WeakReference<ThreadLocal<?>>，即Entry的key是ThreadLocal对象是弱引用，所以当没有指向key的强引用后，**key会在垃圾回收的时候被回收掉，而key对应的value则不会被回收，这会导致一种现象：key为null，value有值。**key为空的话value是无效数据，久而久之，value累加会导致内存泄露。
 
 ![img](https://raw.githubusercontent.com/lission/markdownPics/main/java/threadLocal-entry.webp)
 
@@ -78,7 +78,7 @@ expungeStaleEntry(i)
 
 ==**线程执行结束后会不会自动清空Entry的value**==
 
-当currentThread执行结束后，threadLocalMap变得不可达而被回收，Entry等也就都被回收了，但这个环境要求部队Thread进行复原，但是我们==**项目中经常会复用线程来提高性能**==，所以currentThread一般不会处于终止状态。
+当currentThread执行结束后，threadLocalMap变得不可达而被回收，Entry等也就都被回收了，但这个环境要求不对Thread进行复原，但是我们==**项目中经常会复用线程来提高性能**==，所以currentThread一般不会处于终止状态。
 
 # 5、Thread和ThreadLocal有什么联系？
 
