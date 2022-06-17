@@ -33,7 +33,7 @@
 
 4、HashMap有两个参数影响其性能：**初始容量**和**加载因子**。
 
-- 初始容量，指HashMap在创建时的容量，默认初始容量为16
+- 初始容量，指HashMap在创建时的容量，默认初始容量为16，每次扩容扩大为原来容量2倍。
 - 加载因子，指HashMap在其容量自动扩容前可以达到的最大比例，默认加载因子为0.75。
 
 创建HashMap时，jdk1.8对传入的加载因子直接使用。对指定的初始容量，通过右移1位与位移前异运算，得到的值再右移2位，4位，8位，16位都做异运算，得到的结果如果大于2^30，就设置容量为 2^30，如果小于 2^30，就设置容量为结果+1，这样得到的结果一定是==比入参大的最小的 2^n==，可以减少hash碰撞。
@@ -47,22 +47,72 @@
 
 hashMap的put方法的大体流程：
 
-1. 计算key的hash值（把key的hashCode右移16位与原值异或计算），然后判断hashMap是否已经初始化，如果没有需要先初始化，然后用hashMap数组长度 -1 与hash值与运算，得到数组下标
+1. 计算key的hash值（把key的hashCode右移16位与原值**异或**计算），然后判断hashMap是否已经初始化，如果没有需要先初始化，然后用hashMap数组长度 -1 与hash值**与**运算，得到数组下标
 
 2. 如果数组下标位置元素为空，则将key和value封装为Node对象(jdk1.7中是Entry对象)，放入该位置
 
-3. 如果数组下标位置元素为空，则要分情况讨论
+3. 如果数组下标位置元素不为空，则要分情况讨论
 
    - a. 如果是jdk1.7，则先判断是否需要扩容，如果需要扩容就扩容，如果不需要扩容就生成Entry对象，并使用头插法添加到当前位置的链表中
 
    - b. 如果是jdk1.8，则先判断当前位置上的Node类型，看是红黑树Node还是，链表Node、
-     - i. 如果是红黑树Node，则将key和value封装为一个红黑树节点，并添加到红黑树中区，在这个过程中会判断红黑树是否存在当前key，如果存在则更新value
+     - i. 如果是红黑树Node，则将key和value封装为一个红黑树节点，并添加到红黑树中去，在这个过程中会判断红黑树是否存在当前key，如果存在则更新value
      - ii. 如果此位置上Node是链表节点，将key和value封装为一个链表Node，并通过尾插法插入到链表最后位置去，因为是尾插法，需要遍历链表，在遍历链表过程中会判断是否存在当前key，如果存在则更新value。当遍历完链表后，将新链表Node插入到链表中，插入到链表后，会看当前链表节点个数，如果大于等于8，将该链表转成红黑树，此时先判断数组长度是否达到64，如果没达到，就需要扩容，如果达到64，链表转红黑树
      - iii. 将key和value封装为Node插入到链表或红黑树中后，判断是否需要进行扩容，如果需要就扩容
 
 ​			
 
+## HashMap与HashTable区别
 
+- HashMap 方法没有synchronized修饰，是非线程安全的；HashTable是线程安全的
+- HashMap允许key为null，HashTable 不允许key为null
+- HashMap中key为null的键值对，存储在数组的下标为0的位置
+
+
+
+## LinkedHashMap实现原理
+
+LinkedHashMap继承自HashMap，在HashMap基础上维护了一条双向链表，解决了HashMap不能随时保持遍历顺序和插入顺序一致的问题。
+
+可以通过继承LinkedHashMap实现一个简单的LRU策略缓存。当我们基于LinkedHashMap实现缓存时，通过覆写removeEldestEntry 实现自定义策略的LRU缓存。
+
+
+
+## HashMap、LinkedHashMap和TreeMap简介
+
+HashMap、LinkedHashMap和TreeMap 三个映射类基于不同数据结构实现了不同功能。
+
+- HashMap，底层基于拉链式的散列结构，在jdk1.8中引入红黑树优化过长链表问题，提供了高效的增删改查操作
+- LinkedHashMap，继承HashMap，通过维护一条双向链表，实现了散列数据结构的有序遍历。
+- TreeMap，底层基于红黑树实现，利用红黑树特性，实现了键值对排序功能。
+
+
+
+
+
+## ConcurrentHashMap原理，jdk1.7与jdk1.8区别
+
+### jdk1.7
+
+1、数据结构，ReentrantLock+Segment+HashEntry，一个Segment中包含一个HashEntry数组，每个HashEntry又是一个链表结构。
+
+元素查询：二次hash，第一次hash定位到segment，第二次hash定位到元素所在的链表头部（即HashEntry数组对应下标位置）
+
+2、锁，Segment分段锁，Segment继承了ReentrantLocal，锁定操作的Segement，其他的Segment不受影响，并发度为Segment个数，可以通过构造函数指定，数组扩容不会影响其他的Segment
+
+get方法无需加锁，volatile保证可见性。
+
+**Segment数量确定，当数据量很大时不能有更好的效率**
+
+### jdk 1.8
+
+1、数据结构：synchronized+CAS+Node+红黑树，Node的val和next都用volatile修饰，保证可见性。
+
+查找，替换，赋值操作都使用CAS，不支持key=null的键值对。存入数据时，对key进行hash运算得到数组下表位置，如果计算位置上是空的，通过cas更新，更新失败或者位置上有元素，先在这个节点加synchronized锁，然后更新。
+
+2、锁，锁链表的head节点，不影响其他元素的读写，锁粒度更细，效率更高，扩容时，阻塞所有读写操作、并发扩容
+
+读操作无锁:Node的val和next使用volatile修饰，读写线程对该变量互相可见。数组volatile Node<K,V>[]用volatile修饰，保证扩容时被读线程感知。
 
 
 
