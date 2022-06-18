@@ -74,7 +74,7 @@ hashMap的put方法的大体流程：
 
 LinkedHashMap继承自HashMap，在HashMap基础上维护了一条双向链表，解决了HashMap不能随时保持遍历顺序和插入顺序一致的问题。
 
-可以通过继承LinkedHashMap实现一个简单的LRU策略缓存。当我们基于LinkedHashMap实现缓存时，通过覆写removeEldestEntry 实现自定义策略的LRU缓存。
+可以通过继承LinkedHashMap实现一个简单的LRU策略缓存。当我们基于LinkedHashMap实现缓存时，通过覆写其removeEldestEntry 实现自定义策略的LRU缓存。
 
 
 
@@ -104,17 +104,19 @@ get方法无需加锁，volatile保证可见性。
 
 **Segment数量确定，当数据量很大时不能有更好的效率**
 
+3、扩容，每个Segment内部会进行扩容，先生成新的数组，然后转移原数到新数组中，扩容判断也是每个Segment内部单独判断，判断是否超过阈值。
+
 ### jdk 1.8
 
 1、数据结构：synchronized+CAS+Node+红黑树，Node的val和next都用volatile修饰，保证可见性。
 
-查找，替换，赋值操作都使用CAS，不支持key=null的键值对。存入数据时，对key进行hash运算得到数组下表位置，如果计算位置上是空的，通过cas更新，更新失败或者位置上有元素，先在这个节点加synchronized锁，然后更新。
+查找，替换，赋值操作都使用CAS，不支持key=null的键值对。存入数据时，对key进行哈希算法运算得到数组下标位置，如果计算位置上是空的，通过CAS更新，更新失败或者位置上有元素，先在这个节点加synchronized锁，然后更新。
 
 2、锁，锁链表的head节点，不影响其他元素的读写，锁粒度更细，效率更高，扩容时，阻塞所有读写操作、并发扩容
 
 读操作无锁:Node的val和next使用volatile修饰，读写线程对该变量互相可见。数组volatile Node<K,V>[]用volatile修饰，保证扩容时被读线程感知。
 
-
+3、扩容，支持多个线程同时扩容，扩容之前先生成一个新的数组，在转移元素时，先将原数组分组，将每组分给不同的线程来进行元素转移，每个线程负责一组或多组的元素转移工作。
 
 # 线程
 
