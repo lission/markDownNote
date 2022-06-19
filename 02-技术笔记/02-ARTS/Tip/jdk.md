@@ -118,6 +118,19 @@ get方法无需加锁，volatile保证可见性。
 
 3、扩容，支持多个线程同时扩容，扩容之前先生成一个新的数组，在转移元素时，先将原数组分组，将每组分给不同的线程来进行元素转移，每个线程负责一组或多组的元素转移工作。
 
+
+
+## Queue和Deque(比较少用，简单整理)
+
+- 1、Queue，单端队列，(FIFO)先进先出队列。Deque，Queue的子接口，双端队列，可以在首尾都进行插入删除操作
+
+- 2、Queue的常用子类，PriorityQueue底层数据结构数组，无边界，自带扩容机制。Deque常用子类，LinkedList和ArrayDeque；LinkedList是双向链表。ArrayDeque是无初始容量的双端队列，数组实现
+- 3、PriorityQueue可以作为堆（优先队列）使用，而且可以根据传入的Comparator实现大小的调整，会是一个很好的选择。
+  - ArrayDeque可以作为栈或队列使用，但是栈的效率不如LinkedList高，**通常作为队列使用**。
+  - LinkedList可以作为栈或队列使用，但是队列的效率不如ArrayQueue高，**通常作为栈使用**。
+
+
+
 # 线程
 
 
