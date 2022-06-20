@@ -9,7 +9,7 @@
 
 3、ArrayList和LinkedList都实现了List接口，LinkedList还实现了Deque接口，可以当做双端队列来使用。
 
-4、根据使用场景，ArrayList通常更适合随机查找，时间复杂度O(1)，add()方法直接在后面添加，如果不涉及扩容那么时间复杂度是O(1)，如果指定下标添加add(index,E)，那么时间复杂度为O(n)，后面的元素需要移动，LinkedList更适合添加、删除操作。这有一些细节，LinkedList可以通过getFirst()和getLast()直接获取第一个或最后一个元素，时间复杂度,O(1)。如果get(index)指定下标元素，那需要依次遍历，时间复杂度O(n)，LinkedList的add()方法，直接在链表尾端添加元素O(1)，如果指定下标add(i,E)添加元素，那么需要先遍历到指定下边位置，再添加元素O(n)。
+4、根据使用场景，ArrayList通常更适合随机查找，时间复杂度O(1)，add()方法直接在后面添加，如果不涉及扩容那么时间复杂度是O(1)，如果指定下标添加add(index,E)，那么时间复杂度为O(n)，后面的元素需要移动，LinkedList更适合添加、删除操作。这有一些细节，LinkedList可以通过getFirst()和getLast()直接获取第一个或最后一个元素，时间复杂度O(1)。如果get(index)指定下标元素，那需要依次遍历，时间复杂度O(n)，LinkedList的add()方法，直接在链表尾端添加元素，时间复杂度O(1)，如果指定下标add(index,E)添加元素，那么需要先遍历到指定下边位置，再添加元素，时间复杂度O(n)。
 
 
 
@@ -25,29 +25,29 @@
 
 ## HashMap jdk1.7与jdk1.8版本的区别
 
-1、1.7版本的HashMap底层数据结构是==数组+链表==，1.8版本HashMap底层数据结构是==数组+链表+红黑树==，加入红黑树的目的是提高HashMap的插入和查询效率。
+1、1.7版本的HashMap底层数据结构是==数组+链表==，1.8版本HashMap底层数据结构是==数组+链表+红黑树==，加入红黑树的目的是**提高HashMap的插入和查询效率**。
 
-2、1.7中链表使用的是头插法，1.8中链表使用的是尾插法，因为1.8中需要遍历链表统计链表个数，因此正好使用尾插法，插入后链表数量如果大于等于8，链表将转换为红黑树，此时先判断数组长度是否达到64，如果没达到，就需要扩容，如果达到64，链表转红黑树。
+2、1.7中链表使用的是头插法，1.8中链表使用的是尾插法，因为1.8中需要遍历链表统计节点个数，因此正好使用尾插法，插入后链表数量如果大于等于8，链表将转换为红黑树，此时先判断数组长度是否达到64，如果没达到，就需要扩容，如果达到64，链表转红黑树。
 
-3、1.7中哈希算法比较复杂，存在各种右移与异或运算，1.8中进行了简化，把key的hash值右移16位与hash值异或运算。因为复杂的哈希运算可以提高散列性，提高HashMap的整体效率，而1.8引入了红黑树，可以适当简化哈希算法，节省CPU资源
+3、1.7中哈希算法比较复杂，存在各种右移与异或运算，1.8中进行了简化，把**key的hash值右移16位**与**hash值异或运算**。因为复杂的哈希运算可以提高散列性，提高HashMap的整体效率，而1.8引入了红黑树，可以适当简化哈希算法，节省CPU资源
 
 4、HashMap有两个参数影响其性能：**初始容量**和**加载因子**。
 
 - 初始容量，指HashMap在创建时的容量，默认初始容量为16，每次扩容扩大为原来容量2倍。
 - 加载因子，指HashMap在其容量自动扩容前可以达到的最大比例，默认加载因子为0.75。
 
-创建HashMap时，jdk1.8对传入的加载因子直接使用。对指定的初始容量，通过右移1位与位移前异运算，得到的值再右移2位，4位，8位，16位都做异运算，得到的结果如果大于2^30，就设置容量为 2^30，如果小于 2^30，就设置容量为结果+1，这样得到的结果一定是==比入参大的最小的 2^n==，可以减少hash碰撞。
+创建HashMap时，jdk1.8对传入的加载因子直接使用。对指定的初始容量，通过**右移1位与位移前异运算**，得到的值再**右移2位，4位，8位，16位都做异运算**，得到的结果如果大于2^30，就设置容量为 2^30，如果小于 2^30，就设置容量为**结果+1**，这样得到的结果一定是**==比入参大的最小的 2^n==**，可以减少hash碰撞。
 
 5、加载因子初始值设置为0.75，是时间和空间上的一种折衷。
 
-- 加载因子越低，HashMap所能容纳键值对变少，扩容时，重新将键值对存储新的桶数组里，键之间产生的哈希碰撞会降低，此时HashMap的增删改查等操作效率变高，这是典型的拿空间换时间。
-- 加载因子越高，HashMap所能容纳的键值对数量变多，空间利用率高，哈希碰撞率也高，这意味着链表变长，效率降低，这是拿时间换空间。
+- 加载因子越低，HashMap所能容纳键值对变少，扩容时，重新将键值对存储新的桶数组里，**键之间产生的哈希碰撞会降低**，此时HashMap的增删改查等操作效率变高，这是典型的**拿空间换时间**。
+- 加载因子越高，HashMap所能容纳的键值对数量变多，**空间利用率高，哈希碰撞率也高**，这意味着链表变长，效率降低，这是拿**时间换空间**。
 
 ## 简述HashMap的put方法
 
 hashMap的put方法的大体流程：
 
-1. 计算key的hash值（把key的hashCode右移16位与原值**异或**计算），然后判断hashMap是否已经初始化，如果没有需要先初始化，然后用hashMap数组长度 -1 与hash值**与**运算，得到数组下标
+1. 计算key的hash值（把key的hashCode右移16位与原值**异或**计算），然后判断hashMap是否已经初始化，如果没有需要先初始化，然后**用hashMap数组长度 -1 与hash值**与运算，得到数组下标
 
 2. 如果数组下标位置元素为空，则将key和value封装为Node对象(jdk1.7中是Entry对象)，放入该位置
 
@@ -55,10 +55,10 @@ hashMap的put方法的大体流程：
 
    - a. 如果是jdk1.7，则先判断是否需要扩容，如果需要扩容就扩容，如果不需要扩容就生成Entry对象，并使用头插法添加到当前位置的链表中
 
-   - b. 如果是jdk1.8，则先判断当前位置上的Node类型，看是红黑树Node还是，链表Node、
-     - i. 如果是红黑树Node，则将key和value封装为一个红黑树节点，并添加到红黑树中去，在这个过程中会判断红黑树是否存在当前key，如果存在则更新value
+   - b. 如果是jdk1.8，则先判断**当前位置上的Node类型**，看是红黑树Node还是，链表Node、
+     - i. 如果是红黑树Node，则将key和value封装为一个红黑树节点，并添加到红黑树中去，在这个过程中会判断红黑树**是否存在当前key**，如果存在则更新value
      - ii. 如果此位置上Node是链表节点，将key和value封装为一个链表Node，并通过尾插法插入到链表最后位置去，因为是尾插法，需要遍历链表，在遍历链表过程中会判断是否存在当前key，如果存在则更新value。当遍历完链表后，将新链表Node插入到链表中，插入到链表后，会看当前链表节点个数，如果大于等于8，将该链表转成红黑树，此时先判断数组长度是否达到64，如果没达到，就需要扩容，如果达到64，链表转红黑树
-     - iii. 将key和value封装为Node插入到链表或红黑树中后，判断是否需要进行扩容，如果需要就扩容
+     - iii. 将key和value封装为Node插入到链表或红黑树中后，**判断是否需要进行扩容**，如果需要就扩容
 
 ​			
 
@@ -83,10 +83,8 @@ LinkedHashMap继承自HashMap，在HashMap基础上维护了一条双向链表�
 HashMap、LinkedHashMap和TreeMap 三个映射类基于不同数据结构实现了不同功能。
 
 - HashMap，底层基于拉链式的散列结构，在jdk1.8中引入红黑树优化过长链表问题，提供了高效的增删改查操作
-- LinkedHashMap，继承HashMap，通过维护一条双向链表，实现了散列数据结构的有序遍历。
+- LinkedHashMap，继承HashMap，通过维护一条双向链表，实现了散列数据结构的**有序遍历**。
 - TreeMap，底层基于红黑树实现，利用红黑树特性，实现了键值对排序功能。
-
-
 
 
 
@@ -110,7 +108,7 @@ get方法无需加锁，volatile保证可见性。
 
 1、数据结构：synchronized+CAS+Node+红黑树，Node的val和next都用volatile修饰，保证可见性。
 
-查找，替换，赋值操作都使用CAS，不支持key=null的键值对。存入数据时，对key进行哈希算法运算得到数组下标位置，如果计算位置上是空的，通过CAS更新，更新失败或者位置上有元素，先在这个节点加synchronized锁，然后更新。
+查找，替换，赋值操作都使用CAS，**不支持key=null的键值对**。存入数据时，对key进行哈希算法运算得到数组下标位置，如果计算位置上是空的，通过CAS更新，更新失败或者位置上有元素，先在这个节点加synchronized锁，然后更新。
 
 2、锁，锁链表的head节点，不影响其他元素的读写，锁粒度更细，效率更高，扩容时，阻塞所有读写操作、并发扩容
 
@@ -124,10 +122,10 @@ get方法无需加锁，volatile保证可见性。
 
 - 1、Queue，单端队列，(FIFO)先进先出队列。Deque，Queue的子接口，双端队列，可以在首尾都进行插入删除操作
 
-- 2、Queue的常用子类，PriorityQueue底层数据结构数组，无边界，自带扩容机制。Deque常用子类，LinkedList和ArrayDeque；LinkedList是双向链表。ArrayDeque是无初始容量的双端队列，数组实现
-- 3、PriorityQueue可以作为堆（优先队列）使用，而且可以根据传入的Comparator实现大小的调整，会是一个很好的选择。
+- 2、Queue的常用子类，PriorityQueue底层数据结构**数组，无边界，自带扩容机制**。Deque常用子类，LinkedList和ArrayDeque；LinkedList是**双向链表**。ArrayDeque是无初始容量的双端队列，**数组实现**
+- 3、PriorityQueue可以作为**堆（优先队列）**使用，而且可以根据传入的Comparator实现大小的调整，会是一个很好的选择。
   - ArrayDeque可以作为栈或队列使用，但是栈的效率不如LinkedList高，**通常作为队列使用**。
-  - LinkedList可以作为栈或队列使用，但是队列的效率不如ArrayQueue高，**通常作为栈使用**。
+  - LinkedList可以作为栈或队列使用，但是队列的效率不如ArrayQueue高，**通常作为栈(FILO)使用**。
 
 
 
@@ -157,11 +155,11 @@ get方法无需加锁，volatile保证可见性。
 
 ### 1、什么是ThreadLocal
 
-ThreadLocal是java线程本地存储工具，实现线程间的数据隔离，缓存数据至线程内部，线程可以在任意时刻、任意方法获取到缓存的数据。
+ThreadLocal是**java线程本地存储工具**，实现线程间的数据隔离，缓存数据至线程内部，线程可以在任意时刻、任意方法获取到缓存的数据。
 
 ### 2、ThreadLocal底层原理
 
-ThreadLocal底层通过ThreadLocalMap实现，每个Thread内部有一个ThreadLocalMap成员变量，ThreadLocalMap由Entry数组组成。Entry继承了WeakReference<ThreadLocal<?>>，由一个ThreadLocal对象和一个Object对象构成，Entry的key为ThreadLocal对象，并且是一个弱引用，value为需要缓存的对象。
+ThreadLocal底层通过ThreadLocalMap实现，每个Thread内部有一个ThreadLocalMap成员变量，ThreadLocalMap数据结构是Entry数组。Entry继承了WeakReference<ThreadLocal<?>>，由一个ThreadLocal对象和一个Object对象构成，Entry的key为ThreadLocal对象，并且是一个弱引用，value为需要缓存的对象。
 
 ####  存储数据
 
@@ -174,8 +172,8 @@ ThreadLocal底层通过ThreadLocalMap实现，每个Thread内部有一个ThreadL
 
 通过ThreadLocal可以实现Thread之间的数据隔离，也可以使线程在任意时刻、任意方法获取缓存的数据
 
-- 利用ThreadLocal的在线程内部缓存数据，可以在任意时刻，任意方法获取缓存数据的特性，可以作为跨层传递参数
-- 利用ThreadLocal实现线程间的数据隔离特性，可以实现事务隔离，session会话管理等
+- 利用ThreadLocal的在线程内部缓存数据，可以在任意时刻，任意方法获取缓存数据的特性，可以作为**跨层传递参数**
+- 利用ThreadLocal实现线程间的数据隔离特性，可以实现**事务隔离，session会话管理**等
 
 ### 4、ThreadLocal内存泄露风险
 
@@ -214,7 +212,7 @@ ThreadLocal的设计者意识到了内存泄露的风险，他们在一些方法
 
 #### 1、spring如何保证数据库事务在同一个连接下执行的
 
- ==todo 待完善==
+ **todo 待完善**
 
 ThreadLocal可以实现线程间的数据隔离，对spring的默认单例bean多线程访问是一个完美的解决方案。
 
@@ -224,3 +222,56 @@ DataSourceTransactionManager是spring中的数据源事务管理器，它会在�
 
 
 
+
+
+## 并发三大特性：原子性、可见性、有序性
+
+
+
+## 为什么使用线程池
+
+- **降低资源消耗**。通过重复利用已创建的线程降低现场创建和销毁的消耗
+- **提高响应速度**。当任务到达时，任务可以不需要等待线程创建立即执行
+- **提高线程的可管理行**。线程是稀缺资源，如果无限制创建，不仅消耗系统资源，还会降低系统稳定性，使用线程池可以进行统一分配、调优和监控。
+
+## 如何创建线程池
+
+- 通过ThreadPoolExecutor构造方法实现
+- 通过Executor框架的工具类Executors实现
+
+《阿里巴巴java开发手册》强制线程池不允许使用Executors去创建，而是使用ThreadPoolExecutor的方式，规避资源耗尽的风险
+
+Executors返回线程池对象的弊端：
+
+- FixedThreadPool 和 SingleThreadExecutor：允许请求的队列长度为Integer.MAX_VALUE，可能堆积大量请求，导致OOM。
+- CacjedThreadPool 和 ScheduledThreadPool：允许创建的线程数量为Integer.MAX_VALUE，可能创建大量线程，导致OOM。
+
+## ThreadPoolExcutor原理
+
+线程池处理流程executor.execute(worker)来提交一个任务到线程池中去
+
+![threadPoolExecutor说明图](https://github.com/lission/markdownPics/blob/main/java/%E5%9B%BE%E8%A7%A3%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86.png?raw=true)
+
+### ThreadPoolExecutor构造函数重要参数
+
+ThreadPoolExecutor最长构造函数共有**7**个参数
+
+- corePoolSize，核心线程数，正常状况下运行的线程数量，这些线程创建后不会消除，是一种常驻线程
+- maximumPoolSize，当队列中存放的任务达到容量时，可以运行的最大线程数
+- keepAliveTime，超出核心线程数的空闲线程存活时间，超出核心线程数的线程在空闲超过一定时间会被消除。
+- unit(TimeUnit)，keepAliveTime的单位
+- workQueue，用来存放待执行的任务，假设当前核心线程都已被占用，新进来的任务被放入队列，直到队列被放满，还有任务进入，才会创建新的线程。
+- threadFactor，线程工厂，用来生产线程执行任务。可以使用默认的线程工厂DefaultThreadFactory，产生的线程都在同一个组内，同样的优先级，都是非守护线程。也可以自定义线程工厂。
+- handler，任务拒绝策略，有两种场景：
+  - 调用shutdown()等方法关闭线程池后，此时即使线程内部还有没执行完的任务，由于线程池已关闭，我们想继续提交任务会被拒绝
+  - 当达到最大线程数，线程池没有能力处理新提交的任务时，夜会执行拒绝策略
+
+### ThreadPoolExecutor拒绝策略
+
+四种拒绝策略
+
+- **ThreadPoolExecutor.AbortPolicy**，抛出RejectedExecutionException，拒绝新任务
+
+- **ThreadPoolExecutor.CallerRunsPolicy**，由**创建了线程池的线程**执行被拒绝的任务，该策略会降低对新任务提交速度，影响程序整体性能
+- **ThreadPoolExecutor.DiscardPolicy**，不处理新任务，直接丢弃掉
+- **ThreadPoolExecutor.DiscardOldestPolicy**，将最早的未处理的任务丢弃掉
