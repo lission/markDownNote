@@ -7,7 +7,7 @@
 
 2、ArrayList容量有限制，可以指定容量，默认容量是10，当超过容量时需要扩容，每次扩容50%。LinkedList没有容量限制
 
-3、ArrayList和LinkedList都实现了List接口，LinkedList还实现了Deque接口，可以当做双端队列来使用。
+3、ArrayList和LinkedList都实现了List接口，LinkedList还实现了Deque接口，可以当做双端队列或栈来使用。
 
 4、根据使用场景，ArrayList通常更适合随机查找，时间复杂度O(1)，add()方法直接在后面添加，如果不涉及扩容那么时间复杂度是O(1)，如果指定下标添加add(index,E)，那么时间复杂度为O(n)，后面的元素需要移动，LinkedList更适合添加、删除操作。这有一些细节，LinkedList可以通过getFirst()和getLast()直接获取第一个或最后一个元素，时间复杂度O(1)。如果get(index)指定下标元素，那需要依次遍历，时间复杂度O(n)，LinkedList的add()方法，直接在链表尾端添加元素，时间复杂度O(1)，如果指定下标add(index,E)添加元素，那么需要先遍历到指定下边位置，再添加元素，时间复杂度O(n)。
 
@@ -244,7 +244,7 @@ DataSourceTransactionManager是spring中的数据源事务管理器，它会在�
 Executors返回线程池对象的弊端：
 
 - FixedThreadPool 和 SingleThreadExecutor：允许请求的队列长度为Integer.MAX_VALUE，可能堆积大量请求，导致OOM。
-- CacjedThreadPool 和 ScheduledThreadPool：允许创建的线程数量为Integer.MAX_VALUE，可能创建大量线程，导致OOM。
+- CachedThreadPool 和 ScheduledThreadPool：允许创建的线程数量为Integer.MAX_VALUE，可能创建大量线程，导致OOM。
 
 ## ThreadPoolExcutor原理
 
@@ -282,7 +282,7 @@ ThreadPoolExecutor最长构造函数共有**7**个参数
 
 1、一般的队列只能作为一个有限长度的缓冲区，如果超过缓冲长度，无法保留当前任务。阻塞队列可以通过阻塞保留当前想要继续入队的任务。
 
-阻塞队列可以保证任务队列中没有任务时阻塞获取任务的线程，使线程进入wait状态，释放cpu资源。
+阻塞队列可以在任务队列中没有任务时阻塞获取任务的线程，使线程进入wait状态，释放cpu资源。
 
 阻塞队列自带阻塞和唤醒功能，不需要额外处理，无任务执行时，线程池利用阻塞队列的take方法挂起，维持核心线程的存活，不至于一直占用cpu资源。
 
