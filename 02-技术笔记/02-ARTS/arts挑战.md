@@ -30,3 +30,15 @@
 # 为什么要写下来
 
 写作是一种非常重要的技巧，写作不仅可以帮你组织你的思路和语言，帮你梳理你的知识，更重要的是写作是一种自己对自己的思考，同时可以很容易的扩散并引入讨论、指正、批评。
+
+
+
+
+
+https://jvns.ca/blog/2022/05/12/sqlite-utils--a-nice-way-to-import-data-into-sqlite/我在看这个博主介绍：Julia Evans (jvns.ca)这个博客也是持续更新了近 10 年，涉及的领域及其广泛。这个作者深刻启发了我的观点是，通过搞懂内部原理来学习编程：Get better at programming by learning how things work。当然还有很多其他类的技术类文章如：Diving into concurrency: trying out mutexes and atomics而且作者做了很多技术相关的电子书，图文并茂：wizard zines
+
+
+
+冒泡 快排  翻转链表   两数之和  两个队列实现栈  斐波那契数列
+
+翻转列表
