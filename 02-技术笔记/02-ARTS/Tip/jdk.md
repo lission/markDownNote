@@ -303,3 +303,186 @@ Thread start之后处于runnable状态，等待获取cpu使用权
 阻塞状态是线程由于某种原因放弃cpu使用权，暂时停止运行。直到线程进入就绪runnable状态，才有机会转到运行状态
 
 ![img](https://github.com/lission/markdownPics/blob/main/java/thread_lifecycle.png?raw=true)
+
+## 描述ForkJoinPool
+
+ForkJoinPool是jdk7增加的一个线程池类，Fork/Join是分治算法的一个并行实现。它可以将一个大任务拆分为很多小任务来异步执行。
+
+Fork/Join框架主要三个模块：
+
+- 任务对象：ForkJoinTask，包括（RecursiveTask、RecursiveAction、CountedCompleter）
+- 执行fork/join任务的线程：ForkJoinWorkerThread
+- 线程池：ForkJoinPool
+
+三者关系是，ForkJoinPool可以通过池中的ForkJoinWorkerThread来处理ForkJoinTask任务
+
+### ForkJoinPool核心思想
+
+- 分治算法（Divide and Conquer），把任务递归的拆分为子任务
+
+- 工作窃取算法（work-stealing），除了线程池内部有队列，每个ForkJoinWorkerThread线程内部都有队列，线程执行时把任务拆分成小任务写入线程内部队列，当线程执行完自己的任务，会窃取其他线程的任务执行。
+
+  
+
+  工作窃取详细思路暂不作为本次重点，[参考地址](https://www.pdai.tech/md/java/thread/java-thread-x-juc-executor-ForkJoinPool.html#%E5%B8%A6%E7%9D%80bat%E5%A4%A7%E5%8E%82%E7%9A%84%E9%9D%A2%E8%AF%95%E9%97%AE%E9%A2%98%E5%8E%BB%E7%90%86%E8%A7%A3forkjoin%E6%A1%86%E6%9E%B6)
+
+- 
+
+  - 每个线程都有自己的一个WorkQueue，该工作队列是一个双端队列。
+  - 队列支持三个功能push、pop、poll
+  - push/pop只能被队列的所有者线程调用，而poll可以被其他线程调用。
+  - 划分的子任务调用fork时，都会被push到自己的队列中。
+  - 默认情况下，工作线程从自己的双端队列获出任务并执行。
+  - 当自己的队列为空时，线程随机从另一个线程的队列末尾调用poll方法窃取任务。
+
+### 哪些JDK源码中利用了Fork/Join思想
+
+- 数组工具类 Arrays 在JDK 8之后新增的并行排序方法(parallelSort)就运用了 ForkJoinPool 的特性
+- ConcurrentHashMap 在JDK 8之后添加的函数式方法(如forEach等)也有运用
+
+### 实际应用
+
+- 可以用来实现斐波那契数列
+
+
+
+# 锁
+
+## 死锁
+
+~~两个或多个线程互相争抢资源，每个线程获取了其他线程的锁，自己需要的锁又被占用，导致都无法进行下去。~~
+
+导致死锁的原因：
+
+- 1、一个资源一次只能被一个资源使用
+- 2、一个线程在阻塞等待某个资源时，不释放已占用资源
+- 3、一个线程已获得的资源，在未使用完之前，不能被强制剥夺
+- 4、若干线程形成头尾相接的循环等待资源关系
+
+死锁必须要满足上述4个条件
+
+开发过程中应注意：
+
+- 1、注意加锁顺序，保证每个线程按同样顺序进行加锁
+- 2、注意加锁时限，可以针对锁设置一个超时时间
+- 3、注意死锁检查，这是一种预防机制，确保第一时间发现死锁并解决
+
+## 如何查看线程死锁
+
+1、可以通过jstack命令来进行查看，jstack命令中会显示发生了死锁的线程
+
+Jstack [option] pid
+
+| 选项 | 作用                                                         |
+| ---- | ------------------------------------------------------------ |
+| -F   | 当正常输出的请求不被响应时，强制输出线程堆栈                 |
+| -m   | 如果调用到本地方法的话，可以显示C/C++的堆栈                  |
+| -l   | 除堆栈外，显示关于锁的附加信息，在发生死锁时可以用jstack -l pid来观察锁持有情况 |
+
+
+
+## synchronized、lock、cas的实现与区别，各自优缺点，描述volatile关键字
+
+- synchronized，锁关键字，通过jvm实现，修饰的代码块是原子性的，依赖对象头的线程id和monitor锁，也可以禁止指令重排，非公平锁
+
+- lock，通过jdk实现的锁，更加灵活，支持公平锁与非公平锁，内部通过双端队列AQS实现
+
+- cas，轻量级锁，内部操作是原子操作，每一次都要判断拿到的值与当前值是否一致，如果一致则更新数据，可能会出现ABA问题
+
+- volatile是修饰变量的，主要保证每次更新对所有线程可见，通过内存屏障防止指令重排序。使用happen-before描述两个操作之间的内存可见性。volatile实现：在volatile写操作的后面插入一个StoreLoad屏障。保证volatile写操作不会和之后的读操作重排序。
+
+  如果A happen-before B，意味着A的执行结果必须对B可见，也就是保证跨线程的内存可见性。A happen before B不代表A一定在B之前执行。因为，对于多线程程序而言，两个操作的执行顺序是不确
+  定的。happen-before只确保如果A在B之前执行，则A的执行结果必须对B可见。定义了内存可见性的约束，也就定义了一系列重排序的约束。happen-before具有传递性。
+
+
+
+## volatile详解
+
+作用：防重排序、实现可见性、保证原子性(单次读/写)
+
+可见性问题主要指一个线程修改了共享变量值，而另一个线程却看不到。引起可见性问题的主要原因是**每个线程拥有自己的一个高速缓存区——线程工作内存**
+
+volatile不能保证完全的原子性，只能保证单次的读/写操作具有原子性
+
+### 问题1： i++为什么不能保证原子性?
+
+i++其实是一个复合操作，包括三步骤：
+
+- 读取i的值。
+- 对i加1。
+- 将i的值写回内存。
+
+### 问题2： 共享的long和double变量的为什么要用volatile?
+
+因为long和double两种数据类型的操作可分为高32位和低32位两部分，因此普通的long或double类型读/写可能不是原子的，因此，鼓励大家将共享的long和double变量设置为volatile类型，这样能保证任何情况下对long和double的单次读/写操作都具有原子性。
+
+
+
+# 零碎
+
+## String使用final修饰的好处，介绍一下字符串常量池
+
+String类型被final修饰，同时内部的字符数组也被private修饰，保证字符串是不可变的。
+
+不可变的好处：
+
+- 可以缓存hash值，String作为HashMap的key，不可变特性使得hash值也不可变，只需要进行一次计算
+- 字符串常量池的需要，如果一个 String 对象已经被创建过了，那么就会从 String Pool 中取得引用。只有 String 是不可变的，才可能使用 String Pool
+- 安全性，String作为参数可以保证参数不可变
+- 线程安全，天然的线程安全
+
+字符串常量池：多个引用(String的对象)指向相同的字符串时，可以不用创建多个，因为不可修改。如果某个对象修改了会指向别的字符串，不会导致一个修改别的引用的值也都变了。
+
+
+
+## jdk动态代理和cglib的实现与区别
+
+动态代理就是在程序运行期，创建目标对象的代理对象，并对目标对象中的方法进行功能性增强。
+
+- jdk动态代理：对接口的代理，要实现InvocationHandler接口，并实现invoker()方法，接口与实现类和静态代理一样，创建代理对象需要过Proxy.newProxyInstance()方法，代理对象直接调用接口的方法就可以执行invoker()代码（对被代理方法的增强）
+- CGlib动态代理：以子类的形式进行代理，不用非得实现接口。基于ASM字节码工具操作字节码。
+
+
+
+## 描述jdk的反射机制
+
+**todo 待完善**
+
+运行时类型识别，通过类的全限定名，在运行时构造一个类的对象；判断一个类所具有的的成员变量和方法；调用一个对象的方法；生成动态代理。
+
+反射最大的应用就是框架。
+
+反射的缺点：
+
+- 由于反射涉及动态解析的类型，因此无法执行某些JVM优化。因此，反射操作的性能要比非反射慢。
+- 反射机制可以使private修饰的方法、属性在别的类中也可以使用(不安全)。
+
+
+
+## java中常见异常及用法
+
+运行时异常、编译异常
+
+（1）ClassCastException，类型转换异常类
+（2）NullPointException，空指针异常
+（3）NoSuchMethodException，方法未找到抛出的异常
+（4）IndexOutOfBoundsException下标越界
+（5）IOException，操作输入流和输出流时可能出现的异常
+（6）NumberFormatException，字符串转换为数字抛出的异常
+（7）FileNotFoundException，文件未找到异常
+
+
+
+## java怎么实现的序列化
+
+序列化需要实现序列化接口Serializable，序列化接口没有方法，只是序列化的标识，实现序列化接口的类可以被序列化。
+
+序列化是把对象转为字节序列的过程。如果不指定serialVersionUID，对象在序列化时会自动生成一个serialVersionUID，反序列化时可能会导致InvalidClassException，反序列化对class细节很敏感，serialVersionUID的值要一致。
+
+
+
+## 集合类为什么没有实现克隆和序列化接口
+
+克隆(cloning)或者是序列化(serialization)的语义和含义是跟具体的实现相关的。
+
+集合类框架中的接口没有实现Cloneable和Serializable接口，但是集合具体的类是有实现这两个接口的，比如ArrayList。因为接口不是具体的容器，所以不需要实现这两个接口，也没有意义。
