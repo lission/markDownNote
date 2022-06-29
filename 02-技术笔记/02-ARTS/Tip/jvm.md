@@ -1,5 +1,80 @@
 [TOC]
 
+# JVM内存结构
+
+![img](https://github.com/lission/markdownPics/blob/main/java/jvm%20data%20areas.jpeg?raw=true)
+
+JVM运行时数据区
+
+- 线程私有：程序计数器、虚拟机栈、本地方法区
+- 线程共享：堆、方法区(Java7的永久代或JDK8的元空间)、堆外内存(jdk8的元空间)
+
+## 程序计数器
+
+PC寄存器存储指向下一条指令的地址，即 将要执行的指令代码。
+
+**为何PC寄存器设定为线程私有的？**
+
+多线程在一个特定时间只会执行一个线程，CPU会不停切换任务，这样会导致线程中断或恢复。为了能够准确记录每个线程正在执行的当前字节码指令地址，所以为每个线程分配一个PC寄存器，每个线程独立计算，互不影响。
+
+## 虚拟机栈
+
+主管java程序的运行，保存方法的局部变量、部分结果、参与方法的调用和返回。每个线程在创建的时候会创建一个虚拟机栈，其内部保存一个个的栈帧(Stack Frame)，对应一次次java方法调用。
+
+**特点：**
+
+- 栈是一种快速有效的分配存储方式，访问速度仅次于程序计数器
+- JVM直接对虚拟机栈的操作只有两个：每个方法执行，伴随着入栈，方法执行结束出栈
+- 可以通过参数-Xss设置线程最大栈空间，栈大小决定了函数调用的最大可达深度
+
+## 方法区
+
+方法区 只是**JVM规范中定义的一个概念**，用于存储类信息、常量池、静态变量、JIT编译后的代码等数据，并没有规定如何去实现它，不同厂商有不同实现。**HotSpot在jdk7以前使用永久代实现方法区，jdk8以后使用元空间实现方法区**。永久代和元空间可以理解为方法区的落地实现。
+
+jdk8以前调节方法区大小的方法:
+
+```shell
+-XX:PermSize=N //方法区（永久代）初始大小
+-XX:MaxPermSize=N //方法区（永久代）最大大小，超出这个值将会抛出OutOfMemoryError 
+```
+
+jdk8元空间参数设置：
+
+```shell
+-XX:MetaspaceSize=N//设置Metaspace初始大小
+-XX:MaxMetaspaceSize=N//设置Metaspace最大大小
+```
+
+## 本地方法栈
+
+- 本地方法接口，一个Native Method 就是一个java调用非java代码的接口。Unsafe类就有很多本地方法
+- 本地方法栈，虚拟机栈用于管理java方法的调用，**本地方法栈用于管理本地方法的调用**
+
+## 堆
+
+堆用于存放对象实例。为了高效垃圾回收，虚拟机把堆内存逻辑上划分成三块区域（分代的唯一理由是优化GC性能）
+
+堆内存分为新生代和老年代，比例是1:2；新生代分为eden区和两个survivor区，比例是8:1:1。
+
+> -XX:NewRatio=2 //老年代与新生代的比例
+
+
+
+- 新生代（Young Generation），新对象和没达到一定年龄的对象都在新生代，年轻代垃圾收集称为Minor GC。
+  - 大多数新创建的对象都位于Eden空间
+  - 当Eden空间被对象填充满时，执行Minor GC，并将所有幸存对象移至一个Survivor空间
+  - Minor GC 检查幸存者对象，并将它们移动至另一个Survivor空间，因此总有一个Survivor空间是空的
+  - 经过多次Minor GC后存活下来的对象被移动到老年代，通过设置年轻代的年龄阈值实现（**默认为15，可以通过-XX:MaxTenuringThreshold=N 设置年龄阈值**）
+- 老年代（Old Generation），被长时间使用的对象，**大对象直接进入老年代（避免在Eden区和两个Survivor之间发生大量内存拷贝）**，老年代的内存空间应该要比年轻代大。通常，垃圾收集是在老年代内存满时执行，老年代垃圾收集称为Major GC。
+
+![img](https://github.com/lission/markdownPics/blob/main/java/jvm%20heap.jpeg?raw=true)
+
+JVM虚拟机规范规定，java堆可以是处于物理上的不连续的内存空间，只要逻辑上是连续的即可，像磁盘一样。实现时，既可以是固定大小的，也可以是可扩展的，主流虚拟机都是可扩展的，（通过-Xmx和-Xms控制），如果堆中没有完成实例分配，且堆无法再扩展时，抛出OutOfMemeryError异常。
+
+![img](https://github.com/lission/markdownPics/blob/main/java/jvm%20heap%20detail.jpeg?raw=true)
+
+
+
 # 可能导致StackOverFlowError与OutOfMemeryError的原因，如果出现该如何处理
 
 **OOM**：内存不足，垃圾回收后任然不足。
