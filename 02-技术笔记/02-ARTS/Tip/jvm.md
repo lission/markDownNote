@@ -67,6 +67,17 @@ jdk8元空间参数设置：
   - 经过多次Minor GC后存活下来的对象被移动到老年代，通过设置年轻代的年龄阈值实现（**默认为15，可以通过-XX:MaxTenuringThreshold=N 设置年龄阈值**）
 - 老年代（Old Generation），被长时间使用的对象，**大对象直接进入老年代（避免在Eden区和两个Survivor之间发生大量内存拷贝）**，老年代的内存空间应该要比年轻代大。通常，垃圾收集是在**老年代内存满时执行**，老年代垃圾收集称为Major GC（Old GC）。
 
+> 部分收集：不是完整收集整个 Java 堆的垃圾收集。其中又分为：
+>
+> - 新生代收集（Minor GC/Young GC）：只是新生代的垃圾收集
+> - 老年代收集（Major GC/Old GC）：只是老年代的垃圾收集
+>   - 目前，只有 CMS GC 会有单独收集老年代的行为
+>   - 很多时候 Major GC 会和 Full GC  混合使用，需要具体分辨是老年代回收还是整堆回收
+> - 混合收集（Mixed GC）：收集整个新生代以及部分老年代的垃圾收集
+>   - 目前只有 G1 GC 会有这种行为
+>
+> 整堆收集（Full GC）：收集整个 Java 堆和方法区的垃圾
+
 ![img](https://github.com/lission/markdownPics/blob/main/java/jvm%20heap.jpeg?raw=true)
 
 JVM虚拟机规范规定，java堆可以是处于物理上的不连续的内存空间，只要逻辑上是连续的即可，像磁盘一样。实现时，既可以是固定大小的，也可以是可扩展的，主流虚拟机都是可扩展的，（通过-Xmx和-Xms控制），如果堆中没有完成实例分配，且堆无法再扩展时，抛出OutOfMemeryError异常。
