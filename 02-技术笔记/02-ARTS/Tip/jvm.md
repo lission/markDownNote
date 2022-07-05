@@ -218,6 +218,49 @@ obj = null;//使对象只被虚引用引用
 
 
 
+## 垃圾回收算法
+
+### 标记-清除
+
+![img](https://github.com/lission/markdownPics/blob/main/java/%E6%A0%87%E8%AE%B0-%E6%B8%85%E9%99%A4%E6%B3%95.jpeg?raw=true)
+
+将存活的对象进行标记，然后清理掉未被标记的对象。
+
+不足：
+
+- 标记、清除效率都不高
+- 会产生大量不连续的内存碎片，导致无法给大对象分配内存
+
+### 标记-整理
+
+![img](https://github.com/lission/markdownPics/blob/main/java/%E6%A0%87%E8%AE%B0%E6%95%B4%E7%90%86%E6%B3%95.jpeg?raw=true)
+
+让存活的对象向一端移动，然后清理边界之外的内存
+
+### 复制
+
+![img](https://github.com/lission/markdownPics/blob/main/java/%E5%A4%8D%E5%88%B6%E6%B3%95.jpeg?raw=true)
+
+将内存划分为大小相等的两部分，每次只使用其中一块，当这一块内存用完了，就将还存活的对象复制到另一块上，然后把使用过的内存进行一次清理。
+
+主要不足是，只使用一半内存。
+
+现代商用虚拟机都采用这种收集算法来回收新生代，但不是将新生代划分为相等的两块，而是划分为一块较大的Eden区和两个相等的Survivor区。每次使用Eden空间和一个Survivor空间。在回收时，将Eden和Survivor中存活的对象一次复制到另一块Survivor空间上，最后清理Eden和使用过的Survivor区。
+
+HotSpot虚拟机Eden和Survivor大小比例默认8:1,保证内存使用率达到90%。如果每次存活有超过10%的对象存活，那么一块Survivor空间不够，此时需要老年代进行内存分配担保，借用老年代空间存储放不下的对象。
+
+### 分代收集
+
+现在的商用虚拟机采用分代收集算法，它根据对象存活周期将内存划分为几块，不同块采用不同算法。
+
+一般将堆分为新生代和老年代
+
+新生代采用复制算法
+
+老年代采用标记清除或标记整理算法
+
+
+
 # jmap
 
 jmap的作用是监控内存内的java对象
