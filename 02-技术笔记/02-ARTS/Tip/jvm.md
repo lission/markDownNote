@@ -131,6 +131,19 @@ JVM虚拟机规范规定，java堆可以是处于物理上的不连续的内存�
 - **解析：**符号引用转为直接引用，比如：a类中引用b类，编译时a无法获取b的内存地址，用b的类名符号代替，解析时把b类的符号替换成内存地址
 - **初始化：**执行构造器，静态代码块等
 
+# 双亲委派模型
+
+类加载器收到一个类加载请求时，首先委派父类加载器，父类类加载器在自己搜索范围内找不到这个类(无法加载)，子类才会加载。
+
+- 启动类加载器（BootStrap ClassLoader）：加载java的核心类库，无法被java程序直接使用 如 rt.jar
+- 扩展类加载器（Ext ClassLoader）：加载java扩展库，在java虚拟机的扩展库目录里查找加载java类 jre/lib/ext路径下
+- 系统类加载器（Application ClassLoader）：根据java类的路径加载类，加载java应用里的类，加载与程序有关系的和我们写的java类
+- 自定义类加载器：自己写的继承ClassLoader
+
+双亲委派可以**防止内存中出现相同的字节码**。防止核心类不会被篡改，即使篡改也无法加载。
+
+打破双亲委派模型，自定义类加载器，继承ClassLoader，重写LoadClass方法。
+
 # 垃圾回收
 ## 如何判断一个对象是否可以回收
 
@@ -164,6 +177,44 @@ GC Roots包含以下内容：
 
 - **jdk7及以前的永久代空间不足**，在jdk及以前，HotSpot虚拟机中方法区是用永久代实现的，永久代中存放一些类信息、常量、静态变量等数据。当系统中要加载的类、反射的类、调用的方法较多时，永久代可能会占满，在未配置CMS GC情况下会执行Full GC。
 - **Concurrent Mode Failure**，执行CMS GC 的过程中同时有对象放入老年代，老年代空间不足（可能是GC过程中浮动垃圾过多导致暂时性的空间不足），便会报告Concurrent Mode Failure，并触发Full GC。
+
+## 对于跨代垃圾回收，如果存在跨代引用，如何处理
+
+Card Table，卡表，用来标记卡页的状态，每个卡表项对应一个卡页，当卡页中一个对象引用有写操作时，写屏障会标记对象所在的卡表状态为dirty，垃圾回收时只要筛选出卡表中变脏的元素，轻易得出哪些卡页对应的内存包含跨代指针。卡表的本质是用来解决跨代引用。使用卡精度（记录的是新生代一段地址是否存在被老年代引用的记录）的方式实现记忆集。HotSpot中使用字节数组形式实现卡表。
+
+
+
+## java四种引用类型
+
+- 强引用，被强引用引用的对象，不会被垃圾回收。通过new 一个对象，创建一个强引用
+
+```java
+Object obj = new Object();
+```
+
+- 软引用，被软引用引用的对象，只有在内存空间不足时，才会被垃圾回收。使用SoftReference类创建软引用
+
+```java
+Object obj = new Object();
+SoftReference srf = new SoftReference<Object>(obj);
+obj = null;//使对象只被软引用引用
+```
+
+- 弱引用，被弱引用引用的对象，一定会被垃圾回收器回收，即它只能存活到下一次垃圾回收之前。使用WeakReference类创建弱引用
+
+```java
+Object obj = new Object();
+WeakReference wrf = new WeakReference<Object>(obj);
+obj = null;//使对象只被弱引用引用
+```
+
+- 虚引用，一个对象是否有虚引用的存在，完全不会对其生存时间构成影响，也无法通过虚引用取得对象。对一个对像设置虚引用关联的唯一目的是就能在这个对象被回收时收到一个系统通知。使用PhantomReferrnce来实现虚引用
+
+```java
+Object obj = new Object();
+PhantomReference prf = new PhantomReference<Object>(obj);
+obj = null;//使对象只被虚引用引用
+```
 
 
 
