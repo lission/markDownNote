@@ -355,3 +355,75 @@ aop通过运行时代理实现的。
 
 - spring MVC ，是spring对web框架的一个解决方案，提供了一个总的前端控制器Servlet，用来接收请求，然后定义了一套路由策略(url到handle的映射)及适配器执行handle，将handle结果使用视图解析技术生成视图展现给前端
 - spring boot，是spring提供的一个快速开发工具包，让程序员能够更方便、更快速开发spring+springMVC应用。简化了配置，整合了一系列解决方案(starter机制)，可以开箱即用
+
+## springboot的启动原理
+
+- 通过启动类的main()方法进入，内部是SpringApplication.run()方法，在run()方法中先用启动类的class对象创建SpringApplication对像。
+
+- 在**SpringApplication的构造函数**中，先判断启动类的class文件是否为null，接着判断应用是否为web应用，然后执行getSpringFactoriesInstances()方法：从spring-boot包下的“META-INF/spring.factories”路径加载classLoader，只取类型是ApplicationContextInitializer的ClassLoader，返回一个set（ClassLoader的类全限定名），然后加载这些类（初始化上下文）。然后以同样方式初始化监听。接着调用deduceMainApplicationClass()方法遍历栈信息，找到调用main方法所在的类，将其加载，赋值给变量mainApplicationClass，至此SpringApplication对象创建完成。
+- 接着调用**run()方法**：加载监听器，从spring-boot包下“META-INF/spring.factories”路径下加载（SpringApplicationRunListener.class），然后调用starting方法，对之前加载的所有ApplicationListener根据事件类型进行广播事件（multicastEvent）。准备容器环境，会依据之前构造函数推断的应用类型返回对应的环境对象。创建容器上下文createApplicationContext()，也是依据之前的应用类型推断结果。准备容器上下文，首先将创建的context中的environment全部替换为springApplication中刚刚创建的environment，然后项context中注册beanfactory，接着所有的listener执行contextPrepared方法。之后向beanfactory中注册两个参数（spring启动类run方法的参数和banner），创建一个beanDefinitionLoader对象，该对象最主要支持了xml加载和annotated加载方式，加载所有source中的对象，这里只有一个主类，被@Component注解，将其注入到beanFactory中的beanDefinitionMap中。在refreshContext中会加载所有bean到beanFactory中。
+
+简易总结：
+
+1. 获取并启动监视器
+2. 构造应用上下文环境
+3. 初始化应用上下文
+4. 刷新应用上下文前的准备阶段
+5. 刷新应用上下文
+6. 刷新应用上下文后的扩展接口
+
+## springboot starter的原理
+
+springboot starter是一个集成接合器，也叫做**场景启动器**。完成两件事：
+
+1. 引入模块所需的相关jar包
+2. 自动配置各自模块所需的属性（springboot按照某种默认的规则替我们完成自动配置的工作，这个规则就是**约定大于配置**）
+
+springboot的自动配置：在启动类的@SpringBootApplication注解中进行处理；@SpringBootApplication注解是一个符合注解，其中的@EnableAutoConfiguration注解就是开启自动配置；@EnableAutoConfiguration注解也是一个派生注解，其中关键功能由@Import提供，其导入的AutoConfigurationImportSelector的selectImports()方法通过SpringFactoriesLoader.loadFactoryNames()扫描所有具有META-INF/spring.factories的jar包。spring.factories文件也是一组组的key=value形式，其中一个key是EnableAutoConfiguration类的全类名，而它的value是一个xxxxAutoConfiguration的类名的列表，将这些自动配置类加载到spring容器中。有一个@EnableConfigurationPropoerties注解，开启配置属性，而它后面的参数是一个ServerProperties类，这就是**约定大于配置的最终落地点**，在加载这些类的时候会读取配置文件中的配置赋值给对应属性。
+
+自动配置生效条件：
+
+- @ConditionalOnBean：当容器里有指定的bean的条件
+- @ConditionalOnMissingBean：当容器里不存在指定bean的条件下
+- @ConditionalOnClass：当类路径下有指定类的条件下
+- @ConditionalOnMissingClass：当类路径下不存在指定类的条件下
+- @ConditionalOnProperty：指定的属性是否有指定的值，比如@ConditionalOnProperties(prefix="xxx.xxx",value="enable",matchIfMissing=true)，代表当xxx.xxx为enable时条件的布尔值为true，如果没有设置的情况下也为true。
+
+## springboot获取配置的方式
+
+1. @Value注解
+2. 通过注入环境变量Environment实现
+3. 在启动类中获取springboot上下文，可以获取环境变量，也可以获取配置
+4. 使用注解@ConfigurationProperties(prefix="xxx")指定配置文件的前缀，对成员变量生成get/set方法来获取，也尅配合@Value注解
+5. @PropertySource配合@Value获取非application配置文件的配置（@PropertySource(value={"classpath:config/teacher.proerties"})）
+
+## 引入非application配置文件
+
+1. 在application.yml文件中引入（spring.profiles.active=dev可以引入application-dev.yml文件）
+2. 系统启动时可以通过-spring.config.loca=xxx.properties环境变量指定配置文件
+3. @PropertySource(value={"classpath:config/teacher.proerties"})注解指定读取那个配置文件里的配置，用在容器组件中如@Component注解修饰的类上
+
+## springboot加载配置文件的目录及顺序
+
+classpath:/,classpath:/config/,file:./,file:./config/
+
+springboot加载两种配置文件的优先级
+
+2.4.0之前版本，优先级properties>yaml
+
+2.4.0之后，优先级yaml>properties
+
+## springboot启动后控制台打印数据
+
+1. 启动类的main方法后面添加打印的代码
+2. ApplicationRunner、CommandLineRunner
+3. @PostConstruct注解的方法
+4. 如果bean使用了init-method属性声明了初始化方法，该方法也会被调用
+
+## springboot热部署
+
+1. 引入spring-boot-devtools依赖，添加org.springframework.boot.spring-boot-devtools:true配置
+2. 引入springloaded依赖，在maven项目下，在pom.xml文件中的build中添加spring-loaded依赖，然后以cmd命令切换到项目文件目录下，以maven方式运行项目，命令：mvn spring-boot:run
+3. 模板热部署，通过配置关闭模板的缓存
+4. 付费的Jrebel工具
+
