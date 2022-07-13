@@ -427,3 +427,20 @@ springboot加载两种配置文件的优先级
 3. 模板热部署，通过配置关闭模板的缓存
 4. 付费的Jrebel工具
 
+
+
+# spring MVC
+
+## spring MVC的执行流程
+
+1. 用户发送请求到**前端控制器DispatcherServlet**
+2. DispatcherServlet收到请求调用**HandlerMapping处理映射器**
+3. 处理映射器根据请求url找到具体的**Handler（后端控制器）**,生成处理器对象及处理器拦截器(如果有则生成)一并返回DispatcherSevlet
+4. DispatcherServlet调用**HandlerAdapter处理器适配器**去调用Handler
+5. 处理器适配器执行Handler
+6. Handler执行完成给处理器适配器返回**ModelAndView**
+7. 处理器适配器向前端控制器返回ModelAndView，ModelAndView是SpringMVC框架有一个底层对象，包括Model和View
+8. 前端控制器请求**视图解析器**去进行视图解析，根据逻辑视图来解析真正的视图。
+9. 视图解析器向前端控制器返回View
+10. 前端控制器进行视图渲染，就是将模型数据(在ModelAndView对象中)填充到request域
+11. 前端控制器向用户响应结果
