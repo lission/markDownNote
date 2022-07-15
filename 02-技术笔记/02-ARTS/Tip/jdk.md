@@ -94,7 +94,7 @@ HashMap、LinkedHashMap和TreeMap 三个映射类基于不同数据结构实现�
 
    - **jdk1.7**：基于segment分段实现，每一个segment相当于一个小的HashMap，segment内部是数组+链表的结构，一个segement包含一个HashEntry数组，每个HashEntry又是一个链表结构
 
-   - **jdk1.8**：不再基于分段实现，数据结构是数组+链表+红黑树，节点Node的val和next都用volatile修饰
+   - **jdk1.8**：不再基于分段实现，数据结构是数组+链表+红黑树
 
 2. **锁**
 
