@@ -6,6 +6,20 @@
 
 [mac java多版本配置](https://www.cnblogs.com/yyxianren/p/14435118.html)
 
+mac系统中Java默认目录：`/Library/Java/JavaVirtualMachines/`
+
+**(注意：使用终端不同，修改的配置文件也不同，zsh终端请修改 ~/.zprofile 配置文件)**
+
+配置JAVA_HOME：**`vi ~/.bash_profile`**
+
+生效配置：**`source ~/.bash_profile`**
+
+**切换JDK版本就执行对应命令别名** :
+
+- Jdk7
+- Jdk8
+- Jdk11
+
 
 
 # 2、解决xxx.app已损坏，无法打开，您应该将它移到废纸篓

@@ -90,33 +90,25 @@ HashMap、LinkedHashMap和TreeMap 三个映射类基于不同数据结构实现�
 
 ## ConcurrentHashMap原理，jdk1.7与jdk1.8区别
 
-### jdk1.7
+1. **数据结构**：
 
-1、数据结构，ReentrantLock+Segment+HashEntry，一个Segment中包含一个HashEntry数组，每个HashEntry又是一个链表结构。
+   - **jdk1.7**：基于segment分段实现，每一个segment相当于一个小的HashMap，segment内部是数组+链表的结构，一个segement包含一个HashEntry数组，每个HashEntry又是一个链表结构
 
-元素查询：二次hash，第一次hash定位到segment，第二次hash定位到元素所在的链表头部（即HashEntry数组对应下标位置）
+   - **jdk1.8**：不再基于分段实现，数据结构是数组+链表+红黑树，节点Node的val和next都用volatile修饰
 
-2、锁，Segment分段锁，Segment继承了ReentrantLocal，锁定操作的Segement，其他的Segment不受影响，并发度为Segment个数，可以通过构造函数指定，数组扩容不会影响其他的Segment
+2. **锁**
 
-get方法无需加锁，volatile保证可见性。
+   - **jdk1.7**：segment分段锁，Segment继承ReentrantLock，锁定操作的segment，其他的segment不受影响，并发度为segment个数，**可以通过构造函数指定**，***之后不可更改，当数据量很大时效率欠佳***。**get方法无需加锁**，volatile保证可见性，**HashEntry<K,V>[]数组是volatile修饰，HashEntry内部value和next也使用volatile修饰**
 
-**Segment数量确定，当数据量很大时不能有更好的效率**
+   - **jdk1.8**：通过synchronized和cas实现线程安全，写入时，首先判断数组位置是否为空，如果为空使用cas进行更新，更新失败或者位置上有元素，**在这个位置节点上加synchronize锁**，然后更新。**锁链表头节点，不影响其他元素读写，锁粒度更细，效率更高。**get方法无需加锁，Node的val和next使用volatile修饰，读写线程对该变量互相可见。数组volatile Node<K,V>[]用volatile修饰，**保证扩容时被读线程感知**。
 
-3、扩容，每个Segment内部会进行扩容，先生成新的数组，然后转移原数到新数组中，扩容判断也是每个Segment内部单独判断，判断是否超过阈值。
+3. **扩容**：
 
-### jdk 1.8
+   - **jdk1.7**：每个segment内部单独进行扩容判断，是否超过阈值，扩容时先生成新的数组，然后转移元素到新数组中
 
-1、数据结构：synchronized+CAS+Node+红黑树，Node的val和next都用volatile修饰，保证可见性。
+   - **jdk1.8**：支持多个线程同时扩容，扩容前先生成一个新数组，**在转移元素时，先将原数组分组**，将每组分给不同线程进行元素转移，每个线程负责一组或多组元素转移工作。
 
-查找，替换，赋值操作都使用CAS，**不支持key=null的键值对**。存入数据时，对key进行哈希算法运算得到数组下标位置，如果计算位置上是空的，通过CAS更新，更新失败或者位置上有元素，先在这个节点加synchronized锁，然后更新。
-
-2、锁，锁链表的head节点，不影响其他元素的读写，锁粒度更细，效率更高，扩容时，阻塞所有读写操作、并发扩容
-
-读操作无锁:Node的val和next使用volatile修饰，读写线程对该变量互相可见。数组volatile Node<K,V>[]用volatile修饰，保证扩容时被读线程感知。
-
-3、扩容，支持多个线程同时扩容，扩容之前先生成一个新的数组，**在转移元素时，先将原数组分组**，将每组分给不同的线程来进行元素转移，每个线程负责一组或多组的元素转移工作。
-
-
+4. 其他，**不支持key=null的键值对**
 
 ## Queue和Deque(比较少用，简单整理)
 
