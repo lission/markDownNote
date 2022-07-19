@@ -196,9 +196,13 @@ ThreadLocal的设计者意识到了内存泄露的风险，他们在一些方法
 
 ### 7、弱引用导致内存泄露，那为什么Entry中key不设置为强引用
 
-如果将key设置为强引用，threadLocal实例释放后，threadLocal == null，但是threadLocal对ThreadLocalMap存在强引用，ThreadLocalMap中Entry对threadLocal也存在强引用，形成引用循环，这会导致threadLocal不被GC回收。
+![img](https://github.com/lission/markdownPics/blob/main/java/threadLocal-ref.png?raw=true)
+
+如果将key设置为强引用，threadLocal实例释放后，threadLocal == null，但是thread对ThreadLocalMap存在强引用，ThreadLocalMap中Entry对threadLocal也存在强引用，这会导致threadLocal不被GC回收。
 
 弱引用虽然可能导致内存泄露，但是通过set、get、remove等方法中主动对key==null的Entry擦除，方案更优。
+
+通过引用分析可以得知，ThreadLocal内存泄露的根本原因是，ThreadLocalMap和Thread生命周期一样长，如果没有手动删除对应key就会导致内存泄露。
 
 ### 拓展
 
