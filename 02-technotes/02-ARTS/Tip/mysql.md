@@ -4,6 +4,8 @@
 
 ## mysql的执行流程
 
+**查询流程**
+
 ![img](https://github.com/lission/markdownPics/blob/main/mysql/MySQL%E6%89%A7%E8%A1%8C%E6%9F%A5%E8%AF%A2%E8%BF%87%E7%A8%8B.png?raw=true)
 
 - 连接
@@ -22,6 +24,35 @@
 - 查询优化器，Optimizer，查询优化器的目的就是根据解析树生成不同的`执行计划（Execution Plan）`，然后选择一种最优的执行计划，MySQL 里面使用的是基于开销（cost）的优化器，哪种执行计划开销最小，就用哪种。
 - 执行计划。Execution Plan，查询优化器基于解析树以最小开销原则生成选择执行计划
 - 执行引擎和存储引擎，执行引擎利用存储引擎提供的相应的 API 来完成操作，最后把数据返回给客户端
+
+
+
+## mysql架构分层
+
+总体上，我们可以把 MySQL 分成三层。
+
+- 跟客户端对接的连接层
+- 执行操作的服务层
+- 和硬件打交道的存储引擎层
+
+![img](https://github.com/lission/markdownPics/blob/main/mysql/MySQL%20%E6%9E%B6%E6%9E%84%E5%88%86%E5%B1%82.png?raw=true)
+
+## mysql中一条更新sql是如何执行的
+
+update操作其实包括更新、插入和删除。更新流程与查询流程基本一致，也要经过解析器、优化器的处理最后交给执行器，区别在于拿到符合条件的数据之后的操作。
+
+> MyBatis源码Executor里也只有doQuery()和doUpdate()方法，没有doDelete() 和 doInsert()
+
+简化的更新操作流程：
+
+- 1、事务开始，从内存（Buffer pool）或磁盘（data file）取到包含这条数据的数据页，返回给Server执行器
+- 2、server执行器修改数据页的数据值
+- 3、记录原数据至undo log
+- 4、记录更新数据至redo log
+- 5、调用存储引擎接口，记录数据页到Buffer pool
+- 6、事务提交
+
+**redo log 和 undo log与事务密切相关，统称为事务日志**
 
 
 
@@ -82,6 +113,113 @@ InnoDB 对应两个文件： 表结构文件 `.frm `、数据文件 `.ibd`；表
   - MyISAM
     - 非事务型应用
     - 只读类应用(可以压缩表)，存档数据
+
+## InnoDB核心概念
+
+### 缓冲池 Buffer Pool
+
+对InnoDB存储引擎来说，数据都是放在磁盘上的，存储引擎要操作数据必须先把磁盘里面的数据加载到内存里面才可以操作。磁盘I/O的读写相对于内存操作很慢，操作系统、内存引擎都有一个**预读取**的概念。
+
+> 预读取：依据局部性原理（当磁盘上一块数据被读取时，很可能它附近的位置夜会被读取。）每次多读取一点，而不是用多少读多少。***可以分为线性预读、随机预读***
+>
+> InnoDB设定了存储引擎从磁盘读取数据到内存的最小单位，页page。操作系统的默认page大小4kb，InnoDB默认page大小为16kb，如果修改值，需要清空数据重新初始化服务。
+
+**InnoDB设计缓冲区Buffer Pool默认大小128M，作用就是来提升读写效率**。
+
+- 读取数据时，先判断是不是在这个buffer pool，如果是直接读取；如果不是，再从磁盘加载。读取到的数据写到这个内存缓冲区。
+
+- 修改数据时，也是先写到这个buffer pool，而不是直接写进磁盘。**内存数据页未同步至磁盘前，称之为脏页**。InnoDB有专门的后台线程把buffer pool数据写入磁盘，往磁盘同步时称之为**刷脏**。
+
+#### 缓冲池管理，LRU
+
+InnoDB按照page页的方式管理数据，使用LRU(最近最少使用)算法进行page管理。
+
+**【普通 LRU 算法】**
+
+LRU 列表头部为使用最频繁的 Page，尾部为最少使用的 Page。当内存不足继续从磁盘读取 Page 时，释放尾部的 Page。
+
+**【存在的问题】**
+
+有一些操作需要访问表中的许多页，甚至全部页（如：索引 or 数据的扫描操作），**这些页仅在这次查询操作中需要，并非热点数据**；
+
+**如果直接把这些页放到 LRU 列表头部，那么就会有很多热点数据页被刷新出去，影响缓冲池效率，而且下次读取得重新访问磁盘。**
+
+【引入改良版 LRU 算法】
+
+- 使用 **中点插入策略（midpoint insertion strategy）**，把LRU list分成两部分，靠近head的叫做new sublist，存放热数据，叫它热区；靠近tail部分的叫做old sublist，存放冷数据，叫它冷区。中割线称为midpoint，最新访问的页放入 LRU 列表的 midpoint 位置。
+- midpoint 可以通过参数 `innodb_old_blocks_pct` 设置，默认为 37，即 LRU 列表从尾部开始 37% 的位置（约 3/8）。热区占5/8，冷区占3/8
+
+### redo log
+
+**问题**：刷脏不是实时的，如果buffer pool里的脏页还没有刷入磁盘，数据库宕机或重启，这些数据会丢失。
+
+为了避免这个问题**（刷脏不及时导致的数据丢失）**，InnoDB把所有对页page的**修改操作**专门写入一个日志文件即**磁盘的redo log(重做日志)**，如果有未同步到磁盘的数据数据库在启动时，会从这redo log进行恢复操作(crash-safe)。事务中ACID中的D(持久性)就是用redo log实现的。
+
+redo log位于/var/lib/mysql目录下，**ib_logfile0和ib_logfile1，默认2个文件，每个48M**
+
+redo log特点：
+
+- redo log是InnoDB存储引擎实现的，**支持崩溃恢复**是InnoDB的一个特性
+- redo log不是记录数据页更新之后的状态，而是记录**在这个数据页上做了什么修改**。属于物理日志
+- redo log **大小固定，前面的内容会被覆盖，一旦写满，就会触发buffer pool到磁盘的同步**，以便腾出空间记录后面的修改
+
+> **同样是写磁盘，为什么不直接写到db file里面去？为什么先写日志再写磁盘？写日志文件和写到数据文件有什么区别？**
+>
+> - 刷盘是随机I/O，数据可能存储在磁盘不同的扇区中，找到对应的数据需要磁臂旋转到自定页，然后盘片找到对应扇区，找到需要的一块数据，直至找到所有数据，读写速度慢。
+> - 记录日志是顺序I/O，找到了第一块数据，其他数据就在这块数据后边，不需要重新寻址。顺序I/O效率更高。
+>
+> **二者本质上是数据集中存储和分散存储的区别，先把修改写入日志文件，保证了内存数据的安全性的情况下，延迟刷盘时机，提升吞吐性。**
+
+### undo log
+
+又叫撤销日志或回滚日志，记录了事务发生之前的数据状态，分别为insert undo log和update undo log。修改数据时出现异常，**可以用undo log实现回滚操作（保持原子性）**
+
+updo log可以理解为记录的是反向操作，比如insert 会记录delete，称为逻辑格式日志
+
+
+
+## InnoDB 内存结构
+
+[官网地址](https://dev.mysql.com/doc/refman/8.0/en/innodb-architecture.html)
+
+![img](![innodb-architecture.png](https://github.com/lission/markdownPics/blob/main/mysql/innodb-architecture.png?raw=true)
+
+- Buffer pool，**InnoDB设计缓冲区Buffer Pool默认大小128M，作用就是来提升读写效率**。管理存储预读取的数据页
+
+  - Change Buffer，写缓冲，是Buffer Pool的一部分，如果一个数据页不是唯一索引，不存在数据重复情况，也就不需要从磁盘加载索引页判断数据是否重复(唯一性检查)。这种情况可以先把修改记录在内存的缓冲池中，提升更新语句的执行速度
+
+- Log Buffer，日志缓存，日志信息会先放到缓冲区，然后按照一定频率刷新到日志文件。日志包含：
+
+  - InnoDB 引擎日志
+  - 数据库操作时产生的 redo 和 undo 日志
+
+  > Log Buffer 写入磁盘的时机，由一个参数控制，默认是 1 。
+  >
+  > | 值                            | 含义                                                         |
+  > | ----------------------------- | ------------------------------------------------------------ |
+  > | 0（延迟写）                   | log buffer 将每秒执行一次的写入 log file 中，并且 log file 的 flush 操作同时进行。 该模式下，在事物提交的时候，不会触发主动写入磁盘的操作。 |
+  > | ==1（默认，实时写，实时刷）== | ==每次事务提交时 MySQL 都会把 log buffer 的数据写入 log file。并且刷新到磁盘中去。== |
+  > | 2 （延时写，延时刷）          | 每次事务提交时 MySQL 都会把 log buffer 的数据写入 log file，但是 flush 操作并不会同时进行。该模式下，MySQL 会每秒执行一次 flush 操作。 |
+
+- Adaptive Hash Index，自适应hash索引，用户不可以显示的创建 Hash Index ，只能由 InnoDB 自己维护，一般用在 Buffer Pool 。**InnoDB 自动为 Buffer Pool 中的热点页创建的索引**）
+
+## InnoDB 后台线程
+
+后台线程的主要作用是**负责刷新内存池中的数据和把修改的数据页刷新到磁盘**。后台线程分为：master thread，IO thread，purge thread，page cleaner thread。
+
+- **master thread** 负责刷新缓存数据到磁盘，并协调调度其他后台线程。
+- **IO thread** 分为 insert buffer、log 、read 、write 进程。分别用来处理 insert buffer、重做日志、读写请求的 IO 回调。
+- **purge thread** 用来回收 undo 页。
+- **page cleaner thread**= 用来刷新脏页。
+
+## bin log
+
+MySQL 的 Server 层也有一个日志文件，叫做 **binglog** ，它**可以被所有的存储引擎使用**。binlog 以事件的形式记录了所有的 DDL 和 DML 语句（因为**记录的是操作而不是数据值，数据逻辑日志**），可以用来做**主从复制和数据恢复**。
+跟 redo log 不一样，它的内容是可以追加的，没有固定大小限制。在开启了 binlog 功能情况下，我们可以吧 binlog 导出成 SQL 语句，把所有操作重放一遍，来**实现数据恢复**
+
+
+
+
 
 # 索引
 
