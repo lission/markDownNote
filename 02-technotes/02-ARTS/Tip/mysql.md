@@ -182,7 +182,7 @@ updo log可以理解为记录的是反向操作，比如insert 会记录delete�
 
 [官网地址](https://dev.mysql.com/doc/refman/8.0/en/innodb-architecture.html)
 
-![img](![innodb-architecture.png](https://github.com/lission/markdownPics/blob/main/mysql/innodb-architecture.png?raw=true)
+![innodb-architecture.png](https://github.com/lission/markdownPics/blob/main/mysql/innodb-architecture.png?raw=true)
 
 - Buffer pool，**InnoDB设计缓冲区Buffer Pool默认大小128M，作用就是来提升读写效率**。管理存储预读取的数据页
 
@@ -214,10 +214,24 @@ updo log可以理解为记录的是反向操作，比如insert 会记录delete�
 
 ## bin log
 
-MySQL 的 Server 层也有一个日志文件，叫做 **binglog** ，它**可以被所有的存储引擎使用**。binlog 以事件的形式记录了所有的 DDL 和 DML 语句（因为**记录的是操作而不是数据值，数据逻辑日志**），可以用来做**主从复制和数据恢复**。
+MySQL 的 Server 层也有一个日志文件，叫做 **binlog** ，它**可以被所有的存储引擎使用**。binlog 以事件的形式记录了所有的 DDL 和 DML 语句（因为**记录的是操作而不是数据值，数据逻辑日志**），可以用来做**主从复制和数据恢复**。
 跟 redo log 不一样，它的内容是可以追加的，没有固定大小限制。在开启了 binlog 功能情况下，我们可以吧 binlog 导出成 SQL 语句，把所有操作重放一遍，来**实现数据恢复**
 
+## bin log与redo log
 
+二进制日志（binlog）是用来进行 POINT-IN-TIME（PIT）**特定时间点的恢复以及主从复制环境的建立**。
+
+从表面上看，binlog 和 redo log 都是记录对数据库操作的日志，但两者有很大的不同：
+
+- 产生位置不同：
+  - redo log 只是 InnoDB 存储引擎层产生的
+  - binlog 在任何存储引擎下都会产生
+- 内容不同：
+  - binlog 是逻辑日志，其记录的是对应的 SQL 语句
+  - redo log 是物理日志，其记录的是对于每个页的修改
+- 记录时间点不同：
+  - binlog 只在事务提交完成后写入一次
+  - redo log 在事务进行期间不断写入
 
 
 
