@@ -55,14 +55,6 @@ https tcp 粘包拆包，nio aio ，netty，零拷贝，大概想到这些，搞
 
 
 
-mysql 
-
-1. 调优
-
-
-
-
-
 redis
 
 1. redis特性
