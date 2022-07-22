@@ -120,6 +120,8 @@ InnoDB 对应两个文件： 表结构文件 `.frm `、数据文件 `.ibd`；表
 
 对InnoDB存储引擎来说，数据都是放在磁盘上的，存储引擎要操作数据必须先把磁盘里面的数据加载到内存里面才可以操作。磁盘I/O的读写相对于内存操作很慢，操作系统、内存引擎都有一个**预读取**的概念。
 
+buffer pool是一个数据页的链表结构
+
 > 预读取：依据局部性原理（当磁盘上一块数据被读取时，很可能它附近的位置夜会被读取。）每次多读取一点，而不是用多少读多少。***可以分为线性预读、随机预读***
 >
 > InnoDB设定了存储引擎从磁盘读取数据到内存的最小单位，页page。操作系统的默认page大小4kb，InnoDB默认page大小为16kb，如果修改值，需要清空数据重新初始化服务。
@@ -146,7 +148,7 @@ LRU 列表头部为使用最频繁的 Page，尾部为最少使用的 Page。当
 
 【引入改良版 LRU 算法】
 
-- 使用 **中点插入策略（midpoint insertion strategy）**，把LRU list分成两部分，靠近head的叫做new sublist，存放热数据，叫它热区；靠近tail部分的叫做old sublist，存放冷数据，叫它冷区。中割线称为midpoint，最新访问的页放入 LRU 列表的 midpoint 位置。
+- 使用 **中点插入策略（midpoint insertion strategy）**，把LRU list分成两部分，靠近head的叫做new sublist，存放热数据，叫它热区；靠近tail部分的叫做old sublist，存放冷数据，叫它冷区。中割线称为midpoint，**最新访问的页放入 LRU 列表的 midpoint 位置**。
 - midpoint 可以通过参数 `innodb_old_blocks_pct` 设置，默认为 37，即 LRU 列表从尾部开始 37% 的位置（约 3/8）。热区占5/8，冷区占3/8
 
 ### redo log
@@ -630,3 +632,4 @@ COUNT(主键列)
 ```
 
 如果只要一个近似值，可以通过执行 EXPLAIN 来获得估算的 rows 行数。
+
