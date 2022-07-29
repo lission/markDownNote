@@ -9,7 +9,7 @@ spring cloud alibaba 是对 spring cloud 的标准实现，以微服务为核心
 
 ![img](https://github.com/lission/markdownPics/blob/main/spring/springcloud%E7%BB%84%E4%BB%B6.jpeg?raw=true)
 
-![img](https://github.com/lission/markdownPics/blob/main/spring/springcloudalibaba%E6%9E%B6%E6%9E%84.jpeg?raw=true)
+![img](https://github.com/lission/markdownPics/blob/main/spring/spring%20cloud%20Alibaba%E4%BD%93%E7%B3%BB.jpg?raw=true)
 
 ## 1.1、nacos
 
@@ -91,7 +91,7 @@ Ribbon默认负载均衡策略ZoneAvoidanceRule(默认规则)，复合判断serv
 
 ## 1.3、spring cloud loadBalancer
 
-spring cloud官方自己提供的客户端负载均衡器，用来替换ribbon。目前只有轮询、随机的策略
+spring cloud官方自己提供的客户端负载均衡器，用来替换ribbon。**目前只有轮询、随机的策略**
 
 spring cloud 提供了两种负载均衡的客户端：
 
@@ -160,10 +160,9 @@ https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/
 
 ## 1.9、 skywalking
 
+链路追踪
+
 官网网址：https://skywalking.apache.org/
-
-
 
 中文文档：https://skyapm.github.io/document-cn-translation-of-skywalking/
 
-链路追踪
