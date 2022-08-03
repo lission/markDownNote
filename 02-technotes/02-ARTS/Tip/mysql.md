@@ -56,7 +56,33 @@ update操作其实包括更新、插入和删除。更新流程与查询流程�
 
 
 
-## mysql 主从复制过程？
+## mysql 主从复制过程
+
+![img](https://github.com/lission/markdownPics/blob/main/mysql/mysql%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6.png?raw=true)
+
+1. 当Master节点进行insert、update、delete操作时，会按顺序写入到binlog中。
+2. slave从节点连接master主节点，Master有多少个slave就会创建多少个binlog dump线程。
+3. 当Master节点的binlog发生变化时，binlog dump 线程会通知所有的slave节点，并将相应的binlog内容**推送给slave节点**。
+4. slave节点的I/O线程接收到 binlog 内容后，将内容写入到本地的 relay-log。
+5. slave节点的SQL线程读取I/O线程写入的relay-log，并且根据 relay-log 的内容对从节点做对应的操作。
+
+**缺点**
+
+尽管主从复制、读写分离能很大程度保证MySQL服务的高可用和提高整体性能，但是问题也不少：
+
+- **从机是通过binlog日志从master同步数据的，如果在网络延迟的情况，从机就会出现数据延迟。那么就有可能出现master写入数据后，slave读取数据不一定能马上读出来**
+
+**事务问题**：**同一线程且同一数据库连接内，如有写入操作，以后的读操作均从主库读取**，保证数据一致性。
+
+## 主从复制的几种方式
+
+[参考](https://www.zhihu.com/search?type=content&q=mysql+%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6)
+
+- 异步复制，主库写数据到BINLOG后，执行commit，返回客户端，主从binlog异步线程同步。
+- 多线程复制，增加并发的binlog复制，提升异步复制的效率问题
+- 增强半同步复制
+  - 传统半同步复制，**为了保证主库上的每一个BINLOG事务都能够被可靠地复制到从库上**，主库在每次事务成功提交时，并不及时反馈给前端应用用户，而是**等待至少一个从库也接收到BINLOG事务并成功写入中继日志relay log后**，主库才返回Commit操作成功给客户端
+  - 增强半同步复制，主库写数据到BINLOG后，就开始等待从库的应答ACK，直到**至少一个从库写入Relay Log后，并将数据落盘**，然后返回给主库消息，通知主库可以执行Commit操作，然后主库开始提交到事务引擎层
 
 
 
@@ -546,7 +572,7 @@ innodb 默认事务隔离级别 rr，ru、serializable肯定不能用。有些�
 
 主从同步涉及三个线程：
 
-- I/O thread，从slave节点连接到master 节点获取binlog，并解析binlog写入relay log(中继日志)
+- I/O thread，从节点获取到master节点的binlog后，解析binlog写入relay log(中继日志)
 - log dump thread，maste节点上的log dump thread 用来发送binlog给slave
 - sql thread，从节点的sql thread用来读取relay log，把数据写入到slave数据库
 
