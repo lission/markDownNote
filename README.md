@@ -10,4 +10,5 @@
 - [07.18~07.24](./02-technotes/02-ARTS/2022-06arts.md)
 - [07.25~07.31](./02-technotes/02-ARTS/2022-07arts.md)
 - [08.01~08.07](./02-technotes/02-ARTS/2022-08arts.md)
+- [08.08~08.14](./02-technotes/02-ARTS/2022-09arts.md)
 
