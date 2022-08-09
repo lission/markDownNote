@@ -14,7 +14,7 @@
 
 - Propagation.SUPPORTS：表示当前方法**不必(可有可无)在事务**中运行。
   - 如果调用者有事务，则当前方法加入到调用者事务中运行。
-  - 如果调用者没有事务，则当前方法以非事务的形式运行
+  - 如果调用者没有事务，则当前方法**以非事务的形式**运行
 
 - Propagation.MANDATORY：表示当前方法**必须在调用者事务中**运行。
   - 如果调用者有事务，则当前方法加入到调用者事务中运行。
@@ -29,11 +29,11 @@
   - 如果调用者没有事务，则当前方法以非事务的形式运行
 
 - Propagation.REQUIRES_NEW：表示当前方法**必须在事务中**运行。
-  - 如果调用者有事务，则当前方法自己**新开启一个事务**运行。
+  - 如果调用者有事务，则**==挂起调用者事务==**，当前方法自己**新开启一个事务**运行。
   - 如果调用者没有事务，则当前方法自己新开启一个事务运行
 
 - Propagation.NOT_SUPPORTED：表示当前方法**不支持在事务**中运行。
-  - 如果**调用者有事务，则挂起调用者的事务，当前方法以非事务的形式运行**。
+  - 如果**调用者有事务，则==挂起调用者的事务==，当前方法以非事务的形式运行**。
   - 如果调用者没有事务，则当前方法以非事务的形式运行
 
 
@@ -49,21 +49,28 @@
 
 ## spring事务实现原理
 
-@Transactional注解是声明式的事务实现。spring事务采用AOP方式实现，在一个方法上添加了@Transactional注解后，Spring会基于这个类生成一个代理对象，会将这个代理对象作为Bean。***默认回滚异常是RuntimeException和Error***。
+@Transactional注解是声明式的事务实现。spring事务采用AOP方式实现，在一个方法上添加了@Transactional注解后，**Spring会基于这个类生成一个代理对象，会将这个代理对象作为Bean**。***默认回滚异常是RuntimeException和Error***。
 
 事务执行时先执行**TransactionAspectSupport.invokeWithinTransaction()**方法，在这个方法中：
 
-- 1）获取事务属性(@Transactional注解的参数)，rollbackFor指定回滚哪种异常，noRollbackFor指定不回滚哪种异常，propagation指定传播行为，readOnly，是否制度，isolation隔离级别，timeout超时时间
+- 1）获取事务属性(@Transactional注解的参数)
+  - rollbackFor指定回滚哪种异常
+  - noRollbackFor指定不回滚哪种异常
+  - propagation指定传播行为
+  - readOnly是否只读
+  - isolation隔离级别
+  - timeout超时时间
+
 - 2）加载配置中的TransactionManager
 - 3）获取收集事务信息TransactionInfo
-- 4）执行目标方法（即添加注解的方法）
+- 4）**执行目标方法**（即添加注解的方法）
 - 5）出现异常，尝试处理
 - 6）清理事务相关信息
 - 7）提交事务
 
 ## spring事务隔离级别
 
-spring事务隔离级别就是数据库的隔离级别，外加一个默认级别（**DEFAULT 这是一个PlatfromTransactionManager默认的隔离级别，使用数据库默认的事务隔离级别**.）
+**spring事务隔离级别就是数据库的隔离级别**，外加一个默认级别（**DEFAULT 这是一个PlatfromTransactionManager默认的隔离级别，使用数据库默认的事务隔离级别**）
 
 - read uncommitted（未提交读）
 - read committed（提交读、不可重复度）
@@ -72,7 +79,7 @@ spring事务隔离级别就是数据库的隔离级别，外加一个默认级�
 
 > Mysql数据库默认隔离级别是rr，spring默认隔离级别
 >
-> 以spring隔离级别为准，如果spring设置的隔离级别数据库不支持，效果取决于数据库
+> **以spring隔离级别为准**，如果spring设置的隔离级别数据库不支持，效果取决于数据库
 
 
 
@@ -80,7 +87,7 @@ spring事务隔离级别就是数据库的隔离级别，外加一个默认级�
 
 ## spring的bean在什么情况下不使用单例
 
-有状态的bean不用单例。即有属性会被修改的bean。
+**有状态的bean不用单例**。即有属性会被修改的bean。
 
 
 
@@ -99,9 +106,9 @@ spring通过**提前曝光机制**，**利用三级缓存**解决循环依赖问
 
 ### bean创建过程
 
-IOC容器获取bean的入口为AbstractBeanFactory的getBean方法，具体逻辑在doGetBean方法内：
+IOC容器获取bean的入口为**AbstractBeanFactory的getBean方法**，**具体逻辑在doGetBean方法内**：
 
-> doGetBean方法中先通过getSingleton(String beanName)方法从三级缓存中获取Bean实例，如果不为空则进行后续处理；如果为空，则通过getSingleton(String beanName,ObjectFactory<?> singletonFactory)方法创建Bean实例并进行后续处理。
+> doGetBean方法中先通过getSingleton(String beanName)方法**从三级缓存中获取Bean实例**，如果不为空则进行后续处理；如果为空，则通过getSingleton(String beanName,ObjectFactory<?> singletonFactory)方法创建Bean实例并进行后续处理。
 >
 > 这两个方法都是AbstractBeanFactory父类DefaultSingletonBeanRegistry的方法。
 
@@ -179,8 +186,8 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 ```
 
 - singletonObjects，一级缓存，key为Bean名称，value为Bean实例。这里的Bean实例指的是**已经完全创建好的**，即已经经历**实例化->属性填充->初始化以及各种后置处理过程的Bean**，可直接使用。
-- earlySingletonObjects，二级缓存，key为Bean名称，value为Bean实例。这里的Bean实例指的是仅完成实例化的Bean，还未进行属性填充等后续操作。**用于提前曝光，供别的Bean引用，解决循环依赖**。
-- singletonFactories，三级缓存，key为Bean名称，value为Bean工厂。在Bean实例化后，属性填充之前，如果允许提前曝光，spring会把该Bean转换成Bean工厂并加入到三级缓存。在需要引用提前曝光对象时再通过工厂对象的getObject()方法获取。
+- earlySingletonObjects，二级缓存，key为Bean名称，value为Bean实例。这里的Bean实例指的是仅完成实例化的Bean，**还未进行属性填充等后续操作**。**用于提前曝光，供别的Bean引用，解决循环依赖**。
+- singletonFactories，三级缓存，key为Bean名称，value为Bean工厂。**在Bean实例化后，属性填充之前，如果允许提前曝光，spring会把该Bean转换成Bean工厂并加入到三级缓存**。在需要引用提前曝光对象时再通过工厂对象的getObject()方法获取。
 
 如果通过三级缓存的查找都没有找到目标Bean示例，则通过getSingleton(String beanName,ObjectFactor<?> singletonFactory)方法创建：
 
@@ -246,32 +253,43 @@ bean循环依赖a——》b——》a
 
   a在创建的时候会放到当前创建池(缓存)中，如果创建成功就从池中删除，创建时发现需要使用到b，就去创建b，这时发现又需要创建a，而a在当前创建池中，这时就会抛出异常。
 
-- 基于属性注入的情况，setter注入可以处理单例模式的循环依赖：a创建成功，并暴露objectFactory，同时b创建也能成功，b创建a所以b会去缓存中查找a并注入，a的原始bean经创建成功，所以可以setter到b的属性，b也可以set到a的属性。
+- 基于属性注入的情况，setter注入可以处理单例模式的循环依赖：a创建成功，并暴露objectFactory，同时b创建也能成功，b创建a所以b会去缓存中查找a并注入，a的原始bean经创建成功，所以可以set到b的属性，b也可以set到a的属性。
 
-- prototype作用域的bean无法处理，因为spring不缓存prototype作用域的bean。
+- prototype作用域的bean无法处理，因为**spring不缓存prototype作用域的bean**。
 
 
 
 ## spring的FactoryBean与BeanFactory
 
-- BeanFactory：**Bean工厂，是一个工厂**，是ioc容器的最顶层接口，作用是管理Bean，即实例化、定位、配置应用程序中的对象及建立这些对象之间的依赖，ApplicationContext就是它的子类
+- BeanFactory：**Bean工厂，是一个工厂**，是ioc容器的最顶层接口，作用是**管理Bean**，即实例化、定位、配置应用程序中的对象及建立这些对象之间的依赖，ApplicationContext就是它的子类
 - FactorBean：**工厂bean，是一个bean**，可以用于**自定义bean的创建过程**，这个接口有三个方法，getObject()、getObjectType()、isSingleton()用于获取bean对象，bean的类型，和是否单例，实现这个接口可以自定义bean的创建。spring中的bean包括普通bean和factorybean。在bean加载过程中会用到，单例已经开始初始化的时候通过getObject()方法初始化factorybean。
 
 ## BeanFactory和ApplicationContext区别
 
 - BeanFactory，是spring中ioc容器的最顶层接口，是ioc的核心，拥有多种实现如：application、xmlbeanfactory
-- ApplicationContext：继承BeanFactory接口，高级的容器。除了BeanFactory的初始化bean和获取bean功能，该提供了更多有用的功能，如：继承了MessageSource,支持国际化；统一的资源文件访问方式；同时加载多个配置文件；载入多个（有继承关系）上下文，使每一个上下文都专注于一个特定的层次，比如应用的web层等。
-- BeanFactory是延迟加载，在使用的时候才会初始化Bean，而ApplicationContext在启动时就默认加载了所有bean（可以设置延迟）。
+- ApplicationContext：**继承BeanFactory接口，高级的容器**。除了BeanFactory的初始化bean和获取bean功能，还提供了更多有用的功能，如：继承了MessageSource,支持国际化；**统一的资源文件访问方式**；**同时加载多个配置文件**；**载入多个（有继承关系）上下文，使每一个上下文都专注于一个特定的层次**，比如应用的web层等。
+- **BeanFactory是延迟加载**，在使用的时候才会初始化Bean，而**ApplicationContext在启动时就默认加载了所有bean**（可以设置延迟）。
 - 使用BeanFactory启动时占用资源少，如果bean配置的有问题ApplicationContext在启动时就可以发现配置的问题，同时bean加载之后系统运行较快。
 
-## spring支持的几种bean的作用域
+## spring支持的几(6)种bean的作用域
 
 - singleton，单例模式，默认，每个容器中只有一个bean的实例，单例的模式由BeanFactory自身来维护，该对象的生命周期与spring ioc容器一致。（第一次注入时才被创建）
-- prototype，原型模式，为每一个bean请求创建一个bean实例，在每次注入时都会创建一个新的对象
-- request，bean被定义为在每个http请求中创建一个单例对象，也就是在单个请求中都会复用这个bean实例
-- session，与request范围类似，确保每个session中都有一个bean实例，在session过期后，bean随之失效
-- application，bean被定义为在ServletContext的生命周期中复用一个单例对象
-- websocket，bean被定义为在websocket的生命周期中复用一个单例对象
+
+- prototype，原型模式，**为每一个==bean请求==创建一个bean实例，在==每次注入时==都会创建一个新的对象**
+
+- request，bean被定义为在**每个http请求中**创建一个单例对象，也就是在单个请求中都会复用这个bean实例
+
+- session，与request范围类似，确保**每个session中都有一个bean实例**，在**session过期后，bean随之失效**
+
+- application，bean被定义为在**ServletContext的生命周期**中复用一个单例对象
+
+  > servletContext是一个域对象，是服务器在内存上创建的存储空间，用于在不同动态资源(servlet)之间传递与共享数据
+  >
+  > servlet是运行在服务器上的一个小程序，用来处理服务器请求
+
+- websocket，bean被定义为在**websocket的生命周期**中复用一个单例对象
+
+  > websocket，一种在单个TCP连接上进行双向通信的协议，保持一个长连接
 
 
 
@@ -280,8 +298,8 @@ bean循环依赖a——》b——》a
 spring 通过容器存放应用中bean，并管理bean从创建到销毁的完整生命周期
 spring bean的完整生命周期：
 
-1. 对bean实例化，默认单例bean
-2. 对bean进行依赖注入，填充属性，为属性或引用的bean赋值
+1. 对**bean实例化**，默认单例bean
+2. 对bean进行**依赖注入，填充属性**，为属性或引用的bean赋值
 3. 如果bean实现了BeanNameAware接口，将bean的id传递给setBeanName()方法
 4. 如果bean实现了BeanFactoryAware接口，调用setBeanFactory()方法，将BeanFactory实例传入
 5. 如果bean实现了ApplicationContextAware接口，调用setApplicationContext()接口，将bean所在应用上下文引用传入进来
@@ -292,16 +310,22 @@ spring bean的完整生命周期：
 10. 此时，bean准备就绪，可以使用，将一直停留在应用上下文中，直到上下文被销毁
 11. 如果bean实现了DisposableBean接口，spring将调用它的destroy()接口，类似的，如果bean使用destroy-method声明了销毁方法，该方法也会被调用
 
+**简单总结：**
+
+bean实例化——》依赖注入，属性填充——》各种前置处理，初始化及各种后置处理——》准备就绪，停留在应用上下文中，直至上下文被销毁
+
+
+
 ## spring框架中的单例bean是线程安全的吗
 
-单例bean是非线程安全的。
+**单例bean是非线程安全的**。
 
-如果bean是有状态的，需要开发人员自己来进行线程安全的保证。最简单办法是改变bean作用域，将singleton改变为prototype，每次请求bean时都创建一个新的bean实例。
+如果bean是有状态的，需要开发人员自己来进行线程安全的保证。**最简单办法是改变bean作用域，将singleton改变为prototype，每次请求bean时都创建一个新的bean实例**。
 
 - 有状态就是有数据存储功能
 - 无状态就是不会保存数据
 
-不要在bean中声明任何有状态的实例变量或成员变量，如果必须如此，那么久使用ThreadLocal把变量变为线程私有的，如果bean的实例变量或类变量需要在多个线程间共享，那么就要使用synchronized，lock，cas等实现线程同步。
+**不要在bean中声明任何有状态的实例变量或成员变量，如果必须如此，那么就使用ThreadLocal把变量变为线程私有的**，如果bean的实例变量或类变量需要**在多个线程间共享，那么就要使用synchronized，lock，cas等实现线程同步**。
 
 ## spring 常用注解及用法
 
