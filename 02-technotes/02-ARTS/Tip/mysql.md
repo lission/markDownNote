@@ -222,7 +222,7 @@ redo log特点：
 
 updo log可以理解为记录的是反向操作，比如insert 会记录delete，称为逻辑格式日志
 
-
+ [Section 15.6.6, “Undo Logs”](https://dev.mysql.com/doc/refman/8.0/en/innodb-undo-logs.html).
 
 ## InnoDB 内存结构
 
@@ -402,6 +402,8 @@ MySQL 的 Server 层也有一个日志文件，叫做 **binlog** ，它**可以�
 - 持久性，Durability，**事务一旦提交，结果就是永久性的，即使宕机重启后也能恢复**。
 
   > 持久性是通过 **==redo log== **和 **==double write buffer（双写缓冲）== **来实现的，我们操作数据的时候，会先写到内存的 **==buffer pool==** 里面，同时记录 **==redo log==** ，如果在刷盘之前出现异常，在重启后就可以读取 ==redo log== 的内容，写入磁盘，保证数据的持久性。
+  >
+  > [Section 15.6.4, “Doublewrite Buffer”](https://dev.mysql.com/doc/refman/8.0/en/innodb-doublewrite-buffer.html).
 
 
 
@@ -454,7 +456,7 @@ MVCC，Multi Version Concurrence Control，多版本并发控制。**MVCC用来�
 - InnoDB的事务都是有编号的，且会不断递增。
 - InnoDB为每行记录都实现了两个隐藏字段：
   - **DB_TRX_ID**，6字节，事务ID，数据是在哪个事务插入或修改为新数据的，记录当前事物ID
-  - **DB_ROLL_PTR**，7字节，回滚指针，把它理解为删除版本号，数据被删除或记录为旧数据时，记录当前事务ID，没有修改或删除时是空的。
+  - **DB_ROLL_PTR**，7字节，回滚指针，把它理解为删除版本号，数据被删除或记录为旧数据时，记录当前事务ID，没有修改或删除时是空的。指向一条undo log中的记录
 
 MVCC中通过一个**Read View(可见性视图)**，来实现事务id判断。**每个事务维护一个自己的Read View**。Read View中保存了本事务id、活跃事务id、当前系统最大事务id
 
