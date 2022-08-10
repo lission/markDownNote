@@ -338,6 +338,7 @@ bean实例化——》依赖注入，属性填充——》各种前置处理，�
 - @RequestMapping、@PostMapping、@GetMapping：controller层的接口
 - @Autowired：依赖注入、 @Qualifier：指定注入的bean的名称
 - @Value:读取配置信息
+- @Lazy：标识bean是否需要延迟加载(第一次调用时才会加载)。可以加在类、方法、变量上。可以用于解决循环依赖问题
 
 ## spring中使用到的设计模式
 
