@@ -235,10 +235,6 @@ Two-Phase Commit，(**无法百分之百保证事务成功率，只能尽量保�
 
 失败重试
 
-
-
-
-
 ### 1.7.4 seata的三大角色
 
 seata架构中三个重要角色：
@@ -248,6 +244,33 @@ seata架构中三个重要角色：
 - RM（Resource Manager），资源管理器。管理分支事务处理的资源，与TC交互以注册分支事务和报告分支事务状态，并驱动分支事务回滚或提交
 
 > TC为单独部署的server服务端，TM和RM为嵌入到应用的client客户端
+
+
+
+### 1.7.5 seata应用
+
+使用@GlobalTransaction开启全局事务
+
+server端存储方式支持三种：
+
+- file，默认，单机模式，全局事务会话信息内存中读写并持久化本地文件root.data，性能较高
+- db，高可用模式，全局事务会话信息通过db共享，相应性能差些
+- redis，seata-server 1.3及以上版本支持，性能较高，存在事务信息丢失风险，要提前配置适合场景的redis持久化配置
+
+**db+nacos高可用模式**
+
+使用nacos作为seata配置中心和注册中心，将seata注册到nacos中，可以和参与者应用进行通信。
+
+
+
+seata pom依赖
+
+```xml
+<dependency>
+    <groupId>com.alibaba.cloud</groupId>
+    <artifactId>spring-cloud-starter-alibaba-seata</artifactId>
+</dependency>
+```
 
 
 
