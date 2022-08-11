@@ -346,7 +346,7 @@ bean实例化——》依赖注入，属性填充——》各种前置处理，�
 
 ## BeanFactoryPostProcessor与BeanPostProcessor
 
-- BeanFactoryPostProcessor，**BeanFactory级别的处理，针对整个Bean工厂进行处理**。只有postProcessorBeanFactory一个方法，实现该接口，可以在spring的bean创建之前，修改bean的定义属性。spring允许BeanFactoryPostProcessor在容器实例化任何其他bean之前读取配置元数据，并可以根绝需要进行修改。**BeanFactoryPostProcessor是在spring容器加载了bean的定义文件之后，在bean实例化之前执行的**。接口方法的入参是ConfigurableListableBeanFactory，使用该参数可以获取到相关bean的定义信息
+- BeanFactoryPostProcessor，**BeanFactory级别的处理，针对整个Bean工厂进行处理**。只有postProcessorBeanFactory一个方法，实现该接口，可以在spring的bean创建之前，修改bean的定义属性。spring允许BeanFactoryPostProcessor在容器实例化任何其他bean之前读取配置元数据，并可以根据需要进行修改。**BeanFactoryPostProcessor是在spring容器加载了bean的定义文件之后，在bean实例化之前执行的**。接口方法的入参是ConfigurableListableBeanFactory，使用该参数可以获取到相关bean的定义信息
 
 - BeanPostProcessor，**bean级别的处理，针对某个具体bean进行处理**，接口提供了两个方法，分别是初始化前和初始化后执行方法，具体这个初始化方法指的是什么方法，类似我们在定义bean时，定义了init-method所指定的方法<bean id = "xxx" class = "xxx" init-method = "init()">这两个方法分别在init方法前后执行，需要注意一点，我们定义一个类实现了BeanPostProcessor，默认会对镇个别spring容器中所有的bean进行处理，可以看到方法中有两个参数，类型分别为Object和String，第一个参数是每个bean的实例，第二个参数是每个bean的name或id属性的值。所以我们可以用第二个参数，来确认我们将要处理的具体的bean。这个处理是发生在spring容器的实例化和依赖注入之后。在spring容器实例化bean之后，**在执行bean的初始化方法前后，添加一些自己的处理逻辑**。这里说的初始化方法，指下面两种：
 
@@ -361,7 +361,7 @@ bean实例化——》依赖注入，属性填充——》各种前置处理，�
 
 ioc-inversion of control，即**控制反转**，**不是什么技术，而是一种思想**。在java开发中，ioc意味着将你设计好的对象交给**容器**控制，而不是传统的直接在对象内部直接控制。
 
-ioc container 管理的事spring bean，**spring里边的bean就类似是定义的一个组件，而这个组件的作用是实现某个功能**。
+ioc container 管理的是spring bean，**spring里边的bean就类似是定义的一个组件，而这个组件的作用是实现某个功能**。
 
 ioc和DI关系，控制反转是通过依赖注入实现的，即**ioc是设计思想，DI是实现方式**。
 
@@ -379,17 +379,17 @@ spring启动 —》加载配置文件 —》将配置文件转化成Resource —
 
 1. Spring启动。
 2. 加载配置文件，xml、JavaConfig、注解、其他形式等等，将描述我们自己定义的和Spring内置的定义的Bean加载进来
-3. 加载完配置文件后将配置文件转化成统一的**Resource**来处理
+3. 加载完配置文件后，将配置文件转化成统一的**Resource**来处理
 4. 使用Resource解析将我们定义的一些配置都转化成Spring内部的标识形式：**BeanDefinition**，容器解析得到 BeanDefinition 以后，需要把它在 IOC 容器中注册，这由 IOC 实现
-5. 在低级的容器BeanFactory中，到这里就可以宣告Spring容器初始化完成了，**Bean的初始化是在我们使用Bean的时候触发的**；在**高级的容器ApplicationContext中**，会自动触发那些lazy-init=false的单例Bean，让Bean以及依赖的Bean进行初始化的流程，初始化完成Bean之后高级容器也初始化完成了
-6. 在我们的应用中使用Bean
+5. 在低级的容器BeanFactory中，到这里就可以宣告Spring容器初始化完成了，**Bean的初始化是在我们使用Bean的时候触发的**；在**高级的容器ApplicationContext中**，会自动触发那些lazy-init=false的单例Bean，让Bean以及依赖的Bean进行初始化的流程，初始化Bean完成之后，高级容器也初始化完成了
+6. 在应用中使用Bean
 7. Spring容器关闭，销毁各个Bean
 
 
 
 ## spring依赖注入的方式
 
-常用注入方式：构造方法注入，setter注入，基于@Autowired注解的自动注入
+常用注入方式：**构造方法注入**，**setter注入**，**基于@Autowired注解的自动注入**
 
 - 构造方法注入
 
@@ -478,7 +478,7 @@ public class UserServiceImpl {
 }
 ```
 
-spring推荐构造器注入方式，这种方式**能够保证注入的组件不可变，并且确保需要的依赖不为空**。构造器注入的依赖总是能够在返回客户端代码时保证完全初始化的状态。**使用构造函数注入，如果存在循环依赖问题，spring项目启动报错**
+**spring推荐构造器注入方式**，这种方式**能够保证注入的组件不可变，并且确保需要的依赖不为空**。构造器注入的依赖总是能够在返回客户端代码时保证完全初始化的状态。**使用构造函数注入，如果存在循环依赖问题，spring项目启动报错**
 
 - **依赖不可变**：指final关键字
 - **依赖不为空**：当要实例化UserServiceImpl时，由于自己实现了**有参数的构造函数**，所以不会调用默认构造函数，就需要spring容器传入所需要的参数，当传入类型参数为null时会报错。
@@ -496,7 +496,7 @@ spring推荐构造器注入方式，这种方式**能够保证注入的组件不
 
 3、@Autowired、@Inject是默认按照类型匹配的，@Resource是按照名称匹配的
 
-4、@Autowired如果需要按照名称匹配需要和@Qualifier一起使用，@Inject和@Named一起使用，@Resource则通过name进行指定
+4、**@Autowired如果需要按照名称匹配需要和@Qualifier一起使用**，@Inject和@Named一起使用，@Resource则通过name进行指定
 
 # spring aop
 
