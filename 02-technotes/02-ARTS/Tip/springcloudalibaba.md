@@ -278,6 +278,213 @@ seata pom依赖
 
 https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/
 
+网关作为流量的入口，常用功能包括路由转发、权限校验、限流等
+
+spring cloud gateway 是由WebFlux+Netty+Reactor实现的响应式API网关（非阻塞），旨在为微服务架构提供一种简单有效的API路由的管理方式，并基于Filter方式提供网关基本功能。如安全验证、监控、限流等。
+
+**spring cloud gateway功能特征**：
+
+- 动态路由，能够匹配任何请求属性
+- 支持路径重写
+- 集成spring cloud 服务发现功能（nacos、Eureka）
+- 可集成流控降级功能（sentinel、hystrix）
+- 可以对路由指定易于编写的Predicate（断言）和Filter（过滤器）
+
+**example**
+
+```yaml
+spring:
+  cloud:
+    gateway:
+      default-filters: 
+      - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Headers Access-Control-Allow-Methods Access-Control-Allow-Origin Access-Control-Expose-Headers Access-Control-Max-Age, RETAIN_FIRST
+      # 路由规则
+      routes:
+        - id: swan-ucenter-ignore # 路由的唯一标识
+          order: 0 # 
+          uri: lb://swan-ucenter # 需要转发的地址  lb:使用nacos中的本地负载均衡策略loadBalance
+          #断言规则，用于路由规则的匹配
+          predicates:
+          - Path=/swan-ucenter/sso/login,/swan-ucenter/sso/checkToken,/swan-ucenter/sso/logout,/swan-ucenter/captcha,/swan-ucenter/admin/login,/swan-ucenter/auth/**
+          #过滤器
+          filters:
+          - IgnoreTokenGlobalFilter
+          - StripPrefix=1 # 转发之前去掉第一层的路径
+```
+
+### 1.8.1、spring cloud gateway核心概念
+
+- route，路由，网关中最基础的一部分，路由信息包括一个id、一个目的地uri、一组断言工厂、一组filter。如果断言为真，说明请求的url和配置的路由匹配
+- predicate，断言，spring cloud gateway中的**断言函数类型是spring 5.0框架中的ServerWebExchange**。断言函数允许开发者定义匹配http request中的任何信息，比如请求头和参数
+- filter，过滤器，spring cloud gateway中的filter分为gateway filter和gloable filter。filter可以对请求和响应进行处理
+
+gateway依赖
+
+```xml
+<dependency>
+  <groupId>org.springframework.cloud</groupId>
+  <artifactId>spring-cloud-starter-gateway</artifactId>
+</dependency>
+```
+
+
+
+### 1.8.2、spring cloud gateway内置断言工厂（Route Predicates Factories）配置
+
+**作用**：当我们请求gateway服务时，网关使用断言对请求进行匹配，如果成功则路由转发，否则返回404
+
+**类型**：内置、自定义
+
+- 基于DateTime类型的断言工厂，根据时间判断，主要有3个：
+
+  - AfterRoutePredicateFactory，接收一个日期参数，判断请求日期是否晚于指定日期
+  - BeforeRoutePredicateFactory，接收一个日期参数，判断请求日期是否早于指定日期
+  - BetweenRoutePredicateFactory，接收一个日期参数，判断请求日期是否在指定时间段内
+
+  ```yaml
+  # 示例
+  -After=2022-08-16T13:43:07.040
+  ```
+
+- 基于远程地址的断言工厂，RemoteAddrRoutePredicateFactory，接收一个ip地址段，判断请求主机地址是否在地址段中
+
+  ```yaml
+  - RemoteAddr=192.168.1.1/24
+  ```
+
+- 基于cookie的断言工厂，CookieRoutePredicateFactory，接收两个参数，cookie和一个正则表达式，判断请求cookie是否具有给定名称且值与正则表达式匹配
+
+  ```yaml
+  - Cookie=chocolate,ch.
+  ```
+
+- 基于Header的断言工厂，HeaderRoutePredicateFactory，接收两个参数，标题名称和正则表达式，判断请求Header是否具有给定名称且值与正则表达式匹配
+
+  ```yaml
+  - Header=-X-Request-ID,\d+ #只允许为数字
+  ```
+
+- 基于Host的断言工厂，HostRoutePredicateFactory，接收一个参数，主机名名称，判断请求host是否满足匹配规则
+
+  ```yaml
+  - Host=**.test.com
+  ```
+
+- 基于Method请求方法的断言工厂，MethodRoutePredicateFactory，接收一个参数，判断请求类型是否跟指定类型匹配
+
+  ```yaml
+  - Method=GET
+  ```
+
+- 基于Path请求路径的断言工厂，PathRoutePredicateFactory，接收一个参数，判断请求的URL部分是否满足路径规则
+
+  ```yaml
+  - Path=/foo/{segment}
+  ```
+
+- 基于Query请求参数的断言工厂，QueryRoutePredicateFactory，接收两个参数，请求param和正则表达式，判断请求参数是否具有给定名称且值与正则表达式匹配
+
+  ```yaml
+  - Query=baz,baz.
+  ```
+
+- 基于路由权重的断言工厂，WeightRoutePredicateFactory，接收一个[组名，权重]，然后对于同一个组内的路由按照权重转发
+
+  ```yaml
+  
+  ```
+
+### 1.8.3、自定义断言工厂
+
+自定义路由断言工厂需要**继承AbstractRoutePredicateFactory**，重写apply方法逻辑，在apply方法中可以通过exchange.getRequest()拿到ServerHttpRequest对象，从而可以获取到请求的参数、请求方式、请求头等信息
+
+> 1、命名必须以RoutePredicateFactory结尾
+>
+> 2、必须继承AbstractRoutePredicateFactory
+>
+> 3、必须在内部创建一个Config静态内部类，用于接收配置中的断言配置
+>
+> 4、需要结合shortcutFiledOrder进行绑定
+>
+> 5、通过apply进行逻辑判断，true就是匹配成功，否则失败
+
+
+
+### 1.8.4、spring cloud gateway 过滤器工厂（GatewayFilter Factories）配置
+
+gateway内置了很多过滤器工厂，通过过滤器工厂可以进行一些业务逻辑处理，比如添加\剔除响应头，添加\去除参数等。
+
+- 添加请求头
+
+  ```yaml
+  - AddRequestHeader=X-Request-color,red #添加请求头
+  ```
+
+- 添加请求参数
+
+  ```yaml
+  - AddRequestParamer=X-Request-color,red #添加请求头
+  ```
+
+- 为请求路径添加前缀
+
+  ```yaml
+  - PrefixPath=/mall-order #添加前缀
+  ```
+
+- 重定向(RedirectTo) 等……
+
+**自定义过滤器工厂**
+
+继承AbstractNameValueGatewayFilterFactory，定义的名称必须以GatewayFilterFactory结尾。
+
+### 1.8.5、全局过滤器（Global Filters）配置
+
+局部过滤器：针对某个路由，需要在路由中进行配置。
+
+全局过滤器：针对所有路由请求进行过滤，无需显示配置。
+
+
+
+自定义全局过滤器，继承GlobalFilter，重写filter方法。
+
+ 
+
+### 1.8.6、gateway整合sentinel流控降级
+
+网关层的限流可以简单地**针对不同路由进行限流**，也可以**针对业务接口进行限流**，或者**根据接口特征分组限流**
+
+**1、添加依赖**
+
+```xml
+<dependency>
+    <groupId>com.alibaba.cloud</groupId>
+    <artifactId>spring-cloud-alibaba-sentinel-gateway</artifactId>
+</dependency>
+<dependency>
+    <groupId>com.alibaba.cloud</groupId>
+    <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
+</dependency>
+```
+
+**2、添加配置**
+
+```yaml
+sentinel:
+	transport:
+		#添加sentinel的控制台地址
+		dashboard:127.0.0.1:8080
+```
+
+**3、sentinel配置方式**
+
+- 控制台配置方式
+- 代码实现配置方式
+
+
+
+网关高可用，可以多部署几台网关服务，通过nginx或f5进行负载均衡
+
 
 
 ## 1.9、 skywalking
