@@ -514,7 +514,7 @@ spring aop是一种编程范式，主要目的是将非功能性需求从功能�
 
 ## aop核心概念
 
-- Aspect 切面，切面一个关注点的模块化，这个关注点横跨多个类。比如：应用程序中的事务管理就是一个横切关注点。
+- Aspect 切面，切面是一个关注点的模块化，这个关注点横跨多个类。比如：应用程序中的事务管理就是一个横切关注点。
   - 注解式声明，用@Aspect标记一个类，在这个类中通过一系列配置实现AOP
 - Join point 连接点，连接点表示方法的执行
 - Advice 通知，通知指一个切面在特定连接点执行的动作，使用拦截器实现。spring aop 包含五种通知
@@ -630,6 +630,10 @@ springboot加载两种配置文件的优先级
 # spring MVC
 
 ## spring MVC的执行流程
+
+processon https://processon.com/diagraming/62fa38790e3e7428ae35b130
+
+![img](https://github.com/lission/markdownPics/blob/main/spring/spring%20MVC%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B.jpg?raw=true)
 
 1. 用户发送请求到**前端控制器DispatcherServlet**
 2. DispatcherServlet收到请求调用**HandlerMapping处理映射器**

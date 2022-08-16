@@ -190,10 +190,26 @@ LRU 列表头部为使用最频繁的 Page，尾部为最少使用的 Page。当
 
 **如果直接把这些页放到 LRU 列表头部，那么就会有很多热点数据页被刷新出去，影响缓冲池效率，而且下次读取得重新访问磁盘。**
 
+**优化行为**：
+
+ [Section 15.8.3.3, “Making the Buffer Pool Scan Resistant”](https://dev.mysql.com/doc/refman/8.0/en/innodb-performance-midpoint_insertion.html)
+
+ [Section 15.8.3.4, “Configuring InnoDB Buffer Pool Prefetching (Read-Ahead)”](https://dev.mysql.com/doc/refman/8.0/en/innodb-performance-read_ahead.html)
+
 【引入改良版 LRU 算法】
 
-- 使用 **中点插入策略（midpoint insertion strategy）**，把LRU list分成两部分，靠近head的叫做new sublist，存放热数据，叫它热区；靠近tail部分的叫做old sublist，存放冷数据，叫它冷区。中割线称为midpoint，**最新访问的页放入 LRU 列表的 midpoint 位置**。
+- 使用 **中点插入策略（midpoint insertion strategy）**，把LRU list分成两部分，靠近head的叫做new sublist，存放热数据，叫它热区；靠近tail部分的叫做old sublist，存放冷数据，叫它冷区。中割线称为midpoint，**最新访问的页放入 LRU 列表的 midpoint 位置**（the head of the old sublist）。
 - midpoint 可以通过参数 `innodb_old_blocks_pct` 设置，默认为 37，即 LRU 列表从尾部开始 37% 的位置（约 3/8）。热区占5/8，冷区占3/8
+
+> [buffer bool](https://dev.mysql.com/doc/refman/8.0/en/innodb-buffer-pool.html)
+>
+> By default, the algorithm operates as follows:
+>
+> - 3/8 of the buffer pool is devoted to the old sublist.
+> - The midpoint of the list is the boundary where the tail of the new sublist meets the head of the old sublist.
+> - **When `InnoDB` reads a page into the buffer pool, it initially inserts it at the midpoint (the head of the old sublist)**. A page can be read because it is required for a user-initiated operation such as an SQL query, or as part of a [read-ahead](https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_read_ahead) **(预读)** operation performed automatically by `InnoDB`.
+> - Accessing a page in the old sublist makes it “young”, moving it to the head of the new sublist. If the page was read because it was required by a user-initiated operation, the first access occurs immediately and the page is made young. If the page was read due to a read-ahead operation, the first access does not occur immediately and might not occur at all before the page is evicted.
+> - As the database operates, pages in the buffer pool that are not accessed “age” by moving toward the tail of the list. Pages in both the new and old sublists age as other pages are made new. Pages in the old sublist also age as pages are inserted at the midpoint. Eventually, a page that remains unused reaches the tail of the old sublist and is evicted.
 
 ### redo log
 
