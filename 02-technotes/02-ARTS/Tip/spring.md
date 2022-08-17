@@ -577,7 +577,13 @@ springboot starter是一个集成接合器，也叫做**场景启动器**。完�
 1. 引入模块所需的相关jar包
 2. 自动配置各自模块所需的属性（springboot按照某种默认的规则替我们完成自动配置的工作，这个规则就是**约定大于配置**）
 
-springboot的自动配置：在启动类的@SpringBootApplication注解中进行处理；@SpringBootApplication注解是一个符合注解，其中的@EnableAutoConfiguration注解就是开启自动配置；@EnableAutoConfiguration注解也是一个派生注解，其中关键功能由@Import提供，其导入的AutoConfigurationImportSelector的selectImports()方法通过SpringFactoriesLoader.loadFactoryNames()扫描所有具有META-INF/spring.factories的jar包。spring.factories文件也是一组组的key=value形式，其中一个key是EnableAutoConfiguration类的全类名，而它的value是一个xxxxAutoConfiguration的类名的列表，将这些自动配置类加载到spring容器中。有一个@EnableConfigurationPropoerties注解，开启配置属性，而它后面的参数是一个ServerProperties类，这就是**约定大于配置的最终落地点**，在加载这些类的时候会读取配置文件中的配置赋值给对应属性。
+springboot的自动配置在启动类的@SpringBootApplication注解中进行处理；
+
+@SpringBootApplication注解是一个复合注解：
+
+- 其中的**@EnableAutoConfiguration**注解就是开启自动配置；@EnableAutoConfiguration注解也是一个派生注解，其中关键功能由@Import提供，其导入的AutoConfigurationImportSelector的selectImports()方法通过SpringFactoriesLoader.loadFactoryNames()扫描所有具有META-INF/spring.factories的jar包。spring.factories文件也是一组组的key=value形式，其中一个key是EnableAutoConfiguration类的全类名，而它的value是一个xxxxAutoConfiguration的类名的列表，将这些**自动配置类加载到spring容器**中。
+
+- 有一个**@EnableConfigurationPropoerties**注解，开启配置属性，而它后面的参数是一个ServerProperties类，这就是**约定大于配置的最终落地点**，在加载这些类的时候会读取配置文件中的配置赋值给对应属性。
 
 自动配置生效条件：
 
@@ -589,17 +595,17 @@ springboot的自动配置：在启动类的@SpringBootApplication注解中进行
 
 ## springboot获取配置的方式
 
-1. @Value注解
+1. **@Value**注解
 2. 通过注入环境变量Environment实现
 3. 在启动类中获取springboot上下文，可以获取环境变量，也可以获取配置
-4. 使用注解@ConfigurationProperties(prefix="xxx")指定配置文件的前缀，对成员变量生成get/set方法来获取，也尅配合@Value注解
-5. @PropertySource配合@Value获取非application配置文件的配置（@PropertySource(value={"classpath:config/teacher.proerties"})）
+4. 使用注解**@ConfigurationProperties(prefix="xxx")指定配置文件的前缀**，对成员变量生成get/set方法来获取，也可以配合@Value注解
+5. **@PropertySource配合@Value获取非application配置文件的配置**（@PropertySource(value={"classpath:config/teacher.proerties"})）
 
 ## 引入非application配置文件
 
 1. 在application.yml文件中引入（spring.profiles.active=dev可以引入application-dev.yml文件）
 2. 系统启动时可以通过-spring.config.loca=xxx.properties环境变量指定配置文件
-3. @PropertySource(value={"classpath:config/teacher.proerties"})注解指定读取那个配置文件里的配置，用在容器组件中如@Component注解修饰的类上
+3. **@PropertySource(value={"classpath:config/teacher.proerties"})注解指定读取那个配置文件里的配置**，用在容器组件中如@Component注解修饰的类上
 
 ## springboot加载配置文件的目录及顺序
 
