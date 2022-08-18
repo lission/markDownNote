@@ -46,7 +46,7 @@ watch com.swan.smartcity.etc.pre.warning.business.service.MonitorStrategyService
 trace com.swan.smartcity.etc.pre.warning.business.service.MonitorStrategyServiceImpl findMonitorStrategyPage
 ```
 
-### 3.3.、stack
+### 3.3、stack
 
 查看某个方法的调用栈信息
 

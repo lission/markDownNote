@@ -3,23 +3,57 @@
 # 集合
 ## ArrayList与LinkedList的区别
 
-1、底层数据结构不同，ArrayList底层是数组，LinkedList是双向链表
+1. **数据结构**：底层数据结构不同，**ArrayList底层是数组，LinkedList是双向链表**
 
-2、ArrayList容量有限制，可以指定容量，默认容量是10，当超过容量时需要扩容，每次扩容50%。LinkedList没有容量限制
+2. **容量限制**：ArrayList容量有限制，可以指定容量，**默认容量是10**，当超过容量时需要扩容，**每次扩容50%**。LinkedList没有容量限制
 
-3、ArrayList和LinkedList都实现了List接口，LinkedList还实现了Deque接口，可以当做双端队列或栈来使用。
+3. **实现方式**：ArrayList和LinkedList都实现了List接口，LinkedList还实现了Deque接口，可以当做**双端队列或栈**来使用。
 
-4、根据使用场景，ArrayList通常更适合随机查找，时间复杂度O(1)，add()方法直接在后面添加，如果不涉及扩容那么时间复杂度是O(1)，如果指定下标添加add(index,E)，那么时间复杂度为O(n)，后面的元素需要移动，LinkedList更适合添加、删除操作。这有一些细节，LinkedList可以通过getFirst()和getLast()直接获取第一个或最后一个元素，时间复杂度O(1)。如果get(index)指定下标元素，那需要依次遍历，时间复杂度O(n)，LinkedList的add()方法，直接在链表尾端添加元素，时间复杂度O(1)，如果指定下标add(index,E)添加元素，那么需要先遍历到指定下边位置，再添加元素，时间复杂度O(n)。
+4. **使用场景**：
 
+   - ArrayList通常**更适合随机查找，时间复杂度O(1)**，add()方法直接在后面添加，如果不涉及扩容那么时间复杂度是O(1)，如果指定下标添加add(index,E)，那么时间复杂度为O(n)，后面的元素需要移动
 
+   > ```java
+   > public boolean add(E e) {
+   >   ensureCapacityInternal(size + 1);  // Increments modCount!!
+   >   elementData[size++] = e;
+   >   return true;
+   > }
+   > ```
+
+   - **LinkedList更适合添加、删除操作**。这有一些细节，LinkedList可以通过getFirst()和getLast()直接获取第一个或最后一个元素，时间复杂度O(1)。如果**get(index)指定下标元素，那需要依次遍历，时间复杂度O(n)**，LinkedList的**add()方法，直接在链表尾端添加元素，时间复杂度O(1)**，如果指定下标**add(int index,E element)添加元素，那么需要先遍历到指定下边位置，再添加元素，时间复杂度O(n)**。
+
+   > ```java
+   > public void add(int index, E element) {
+   >   checkPositionIndex(index);//验证index是否合法
+   >   if (index == size)
+   >     linkLast(element);
+   >   else
+   >     linkBefore(element, node(index));//node 定位到指定index位置
+   > }
+   > ```
 
 ## 怎么创建线程安全的List
 
-- 可以使用Vector，通过synchronized实现同步方法。
+- 可以使用Vector，通过synchronized实现同步方法。Vector集合的**所有操作元素的方法都加了synchronized关键字**
 
 - 可以使用Collections的静态方法synchronizedList(List<> list)，通过synchronized同步代码块实现。
 
-- ==todo 待完善==CopyOnWriteArrayList容器：读不加锁，写入时加锁，先copy一个新数组，写入完成后用新数组替换旧数组。
+- CopyOnWriteArrayList容器：读不加锁，写入时加锁，先copy一个新数组，写入完成后用新数组替换旧数组。
+
+> **CopyOnWriteArrayList两个核心属性：**
+>
+> - lock：ReentrantLock，独占锁，多线程运行的情况下，只有一个线程会获得这个锁，只有释放锁后其他线程才能获得。
+> - array：Object[]，存放数据的数组，关键是被volatile修饰了，被volatile修饰，就保证了可见性，也就是一个线程修改后，其他线程立即可见。
+>
+> **添加数组的步骤如下(这个过程是线程安全的)：**
+>
+> 1. 获得独占锁，将添加功能加锁
+> 2. 获取原来的数组，并得到其长度
+> 3. 创建一个长度为**原来数组长度+1的数组**，并拷贝原来的元素给新数组
+> 4. 追加元素到新数组末尾
+> 5. 指向新数组
+> 6. 释放锁
 
 
 
