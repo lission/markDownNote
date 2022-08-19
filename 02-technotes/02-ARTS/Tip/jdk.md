@@ -181,11 +181,31 @@ HashMap、LinkedHashMap和TreeMap 三个**映射类基于不同数据结构实�
    - ArrayDeque可以作为**栈或队列**使用，但是栈的效率不如LinkedList高，**通常作为队列使用**。
    - LinkedList可以作为栈或队列使用，但是队列的效率不如ArrayQueue高，**通常作为栈(FILO)使用**。
 
+## ArrayDeque底层方法
+
+```java
+public void arrayDequeTest(){
+  ArrayDeque<Integer> arrayDeque = new ArrayDeque();
+  /*
+  * 实现了Deque接口，底层通过数组实现，Object[] elements;
+  * 可以作为栈或队列使用
+  */
+  // *** Queue methods ***
+  arrayDeque.add(1);//底层是addLast(),添加到数组尾端
+  arrayDeque.offer(3);//底层是offerLast->addLast(),添加到数组尾端
+  arrayDeque.poll();//底层pollFirst(),获取数组head,会在数组中删除取出的元素
+  arrayDeque.remove();//底层removeFirst()->pollFirst(),会将元素返回
+
+  // *** Stack methods ***
+  arrayDeque.push(2);//底层是addFirst()，添加到数组前端
+  arrayDeque.pop();//底层是removeFirst->pollFirst,将元素返回
+
+}
+```
+
 
 
 # 线程
-
-
 
 
 ## 什么是守护线程?

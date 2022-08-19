@@ -1,5 +1,7 @@
 [TOC]
 
+[极客时间mysql45讲](https://funnylog.gitee.io/mysql45/)
+
 # mysql架构
 
 ## mysql的执行流程
