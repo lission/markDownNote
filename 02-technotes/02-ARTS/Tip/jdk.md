@@ -55,8 +55,6 @@
 > 5. 指向新数组
 > 6. 释放锁
 
-
-
 ## HashMap jdk1.7与jdk1.8版本的区别
 
 1. **数据结构：**
@@ -115,64 +113,73 @@ hashMap的put方法的大体流程：
      - ii. 如果此位置上Node是链表节点，将key和value封装为一个链表Node，并通过尾插法插入到链表最后位置去，因为是尾插法，需要遍历链表，**在遍历链表过程中会判断是否存在当前key，如果存在则更新value**。当遍历完链表后，将新链表Node插入到链表中，插入到链表后，会看当前链表节点个数，如果大于等于8，将该链表转成红黑树，此时先判断数组长度是否达到64，如果没达到，就需要扩容，如果达到64，链表转红黑树
      - iii. 将key和value封装为Node插入到链表或红黑树中后，**判断是否需要进行扩容**，如果需要就扩容
 
-​			
-
 ## HashMap与HashTable区别
 
-- HashMap 方法没有synchronized修饰，是非线程安全的；HashTable是线程安全的
-- HashMap允许key为null，HashTable 不允许key为null
-- HashMap中key为null的键值对，存储在数组的下标为0的位置
-
-
+- **线程安全**：HashMap 方法没有synchronized修饰，是非线程安全的；HashTable是线程安全的
+- **key为null**：HashMap允许key为null，HashTable 不允许key为null
+- HashMap中key为null的键值对，存储在**数组的下标为0的位置**
 
 ## LinkedHashMap实现原理
 
-LinkedHashMap继承自HashMap，在HashMap基础上维护了一条双向链表，解决了HashMap不能随时保持遍历顺序和插入顺序一致的问题。
+LinkedHashMap**继承自HashMap**，在HashMap基础上**维护了一条双向链表**，解决了HashMap不能随时保持**遍历顺序和插入顺序一致的问题**。
 
-可以通过继承LinkedHashMap实现一个简单的LRU策略缓存。当我们基于LinkedHashMap实现缓存时，通过覆写其removeEldestEntry 实现自定义策略的LRU缓存。
-
-
+可以通过继承LinkedHashMap实现一个**简单的LRU策略缓存**。当我们基于LinkedHashMap实现缓存时，通过**覆写其removeEldestEntry**实现自定义策略的LRU缓存。
 
 ## HashMap、LinkedHashMap和TreeMap简介
 
-HashMap、LinkedHashMap和TreeMap 三个映射类基于不同数据结构实现了不同功能。
+HashMap、LinkedHashMap和TreeMap 三个**映射类基于不同数据结构实现了不同功能**。
 
-- HashMap，底层基于拉链式的散列结构，在jdk1.8中引入红黑树优化过长链表问题，提供了高效的增删改查操作
-- LinkedHashMap，继承HashMap，通过维护一条双向链表，实现了散列数据结构的**有序遍历**。
-- TreeMap，底层基于红黑树实现，利用红黑树特性，实现了键值对排序功能。
-
-
+- HashMap，底层**基于拉链式的散列结构**，在jdk1.8中**引入红黑树优化过长链表问题**，提供了高效的增删改查操作
+- LinkedHashMap，继承HashMap，通过**维护一条双向链表**，实现了散列数据结构的**有序遍历**。
+- TreeMap，底层**基于红黑树**实现，利用红黑树特性，实现了**键值对排序功能**。
 
 ## ConcurrentHashMap原理，jdk1.7与jdk1.8区别
 
 1. **数据结构**：
 
-   - **jdk1.7**：基于segment分段实现，每一个segment相当于一个小的HashMap，segment内部是数组+链表的结构，一个segement包含一个HashEntry数组，每个HashEntry又是一个链表结构
+   - **jdk1.7**：基于**segment分段实现**，每**一个segment相当于一个小的HashMap**，segment内部是**数组+链表**的结构，一个segement包含一个HashEntry数组，每个HashEntry又是一个链表结构
 
-   - **jdk1.8**：不再基于分段实现，数据结构是数组+链表+红黑树
+   - **jdk1.8**：不再基于分段实现，数据结构是**数组+链表+红黑树**
 
 2. **锁**
 
-   - **jdk1.7**：segment分段锁，Segment继承ReentrantLock，锁定操作的segment，其他的segment不受影响，并发度为segment个数，**可以通过构造函数指定**，***之后不可更改，当数据量很大时效率欠佳***。**get方法无需加锁**，volatile保证可见性，**HashEntry<K,V>[]数组是volatile修饰，HashEntry内部value和next也使用volatile修饰**
+   - **jdk1.7**：segment分段锁，Segment继承ReentrantLock，
 
-   - **jdk1.8**：通过synchronized和cas实现线程安全，写入时，首先判断数组位置是否为空，如果为空使用cas进行更新，更新失败或者位置上有元素，**在这个位置节点上加synchronize锁**，然后更新。**锁链表头节点，不影响其他元素读写，锁粒度更细，效率更高。**get方法无需加锁，Node的val和next使用volatile修饰，读写线程对该变量互相可见。数组volatile Node<K,V>[]用volatile修饰，**保证扩容时被读线程感知**。
+     - **写入时**，锁定操作的segment，其他的segment不受影响，并发度为segment个数
+
+       > segement个数 **可以通过构造函数指定**，***之后不可更改，当数据量很大时效率欠佳***。
+
+     - **读取时**，**get方法无需加锁**，volatile保证可见性，**HashEntry<K,V>[]数组是volatile修饰，HashEntry内部value和next也使用volatile修饰**
+
+   - **jdk1.8**：通过synchronized和cas实现线程安全
+
+     - **写入时**，首先判断数组位置是否为空，如果为空使用cas进行更新，**更新失败或者位置上有元素**，**在这个位置节点上加synchronize锁**，然后更新。**锁链表头节点，不影响其他元素读写，==锁粒度更细，效率更高==。**
+     - **读取时**，**get方法无需加锁**，数组volatile Node<K,V>[]用volatile修饰，**保证扩容时被读线程感知**，Node的val和next使用volatile修饰，读写线程对该变量互相可见。。
 
 3. **扩容**：
 
-   - **jdk1.7**：每个segment内部单独进行扩容判断，是否超过阈值，扩容时先生成新的数组，然后转移元素到新数组中
+   - **jdk1.7**：每个**segment内部单独进行扩容判断**，是否超过阈值，扩容时先生成新的数组，然后转移元素到新数组中
 
-   - **jdk1.8**：支持多个线程同时扩容，扩容前先生成一个新数组，**在转移元素时，先将原数组分组**，将每组分给不同线程进行元素转移，每个线程负责一组或多组元素转移工作。
+   - **jdk1.8**：支持**多个线程同时扩容**，扩容前先生成一个新数组，**在转移元素时，先将原数组分组**，将每组分给不同线程进行元素转移，每个线程负责一组或多组元素转移工作。
 
-4. 其他，**不支持key=null的键值对**
+4. **其他**，**不支持key=null的键值对**
 
 ## Queue和Deque(比较少用，简单整理)
 
-- 1、Queue，单端队列，(FIFO)先进先出队列。Deque，Queue的子接口，双端队列，可以在首尾都进行插入删除操作
+1. **数据类型**：
+   - Queue，单端队列，(FIFO)先进先出队列。
+   - Deque，Queue的子接口，双端队列，可以在首尾都进行插入删除操作。
 
-- 2、Queue的常用子类，PriorityQueue底层数据结构**数组，无边界，自带扩容机制**。Deque常用子类，LinkedList和ArrayDeque；LinkedList是**双向链表**。ArrayDeque是无初始容量的双端队列，**数组实现**
-- 3、PriorityQueue可以作为**堆（优先队列）**使用，而且可以根据传入的Comparator实现大小的调整，会是一个很好的选择。
-  - ArrayDeque可以作为栈或队列使用，但是栈的效率不如LinkedList高，**通常作为队列使用**。
-  - LinkedList可以作为栈或队列使用，但是队列的效率不如ArrayQueue高，**通常作为栈(FILO)使用**。
+2. **底层实现**：
+   - Queue的常用子类，PriorityQueue底层数据结构**数组，无边界，自带扩容机制**。
+   - Deque常用子类，LinkedList和ArrayDeque；
+     - LinkedList是**双向链表**。
+     - ArrayDeque是无初始容量的双端队列，**数组实现**
+
+3. **使用场景**：
+   - PriorityQueue可以作为**堆（优先队列）**使用，而且可以根据传入的Comparator实现大小的调整。
+   - ArrayDeque可以作为**栈或队列**使用，但是栈的效率不如LinkedList高，**通常作为队列使用**。
+   - LinkedList可以作为栈或队列使用，但是队列的效率不如ArrayQueue高，**通常作为栈(FILO)使用**。
 
 
 
