@@ -178,8 +178,44 @@ HashMap、LinkedHashMap和TreeMap 三个**映射类基于不同数据结构实�
 
 3. **使用场景**：
    - PriorityQueue可以作为**堆（优先队列）**使用，而且可以根据传入的Comparator实现大小的调整。
-   - ArrayDeque可以作为**栈或队列**使用，但是栈的效率不如LinkedList高，**通常作为队列使用**。
-   - LinkedList可以作为栈或队列使用，但是队列的效率不如ArrayQueue高，**通常作为栈(FILO)使用**。
+   - ArrayDeque可以作为**栈或队列**使用，~~但是栈的效率不如LinkedList高，**通常作为队列使用**~~。
+   - LinkedList可以作为栈或队列使用，~~但是队列的效率不如ArrayQueue高，**通常作为栈(FILO)使用**~~。
+
+## java为何使用Deque实现Stack
+
+[java为何使用Deque实现Stack](https://blog.csdn.net/asd051377305/article/details/118420339?spm=1001.2101.3001.6661.1&utm_medium=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-1-118420339-blog-104927050.pc_relevant_multi_platform_whitelistv3&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-1-118420339-blog-104927050.pc_relevant_multi_platform_whitelistv3&utm_relevant_index=1)
+
+
+
+## Stack底层方法
+
+java官方不推荐使用Stack作为栈：
+
+![img](https://github.com/lission/markdownPics/blob/main/java/DequeForStack.png?raw=true)
+
+- Stack继承Vector，对用户暴露了大量非栈必须的方法
+
+  >  Vector 作为动态数组，是有能力**在数组中的任何位置添加或者删除元素**的，Stack继承了Vector同样具备这样的能力。**这破坏了栈这种数据结构的封装**。
+  >
+  > 原因在于：Stack 和 Vector 之间的关系，不应该是继承关系，而应该是组合关系（composition）
+  >
+  > 继承关系是is-a的关系，组合关系是has-a的关系。
+  >
+  > **==设计对象时，判断一下，如果设计成继承关系的话，我们是否有可能把子类进行向上的父类转型？如果可能，则应该设计成继承关系，否则应该是组合关系==**
+
+- Vector是线程安全的，其效率并不高
+
+```java
+public void stackMethodTest(){
+  //栈，后进先出
+  //stack 继承Vector，底层数组实现
+  Stack<Integer> stack = new Stack<>();
+  //push方法添加元素至数组尾部
+  stack.push(1);
+  //pop方法通过peek()+removeElement() 实现,peek()返回数组尾部元素
+  stack.pop();
+}
+```
 
 ## ArrayDeque底层方法
 
@@ -199,11 +235,25 @@ public void arrayDequeTest(){
   // *** Stack methods ***
   arrayDeque.push(2);//底层是addFirst()，添加到数组前端
   arrayDeque.pop();//底层是removeFirst->pollFirst,将元素返回
-
 }
 ```
 
+## LinkedList底层方法
 
+```java
+public void linkedListTest(){
+  //实现了List<E>, Deque<E>接口，底层数据结构是双向链表
+  LinkedList<Integer> linkedList = new LinkedList<>();
+  linkedList.add(1);//底层linkLast()，将元素添加到链表尾端
+  //*** Queue operations
+  linkedList.offer(2);//底层add()->linkLast()，将元素添加到链表尾端
+  linkedList.poll();//底层unlinkFirst()，将链表顶端元素解除链表关系，并返回
+  linkedList.remove();//底层removeFirst->unlinkFirst()
+  //*** Deque operations
+  linkedList.push(3);//底层addFirst()->linkFirst()，将元素添加到链表顶端
+  linkedList.pop();//底层removeFirst()->unlinkFirst()，将链表顶端元素解除链表关系，并返回
+}
+```
 
 # 线程
 
