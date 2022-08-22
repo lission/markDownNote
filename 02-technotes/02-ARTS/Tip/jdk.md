@@ -15,9 +15,9 @@
 
    > ```java
    > public boolean add(E e) {
-   >   ensureCapacityInternal(size + 1);  // Increments modCount!!
-   >   elementData[size++] = e;
-   >   return true;
+   >     ensureCapacityInternal(size + 1);  // Increments modCount!!
+   >     elementData[size++] = e;
+   >     return true;
    > }
    > ```
 
@@ -25,25 +25,25 @@
 
    > ```java
    > public void add(int index, E element) {
-   >   checkPositionIndex(index);//验证index是否合法
-   >   if (index == size)
-   >     linkLast(element);
-   >   else
-   >     linkBefore(element, node(index));//node 定位到指定index位置
+   >     checkPositionIndex(index);//验证index是否合法
+   >     if (index == size)
+   >       linkLast(element);
+   >     else
+   >       linkBefore(element, node(index));//node 定位到指定index位置
    > }
    > ```
 
 ## 怎么创建线程安全的List
 
-- 可以使用Vector，通过synchronized实现同步方法。Vector集合的**所有操作元素的方法都加了synchronized关键字**
+- 可以使用**Vector**，通过synchronized实现同步方法。Vector集合的**所有操作元素的方法都加了synchronized关键字**
 
-- 可以使用Collections的静态方法synchronizedList(List<> list)，通过synchronized同步代码块实现。
+- 可以使用**Collections的静态方法synchronizedList(List<> list)**，通过synchronized同步代码块实现。
 
 - CopyOnWriteArrayList容器：读不加锁，写入时加锁，先copy一个新数组，写入完成后用新数组替换旧数组。
 
 > **CopyOnWriteArrayList两个核心属性：**
 >
-> - lock：ReentrantLock，独占锁，多线程运行的情况下，只有一个线程会获得这个锁，只有释放锁后其他线程才能获得。
+> - lock：**ReentrantLock，独占锁**，多线程运行的情况下，只有一个线程会获得这个锁，只有释放锁后其他线程才能获得。
 > - array：Object[]，存放数据的数组，关键是被volatile修饰了，被volatile修饰，就保证了可见性，也就是一个线程修改后，其他线程立即可见。
 >
 > **添加数组的步骤如下(这个过程是线程安全的)：**
@@ -77,8 +77,8 @@
 
      > ```java
      > static final int hash(Object key) {
-     >   int h;
-     >   return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
+     >     int h;
+     >     return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
      > }
      > ```
      >
@@ -86,15 +86,22 @@
 
 4. **核心参数**：HashMap有两个参数影响其性能：**初始容量**和**加载因子**。
 
-- 初始容量，指HashMap在创建时的容量，默认**初始容量为16**，每次扩容**扩大为原来容量2倍**。
-- 加载因子，指HashMap在其容量自动扩容前可以达到的**最大比例**，**默认加载因子为0.75**。
+   - 初始容量，指HashMap在创建时的容量，默认**初始容量为16**，每次扩容**扩大为原来容量2倍**。
 
-创建HashMap时，jdk1.8对传入的加载因子直接使用。对指定的初始容量，通过**右移1位与位移前异运算**，得到的值再**右移2位，4位，8位，16位都做异运算**，得到的结果如果大于2^30，就设置容量为 2^30，如果小于 2^30，就设置容量为**结果+1**，这样得到的结果一定是**==比入参大的最小的 2^n==**，可以减少hash碰撞。
+   - 加载因子，指HashMap在其容量自动扩容前可以达到的**最大比例**，**默认加载因子为0.75**。
+
+     > 创建HashMap时:
+     >
+     > - jdk1.8对传入的加载因子直接使用。
+     > - 对指定的初始容量，通过**右移1位与位移前异运算**，得到的值再**右移2位，4位，8位，16位都做异运算**，得到的结果如果大于2^30，就设置容量为 2^30，如果小于 2^30，就设置容量为**结果+1**，这样得到的结果一定是**==比入参大的最小的 2^n==**，可以减少hash碰撞。
+
 
 5. **加载因子**：加载因子初始值设置为0.75，是时间和空间上的一种折衷。
 
-- 加载因子**越低**，HashMap所能容纳键值对变少，扩容时，重新将键值对存储新的桶数组里，**键之间产生的哈希碰撞会降低**，此时HashMap的增删改查等操作效率变高，这是典型的**拿空间换时间**。
-- 加载因子**越高**，HashMap所能容纳的键值对数量变多，**空间利用率高，哈希碰撞率也高**，这意味着**链表变长，效率降低**，这是拿**时间换空间**。
+   - 加载因子**越低**，HashMap所能容纳键值对变少，扩容时，重新将键值对存储新的桶数组里，**键之间产生的哈希碰撞会降低**，此时HashMap的增删改查等操作效率变高，这是典型的**拿空间换时间**。
+
+   - 加载因子**越高**，HashMap所能容纳的键值对数量变多，**空间利用率高，哈希碰撞率也高**，这意味着**链表变长，效率降低**，这是拿**时间换空间**。
+
 
 ## 简述HashMap的put方法
 
@@ -102,13 +109,13 @@ hashMap的put方法的大体流程：
 
 1. 计算key的hash值（把key的hashCode右移16位与原值**异或**计算），然后判断hashMap是否已经初始化，如果没有需要先初始化，然后**用hashMap数组长度 -1 与hash值**与运算，得到数组下标
 
-2. 如果数组下标位置元素为空，则将key和value封装为Node对象(jdk1.7中是Entry对象)，放入该位置
+2. 如果**数组下标位置元素为空**，则将key和value封装为Node对象(jdk1.7中是Entry对象)，放入该位置
 
-3. 如果数组下标位置元素不为空，则要分情况讨论
+3. 如果**数组下标位置元素不为空**，则要分情况讨论
 
-   - a. 如果是jdk1.7，则先判断是否需要扩容，如果需要扩容就扩容，如果不需要扩容就生成Entry对象，并使用头插法添加到当前位置的链表中
+   - a. 如果是jdk1.7，则先判断是否需要扩容，如果需要扩容就扩容，如果不需要扩容就生成Entry对象，并使用**头插法添加到当前位置的链表**中
 
-   - b. 如果是jdk1.8，则先判断**当前位置上的Node类型**，看是红黑树Node还是，链表Node、
+   - b. 如果是jdk1.8，则先判断**当前位置上的Node类型**，看是红黑树Node还是链表Node
      - i. 如果是红黑树Node，则将key和value封装为一个红黑树节点，并添加到红黑树中去，在这个过程中会判断红黑树**是否存在当前key**，如果存在则更新value
      - ii. 如果此位置上Node是链表节点，将key和value封装为一个链表Node，并通过尾插法插入到链表最后位置去，因为是尾插法，需要遍历链表，**在遍历链表过程中会判断是否存在当前key，如果存在则更新value**。当遍历完链表后，将新链表Node插入到链表中，插入到链表后，会看当前链表节点个数，如果大于等于8，将该链表转成红黑树，此时先判断数组长度是否达到64，如果没达到，就需要扩容，如果达到64，链表转红黑树
      - iii. 将key和value封装为Node插入到链表或红黑树中后，**判断是否需要进行扩容**，如果需要就扩容
@@ -130,8 +137,8 @@ LinkedHashMap**继承自HashMap**，在HashMap基础上**维护了一条双向�
 HashMap、LinkedHashMap和TreeMap 三个**映射类基于不同数据结构实现了不同功能**。
 
 - HashMap，底层**基于拉链式的散列结构**，在jdk1.8中**引入红黑树优化过长链表问题**，提供了高效的增删改查操作
-- LinkedHashMap，继承HashMap，通过**维护一条双向链表**，实现了散列数据结构的**有序遍历**。
-- TreeMap，底层**基于红黑树**实现，利用红黑树特性，实现了**键值对排序功能**。
+- LinkedHashMap，继承HashMap，通过**维护一条双向链表**，实现了散列数据结构的**有序遍历**
+- TreeMap，底层**基于红黑树**实现，利用红黑树特性，实现了**键值对排序功能**
 
 ## ConcurrentHashMap原理，jdk1.7与jdk1.8区别
 
@@ -154,7 +161,7 @@ HashMap、LinkedHashMap和TreeMap 三个**映射类基于不同数据结构实�
    - **jdk1.8**：通过synchronized和cas实现线程安全
 
      - **写入时**，首先判断数组位置是否为空，如果为空使用cas进行更新，**更新失败或者位置上有元素**，**在这个位置节点上加synchronize锁**，然后更新。**锁链表头节点，不影响其他元素读写，==锁粒度更细，效率更高==。**
-     - **读取时**，**get方法无需加锁**，数组volatile Node<K,V>[]用volatile修饰，**保证扩容时被读线程感知**，Node的val和next使用volatile修饰，读写线程对该变量互相可见。。
+     - **读取时**，**get方法无需加锁**，数组**volatile Node<K,V>[]**用volatile修饰，**保证扩容时被读线程感知**，Node的val和next使用volatile修饰，读写线程对该变量互相可见。。
 
 3. **扩容**：
 
@@ -168,7 +175,7 @@ HashMap、LinkedHashMap和TreeMap 三个**映射类基于不同数据结构实�
 
 1. **数据类型**：
    - Queue，单端队列，(FIFO)先进先出队列。
-   - Deque，Queue的子接口，双端队列，可以在首尾都进行插入删除操作。
+   - Deque，Queue的子接口，**双端队列**，可以在首尾都进行插入删除操作。
 
 2. **底层实现**：
    - Queue的常用子类，PriorityQueue底层数据结构**数组，无边界，自带扩容机制**。
@@ -184,8 +191,6 @@ HashMap、LinkedHashMap和TreeMap 三个**映射类基于不同数据结构实�
 ## java为何使用Deque实现Stack
 
 [java为何使用Deque实现Stack](https://blog.csdn.net/asd051377305/article/details/118420339?spm=1001.2101.3001.6661.1&utm_medium=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-1-118420339-blog-104927050.pc_relevant_multi_platform_whitelistv3&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-1-118420339-blog-104927050.pc_relevant_multi_platform_whitelistv3&utm_relevant_index=1)
-
-
 
 ## Stack底层方法
 
