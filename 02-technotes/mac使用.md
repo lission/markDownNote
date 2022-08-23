@@ -45,3 +45,11 @@ sudo xattr -r -d com.apple.quarantine /Applications/Paste.app
 
 sudo codesign --force --deep --sign - /Applications/Paste.app
 
+# 3、jd-gui class反编译工具启动方式
+
+https://github.com/java-decompiler/jd-gui/releases
+
+[参考](https://blog.csdn.net/qq_37958845/article/details/121703791)
+
+- cd 进入目录/Users/lission/devTool/jd-gui-osx-1.6.6/JD-GUI.app/Contents/Resources/Java
+- java -jar jd-gui-1.6.6-min.jar
