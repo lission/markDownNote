@@ -428,6 +428,82 @@ DataSourceTransactionManager是spring中的数据源事务管理器，它会在�
   - **指令重新排序，机器级的优化操作**，CPU 允许将多条指令不按程序规定的顺序分开发送给各相应电路单元处理。
   - **编译器优化**，编译器（包括 JVM、JIT 编译器等）出于优化的目的，在编译过程中会进行一定程度的重排，导致生成的机器指令和字节码的顺序不一致。
 
+## Thread的生命周期
+
+Thread内部状态枚举，6种枚举类型：
+
+```java
+public enum State {
+    /**
+     * Thread state for a thread which has not yet started.
+     */
+    NEW,
+
+    /**
+     * Thread state for a runnable thread.  A thread in the runnable
+     * state is executing in the Java virtual machine but it may
+     * be waiting for other resources from the operating system
+     * such as processor.
+     */
+    RUNNABLE,
+
+    /**
+     * Thread state for a thread blocked waiting for a monitor lock.
+     * A thread in the blocked state is waiting for a monitor lock
+     * to enter a synchronized block/method or
+     * reenter a synchronized block/method after calling
+     * {@link Object#wait() Object.wait}.
+     */
+    BLOCKED,
+
+    /**
+     * Thread state for a waiting thread.
+     * A thread is in the waiting state due to calling one of the
+     * following methods:
+     * <ul>
+     *   <li>{@link Object#wait() Object.wait} with no timeout</li>
+     *   <li>{@link #join() Thread.join} with no timeout</li>
+     *   <li>{@link LockSupport#park() LockSupport.park}</li>
+     * </ul>
+     *
+     * <p>A thread in the waiting state is waiting for another thread to
+     * perform a particular action.
+     *
+     * For example, a thread that has called <tt>Object.wait()</tt>
+     * on an object is waiting for another thread to call
+     * <tt>Object.notify()</tt> or <tt>Object.notifyAll()</tt> on
+     * that object. A thread that has called <tt>Thread.join()</tt>
+     * is waiting for a specified thread to terminate.
+     */
+    WAITING,
+
+    /**
+     * Thread state for a waiting thread with a specified waiting time.
+     * A thread is in the timed waiting state due to calling one of
+     * the following methods with a specified positive waiting time:
+     * <ul>
+     *   <li>{@link #sleep Thread.sleep}</li>
+     *   <li>{@link Object#wait(long) Object.wait} with timeout</li>
+     *   <li>{@link #join(long) Thread.join} with timeout</li>
+     *   <li>{@link LockSupport#parkNanos LockSupport.parkNanos}</li>
+     *   <li>{@link LockSupport#parkUntil LockSupport.parkUntil}</li>
+     * </ul>
+     */
+    TIMED_WAITING,
+
+    /**
+     * Thread state for a terminated thread.
+     * The thread has completed execution.
+     */
+    TERMINATED;
+}
+```
+
+Thread start之后处于runnable状态，**等待获取cpu使用权**
+
+阻塞状态是线程由于某种原因放弃cpu使用权，暂时停止运行。直到线程进入就绪runnable状态，才有机会转到运行状态
+
+![img](https://github.com/lission/markdownPics/blob/main/java/thread_lifecycle.png?raw=true)
 
 ## 为什么使用线程池
 
@@ -521,9 +597,9 @@ ThreadPoolExecutor最长构造函数共有**7**个参数
 
 | 任务性质      | 线程数配置                                                   |
 | ------------- | ------------------------------------------------------------ |
-| CPU密集型任务 | CPU密集型任务应配置尽可能小的线程数(如：cpu个数+1)           |
-| IO密集型任务  | IO密集型任务并不是一直在执行任务，应配置尽可能多的线程(如：cpu个数*2) |
-| 混合型任务    | 混合型任务，如果可以拆分，将其拆分成一个CPU密集型任务和一个IO密集型任务，只要这两个任务执行的时间相差不是很大，那么**分解后执行的吞吐量将高于串行执行的吞吐量** |
+| CPU密集型任务 | CPU密集型任务应配置**尽可能小的线程数**(如：cpu个数+1)       |
+| IO密集型任务  | IO密集型任务并不是一直在执行任务，应配置**尽可能多的线程**(如：cpu个数*2) |
+| 混合型任务    | 混合型任务，如果可以拆分，将其**拆分成一个CPU密集型任务和一个IO密集型任务**，只要这两个任务执行的时间相差不是很大，那么**分解后执行的吞吐量将高于串行执行的吞吐量** |
 
 - CPU密集型任务，CPU密集型任务应配置尽可能小的线程数(如：cpu个数+1) 
 - IO密集型任务，IO密集型任务并不是一直在执行任务，应配置尽可能多的线程(如：cpu个数*2)
@@ -541,21 +617,9 @@ ThreadPoolExecutor最长构造函数共有**7**个参数
 
 依赖数据库连接时，因为提交sql后需要等待数据库返回结果，等待时间越长，cpu空闲时间越长，那么线程数应该设置的越大
 
-
-
-## Thread的生命周期
-
-Thread start之后处于runnable状态，等待获取cpu使用权
-
-阻塞状态是线程由于某种原因放弃cpu使用权，暂时停止运行。直到线程进入就绪runnable状态，才有机会转到运行状态
-
-![img](https://github.com/lission/markdownPics/blob/main/java/thread_lifecycle.png?raw=true)
-
-
-
 ## 描述ForkJoinPool
 
-ForkJoinPool是jdk7增加的一个线程池类，Fork/Join是分治算法的一个并行实现。它可以将一个大任务拆分为很多小任务来异步执行。
+ForkJoinPool是**jdk7增加的一个线程池类**，**Fork/Join是分治算法的一个并行实现**。它可以**将一个大任务拆分为很多小任务来异步执行**。
 
 Fork/Join框架主要三个模块：
 
