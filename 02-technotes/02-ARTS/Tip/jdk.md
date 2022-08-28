@@ -623,62 +623,62 @@ ForkJoinPool是**jdk7增加的一个线程池类**，**Fork/Join是分治算法�
 
 Fork/Join框架主要三个模块：
 
-- 任务对象：ForkJoinTask，包括（RecursiveTask、RecursiveAction、CountedCompleter）
-- 执行fork/join任务的线程：ForkJoinWorkerThread
-- 线程池：ForkJoinPool
+- **任务对象：ForkJoinTask**，包括（RecursiveTask、RecursiveAction、CountedCompleter）
 
-三者关系是，ForkJoinPool可以通过池中的ForkJoinWorkerThread来处理ForkJoinTask任务
+  > ForkJoinTask，是一个**抽象类，实现了Future接口**
+
+- **执行fork/join任务的线程**：ForkJoinWorkerThread
+
+  > ForkJoinWorkerThread**继承了Thread**
+
+- 线程池：**ForkJoinPool**
+
+三者关系是，**ForkJoinPool可以通过池中的ForkJoinWorkerThread来处理ForkJoinTask任务**
 
 ### ForkJoinPool核心思想
 
-- 分治算法（Divide and Conquer），把任务递归的拆分为子任务
+- **分治算法**（Divide and Conquer），**把任务递归的拆分为子任务**
 
-- 工作窃取算法（work-stealing），除了线程池内部有队列，每个ForkJoinWorkerThread线程内部都有队列，线程执行时把任务拆分成小任务写入线程内部队列，当线程执行完自己的任务，会窃取其他线程的任务执行。
+- **工作窃取算法**（work-stealing），**除了线程池内部有队列**，**每个ForkJoinWorkerThread线程内部都有队列**，线程执行时**把任务拆分成小任务写入线程内部队列**，当线程执行完自己的任务，**会窃取其他线程的任务执行**。
 
-  
-
-  工作窃取详细思路暂不作为本次重点，[参考地址](https://www.pdai.tech/md/java/thread/java-thread-x-juc-executor-ForkJoinPool.html#%E5%B8%A6%E7%9D%80bat%E5%A4%A7%E5%8E%82%E7%9A%84%E9%9D%A2%E8%AF%95%E9%97%AE%E9%A2%98%E5%8E%BB%E7%90%86%E8%A7%A3forkjoin%E6%A1%86%E6%9E%B6)
-
-- 
-
-  - 每个线程都有自己的一个WorkQueue，该工作队列是一个双端队列。
-  - 队列支持三个功能push、pop、poll
-  - push/pop只能被队列的所有者线程调用，而poll可以被其他线程调用。
-  - 划分的子任务调用fork时，都会被push到自己的队列中。
-  - 默认情况下，工作线程从自己的双端队列获出任务并执行。
-  - 当自己的队列为空时，线程随机从另一个线程的队列末尾调用poll方法窃取任务。
+  > 工作窃取思路：[参考地址](https://www.pdai.tech/md/java/thread/java-thread-x-juc-executor-ForkJoinPool.html#%E5%B8%A6%E7%9D%80bat%E5%A4%A7%E5%8E%82%E7%9A%84%E9%9D%A2%E8%AF%95%E9%97%AE%E9%A2%98%E5%8E%BB%E7%90%86%E8%A7%A3forkjoin%E6%A1%86%E6%9E%B6)
+  >
+  > - 每个线程都有自己的一个**WorkQueue**，该工作队列是一个**双端队列**
+  > - 队列支持三个功能**push、pop、poll**
+  > - **push/pop只能被队列的所有者线程调用**，而**poll可以被其他线程调用**。
+  > - 划分的子任务调用fork时，都会被push到自己的队列中。
+  > - 默认情况下，工作线程从自己的双端队列获取任务并执行。
+  > - 当**自己的队列为空时**，线程**随机从另一个线程的队列末尾调用poll方法窃取任务**。
 
 ### 哪些JDK源码中利用了Fork/Join思想
 
-- 数组工具类 Arrays 在JDK 8之后新增的并行排序方法(parallelSort)就运用了 ForkJoinPool 的特性
-- ConcurrentHashMap 在JDK 8之后添加的函数式方法(如forEach等)也有运用
+- 数组工具类 **Arrays 在JDK 8之后新增的并行排序方法(parallelSort)**就运用了 ForkJoinPool 的特性
+- **ConcurrentHashMap 在JDK 8之后添加的函数式方法(如forEach等)也有运用**
 
 ### 实际应用
 
 - 可以用来实现斐波那契数列
 
-
-
 # 锁
 
 ## 死锁
 
-当两个或多个线程互相持有对方需要的资源，又不主动释放，导致程序无法继续先进陷入无尽的阻塞。
+**定义**：当两个或多个线程**互相持有对方需要的资源**，又**不主动释放**，导致程序无法继续先进**陷入无尽的阻塞**。
 
 导致死锁的原因：
 
-- 1、一个资源一次只能被一个线程使用
-- 2、一个线程在阻塞等待某个资源时，不释放已占用资源
-- 3、一个线程已获得的资源，在未使用完之前，不能被强制剥夺
-- 4、若干线程形成头尾相接的循环等待资源关系
+- 1、一个资源一次**只能被一个线程使用**
+- 2、一个线程在阻塞等待某个资源时，**不释放已占用资源**
+- 3、一个线程已获得的资源，在未使用完之前，**不能被强制剥夺**
+- 4、若干线程形成头尾相接的**循环等待资源关系**
 
 死锁必须要满足上述4个条件
 
 开发过程中应注意：
 
-- 1、注意加锁顺序，保证每个线程按同样顺序进行加锁
-- 2、注意加锁时限，可以针对锁设置一个超时时间
-- 3、注意死锁检查，这是一种预防机制，确保第一时间发现死锁并解决
+- 1、注意**加锁顺序**，保证每个线程按同样顺序进行加锁
+- 2、注意**加锁时限**，可以针对锁设置一个超时时间
+- 3、注意**死锁检查**，这是一种预防机制，确保第一时间发现死锁并解决
 
 ## 如何查看线程死锁
 
@@ -690,9 +690,7 @@ Jstack [option] pid
 | ---- | ------------------------------------------------------------ |
 | -F   | 当正常输出的请求不被响应时，强制输出线程堆栈                 |
 | -m   | 如果调用到本地方法的话，可以显示C/C++的堆栈                  |
-| -l   | 除堆栈外，显示关于锁的附加信息，在发生死锁时可以用jstack -l pid来观察锁持有情况 |
-
-
+| -l   | 除堆栈外，显示关于锁的附加信息，在**发生死锁时可以用jstack -l pid来观察锁持有情况** |
 
 ## synchronized、lock、cas的实现与区别，各自优缺点，描述volatile关键字
 
