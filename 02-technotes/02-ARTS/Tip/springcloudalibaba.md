@@ -137,9 +137,9 @@ spring.cloud.nacos.discovery.metadata.service.source=${config.nacos.service.sour
 
 - **集中式(服务端)负载均衡**，**在消费者和服务端中间使用独立的代理方式进行负载**，**硬件（F5），软件（nginx）**
 
-- **客户端负载均衡**，客户端根据自己的请求情况做负载均衡，**ribbon属于客户端自己做的负载均衡**
+- **客户端负载均衡**，客户端**根据自己的请求情况**做负载均衡，**ribbon属于客户端自己做的负载均衡**
 
-ribbon，微服务负载均衡器。通过load balance 拉取服务列表，基于某种规则调用这些实例。
+ribbon，**微服务负载均衡器**。通过load balance 拉取服务列表，基于某种规则调用这些实例。
 
 常见负载均衡算法：
 
@@ -149,11 +149,11 @@ ribbon，微服务负载均衡器。通过load balance 拉取服务列表，基�
 - 地址哈希，根据服务消费者ip进行hash取模进行服务器调度
 - 最小连接数
 
-使用ribbon在RestTemplate上添加@LoadBalanced注解。
+**使用ribbon在RestTemplate上添加@LoadBalanced注解**。
 
-**可以为所有服务提供一个负载均衡策略，也可以为指定服务提供负载均衡策略**。所有的负载均衡策略均实现了IRule接口。
+**可以为所有服务提供一个负载均衡策略，也可以为指定服务提供负载均衡策略**。所有的负载均衡策略均实现了**IRule接口**。
 
-Ribbon默认负载均衡策略ZoneAvoidanceRule(默认规则)，复合判断server所在区域的性能和server的可用性选择服务器。**区域：云原生中地域部署。如果没有区域概念，采用轮询规则**。
+Ribbon默认负载均衡策略**ZoneAvoidanceRule**(默认规则)，复合判断server所在区域的性能和server的可用性选择服务器。**区域：云原生中地域部署。如果没有区域概念，采用轮询规则**。
 
 
 
@@ -163,8 +163,8 @@ spring cloud官方自己提供的客户端负载均衡器，用来替换ribbon�
 
 spring cloud 提供了两种负载均衡的客户端：
 
-- RestTemplate，**spring提供的用于访问rest服务的客户端**，RestTemplate提供多种便捷远程访问http服务的方法，默认情况下，RestTemplate默认依赖jdk的http工具
-- WebClient，spring webflux 5.0开始提供的一个非阻塞的基于响应式编程的进行http请求的工具。响应式编程基于Reactor。WebClient提供了标准http请求方式对应的get、post、put、delete等方法
+- **RestTemplate**，**spring提供的用于访问rest服务的客户端**，RestTemplate提供多种便捷远程访问http服务的方法，默认情况下，RestTemplate默认依赖jdk的http工具
+- **WebClient**，spring webflux 5.0开始提供的一个**非阻塞的基于响应式编程的进行http请求的工具**。响应式编程基于Reactor。WebClient提供了标准http请求方式对应的get、post、put、delete等方法
 
 ## 1.4、feign
 
