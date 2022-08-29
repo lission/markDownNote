@@ -2,8 +2,16 @@
 
 # spring cloud alibaba
 
-spring cloud alibaba 是对 spring cloud 的标准实现，以微服务为核心的整体解决方案。
+spring cloud alibaba 是对 spring cloud 的标准实现，**以微服务为核心的整体解决方案**。
 主流框架，[spring cloud alibaba版本说明](https://github.com/alibaba/spring-cloud-alibaba/wiki/%E7%89%88%E6%9C%AC%E8%AF%B4%E6%98%8E)
+
+当前项目使用版本：2021.0.1.0
+
+| Spring Cloud Alibaba Version | Spring Cloud Version  | Spring Boot Version |
+| ---------------------------- | --------------------- | ------------------- |
+| 2021.0.1.0*                  | Spring Cloud 2021.0.1 | 2.6.3               |
+
+
 
 **spring cloud 各套实现对比**：
 
@@ -27,15 +35,17 @@ spring cloud alibaba 是对 spring cloud 的标准实现，以微服务为核心
 
 ### 1.1.1、ncos discovery 注册中心
 
-注册中心管理所有微服务，解决服务之间调用关系复杂，难以维护的问题。
+注册中心**管理所有微服务**，**解决服务之间调用关系复杂，难以维护**的问题。
 
 **核心功能**：
 
-- 服务注册，nacos client通过发送rest请求方式向nacos server注册自己的服务，提供自身的元数据，比如ip、端口等，nacos server接收到注册请求后，把元数据信息存储在双层内存map中
-- 服务心跳，服务注册后，nacos client维护一个定时心跳持续通知nacos server，默认5s发生一次心跳
-- 服务同步，集群之间服务实例同步
-- 服务发现，服务消费者(nacos client)在调用服务提供者的服务时，发送一个rest请求给nacos server，获取注册的服务清单，缓存在nacos client本地。同时在nacos client本地开启一个定时任务定时拉取服务端最新的注册表信息更新到本地缓存
-- 服务健康检查，nacos server开启一个定时任务检查注册服务实例健康状况，对于超过15s没有收到客户端心跳的实例将它的healthy属性置为false，如果某个实例超过30s没有收到心跳，直接剔除该实例(被剔除的实例如果恢复发送心跳会重新注册)
+- **服务注册**，nacos client通过**发送rest请求方式向nacos server注册自己的服务**，提供自身的元数据，比如ip、端口等，nacos server接收到注册请求后，把元数据信息存储在**双层内存map**中
+- **服务心跳**，服务注册后，**nacos client维护一个定时心跳持续通知nacos server**，**默认5s发生一次心跳**
+- **服务同步**，集群之间服务实例同步
+- **服务发现**，服务消费者(nacos client)在**调用服务提供者的服务时**，发送一个**rest请求给nacos server**，获取**注册的服务清单**，**缓存在nacos client本地**。同时在**nacos client本地开启一个定时任务定时拉取服务端最新的注册表信息**更新到本地缓存
+- **服务健康检查**，nacos server开启一个**定时任务检查注册服务实例健康状况**，对于超过**15s**没有收到客户端心跳的实例将它的**healthy属性置为false**，如果某个实例**超过30s没有收到心跳，直接剔除该实例**(被剔除的实例如果恢复发送心跳会重新注册)
+
+当前项目版本：2021.0.1.0
 
 ```xml
 <dependency>
@@ -44,17 +54,48 @@ spring cloud alibaba 是对 spring cloud 的标准实现，以微服务为核心
 </dependency>
 ```
 
-**主流注册中心区别**
+#### CAP理论
 
 CAP,C一致性、A可用性、P分区容错性
 
+[CAP理论](https://zhuanlan.zhihu.com/p/50990721?utm_medium=social&utm_oi=990587482462937088)，分布式系统最大难点，**就是各个节点状态如何保持数据一致**。CAP理论是在设计分布式系统过程中，处理**数据一致性问题**时必须要考虑的理论。
+
+- Consistency（一致性）
+
+  > 一致性，站在分布式系统角度，对访问本系统的客户端的一种承诺：要么返回一个错误，要么返回**绝对一致的数据**。其强调**数据正确**。
+
+- Availability（可用性）
+
+  > 可用性，站在分布式系统角度，对访问本系统的客户端的一种承诺：一定会返回数据，不会返回错误，但不保证数据最新。其强调**不出错**。
+
+- Partition tolerance（分区容错性）
+
+  > 分区容错性，站在分布式系统角度，对访问本系统的客户端的一种承诺：我会一直运行，不管内部出现何种数据同步问题。其强调**不挂掉**。
+
+CAP理论是：**一个分布式系统，不可能同时做到这三点**。
+
+
+![img](https://github.com/lission/markdownPics/blob/main/architecture/capTheory.jpeg?raw=true)
+
+**权衡C、A**
+
+对于一个分布式系统而言，**P是前提，必须保证系统不挂掉**。只要有网络交互就一定会存在**延迟和数据丢失**，在C和A之间选择，要么保证数据一致性**（保证数据绝对正确）**，要么保证可用性**（保证系统不出错）**。
+
+> **note：**其实这里有个关于CAP理论理解的误区。不要以为在所有时候都只能选择两个特性。在不存在网络失败的情况下（分布式系统正常运行时），C和A能够同时保证。只有**当网络发生分区或失败时**，才会在C和A之间做出选择。
+
+**主流注册中心区别**
+
 CP或AP
+
+Nacos支持CP和AP两种一致性协议，***服务发现AP，服务配置CP***。
+
+> AP协议：阿里自己实现的distro协议，是一种最终一致性协议。
 
 ![img](https://github.com/lission/markdownPics/blob/main/spring/springcloud%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83%E5%AF%B9%E6%AF%94.jpeg?raw=true)
 
-### 1.1.1、ncos config 配置中心
+### 1.1.2、ncos config 配置中心
 
-提供用于存储配置和其他元数据的 key/value 存储
+提供用于存储配置和其他元数据的 **key/value 存储**
 
 ```xml
 <dependency>
@@ -62,6 +103,33 @@ CP或AP
     <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
 </dependency>
 ```
+
+```properties
+config.nacos.host=127.0.0.1
+config.nacos.port=8848
+# 切记配置为命名空间id
+config.nacos.namespace=dev-namespace-id
+config.nacos.group=DEFAULT_GROUP
+config.nacos.username=nacos
+config.nacos.password=nacos
+
+# nacos config
+spring.cloud.nacos.config.server-addr=${config.nacos.host}:${config.nacos.port}
+spring.cloud.nacos.config.namespace=${config.nacos.namespace}
+spring.cloud.nacos.config.group=${config.nacos.group}
+spring.cloud.nacos.config.username=${config.nacos.username}
+spring.cloud.nacos.config.password=${config.nacos.password}
+## nacos discovery
+spring.cloud.nacos.discovery.server-addr=${config.nacos.host}:${config.nacos.port}
+spring.cloud.nacos.discovery.namespace=${config.nacos.namespace}
+spring.cloud.nacos.discovery.group=${config.nacos.group}
+spring.cloud.nacos.discovery.username=${config.nacos.username}
+spring.cloud.nacos.discovery.password=${config.nacos.password}
+spring.cloud.nacos.discovery.metadata.service.source=${config.nacos.service.source:local}
+
+```
+
+
 
 ## 1.2、Ribbon
 
