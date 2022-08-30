@@ -218,7 +218,7 @@ https://github.com/alibaba/Sentinel/wiki/%E5%9C%A8%E7%94%9F%E4%BA%A7%E7%8E%AF%E5
 
 https://seata.io/zh-cn/docs/overview/what-is-seata.html
 
-seataw为用户提供了AT、TCC、SAGA、XA事务模式。阿里首推AT模式。
+seata为用户提供了AT、TCC、SAGA、XA事务模式。阿里首推AT模式。
 
 常见分布式事务解决方案：
 
@@ -348,7 +348,7 @@ https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/
 
 网关作为流量的入口，常用功能包括路由转发、权限校验、限流等
 
-spring cloud gateway 是由WebFlux+Netty+Reactor实现的响应式API网关（非阻塞），旨在为微服务架构提供一种简单有效的API路由的管理方式，并基于Filter方式提供网关基本功能。如安全验证、监控、限流等。
+spring cloud gateway 是由WebFlux+Netty+Reactor实现的响应式API网关（非阻塞），fawzh旨在为微服务架构提供一种简单有效的API路由的管理方式，并基于Filter方式提供网关基本功能。如安全验证、监控、限流等。
 
 **spring cloud gateway功能特征**：
 
@@ -380,7 +380,7 @@ spring:
           - StripPrefix=1 # 转发之前去掉第一层的路径
 ```
 
-### 1.8.1、spring cloud gateway核心概念
+### 1.8.1、spring clouhdcad gateway核心概念
 
 - route，路由，网关中最基础的一部分，路由信息包括一个id、一个目的地uri、一组断言工厂、一组filter。如果断言为真，说明请求的url和配置的路由匹配
 - predicate，断言，spring cloud gateway中的**断言函数类型是spring 5.0框架中的ServerWebExchange**。断言函数允许开发者定义匹配http request中的任何信息，比如请求头和参数
@@ -512,7 +512,7 @@ gateway内置了很多过滤器工厂，通过过滤器工厂可以进行一些�
 
 全局过滤器：针对所有路由请求进行过滤，无需显示配置。
 
-
+kzzf
 
 自定义全局过滤器，继承GlobalFilter，重写filter方法。
 
