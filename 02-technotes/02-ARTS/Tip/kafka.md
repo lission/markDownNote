@@ -14,21 +14,74 @@
 
 - **主题(Topic)**，可以理解为一个队列，topic将消息分类，**生产者和消费者面向同一个topic**
 
-- **分区(Partition)**，***为了实现扩展性，提高并发能力***，一个topic可以在创建时指定分区，并将多个Partition分布到多个Broker上，**每个Partition是一个有序队列。一个topic的每个Partition都有若干个副本(Replica)，一个Leader和若干个Follower**。**生产者发送数据的对象，以及消费者消费的对象，都是Leader**。Follower负责实时从Leader中同步数据，保持和Leader数据的同步。Leader发生故障时，某个Follower会成为新的Leader。
+- **分区(Partition)**，***为了实现扩展性，提高并发能力***，
 
-- **消息(Message)**，消息是 Kafka 最基本的数据单元，`key-value` 格式。**key 的主要作用是根据一定的策略，将消息路由到指定的分区中**，这样就可以保证**同一 key 的消息全部写入同一分区中**。key 可以是 null，这种情况下消息会均衡地分布到不同的分区。
+  - 一个topic可以在**创建时指定分区**，并将多个Partition分布到多个Broker上
 
-- **偏移量(Offset)**，消费者消费的位置信息，监控数据消费到什么位置。
+  - 每个Partition是一个**有序队列**。
 
-- **生产者(Producer)**，生产者负责创建 Message，并将 Message 发送到特定的 Topic。会按照一定规则推送到指定分区，比如：轮询或根据消息的 key 哈希值。
+  - **一个topic的每个Partition都有若干个副本(Replica)，一个Leader和若干个Follower**。
 
-- **消费者(Consumer)**，消费者订阅 Topic 或 Topic 的某些（或某一个）分区，接收 Message 进而执行相应的业务逻辑处理。消费者自己维护下一个要消费的消息偏移量（offset）。
+  - **生产者发送数据的对象，以及消费者消费的对象，都是Leader**。
+
+  - Follower负责实时从Leader中**同步数据**，保持和Leader数据的同步。
+
+  - Leader发生故障时，某个**Follower会成为新的Leader**。
+
+- **消息(Message)**，消息是 Kafka 最基本的数据单元，`key-value` 格式。
+
+  - Key-value格式
+
+    > ```java
+    > //producer
+    > public ProducerRecord(String topic, K key, V value) {
+    >   this(topic, (Integer)null, (Long)null, key, value, (Iterable)null);
+    > }
+    > public ProducerRecord(String topic, V value) {
+    >   this(topic, (Integer)null, (Long)null, (Object)null, value, (Iterable)null);
+    > }
+    > //Consumer
+    > public ConsumerRecord(String topic, int partition, long offset, long timestamp, TimestampType timestampType, int serializedKeySize, int serializedValueSize, K key, V value, Headers headers, Optional<Integer> leaderEpoch) {
+    >   if (topic == null) {
+    >     throw new IllegalArgumentException("Topic cannot be null");
+    >   } else if (headers == null) {
+    >     throw new IllegalArgumentException("Headers cannot be null");
+    >   } else {
+    >     this.topic = topic;
+    >     this.partition = partition;
+    >     this.offset = offset;
+    >     this.timestamp = timestamp;
+    >     this.timestampType = timestampType;
+    >     this.serializedKeySize = serializedKeySize;
+    >     this.serializedValueSize = serializedValueSize;
+    >     this.key = key;
+    >     this.value = value;
+    >     this.headers = headers;
+    >     this.leaderEpoch = leaderEpoch;
+    >   }
+    > }
+    > ```
+
+  - **key 的主要作用是根据一定的策略，将消息路由到指定的分区中**，这样就可以保证**同一key的消息全部写入同一分区中**。
+
+  - key **可以是null**，这种情况下消息会**均衡地分布到不同的分区**。
+
+- **偏移量(Offset)**，消费者**消费的位置信息**，监控数据消费到什么位置。
+
+- **生产者(Producer)**，生产者负责**创建Message**，并将Message发送到特定的Topic。会按照一定**规则推送到指定分区**，比如：轮询或根据消息的 key 哈希值。
+
+- **消费者(Consumer)**，消费者**订阅Topic或 Topic的某些（或某一个）分区**，接收 Message进而执行相应的业务逻辑处理。消费者自己维护下一个要消费的**消息偏移量（offset）**。
 
 - **消费者组(Consumer Group)**，消费者组内每个消费者负责**消费不同分区的数据，提高消费能力**。逻辑上是一个订阅者。同一个分组的消费者不会重复消费同一条消息。
 
 - zookeeper，kafka集群能够正常工作，需要依赖于zookeeper，zookeeper帮助kafka存储和管理集群信息
 
-- **日志(Log)**，消息被写入分区(Partition)时，实际是写入了分区对应的Log中。面对海量数据，为避免出现超大文件，每个日志文件大小都有限制，默认为1G（log.segment.bytes）。超出限制后，创建新的segment。**kafka采用顺序I/O，只需向最新的segment追加数据**。
+- **日志(Log)**，消息被写入分区(Partition)时，实际是写入了分区对应的Log中。
+
+  - 面对海量数据，为避免出现超大文件，每个日志文件大小都有限制，默认为1G（log.segment.bytes）。超出限制后，创建新的segment。
+  - **kafka采用顺序I/O，只需向最新的segment追加数据**。
+
+  > ![img](https://raw.githubusercontent.com/lission/markdownPics/33489de656f7fe3917a0376ddde8ed857faefc4f/kafka/kafkaWritePartition.jpg)
 
 
 
