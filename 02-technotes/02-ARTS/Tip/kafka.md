@@ -76,7 +76,7 @@
 
 - zookeeper，kafka集群能够正常工作，需要依赖于zookeeper，zookeeper帮助kafka存储和管理集群信息
 
-- **日志(Log)**，消息被写入分区(Partition)时，实际是写入了分区对应的Log中。
+- **日志(Log)**，消息被写入分区(Partition)时，实际是写入了**分区对应的Log中**。
 
   - 面对海量数据，为避免出现超大文件，每个日志文件大小都有限制，默认为1G（log.segment.bytes）。超出限制后，创建新的segment。
   - **kafka采用顺序I/O，只需向最新的segment追加数据**。
