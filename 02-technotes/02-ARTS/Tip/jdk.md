@@ -532,14 +532,37 @@ Thread start之后处于runnable状态，**等待获取cpu使用权**
 
 ### ThreadPoolExecutor构造函数重要参数
 
-ThreadPoolExecutor最长构造函数共有**7**个参数
+ThreadPoolExecutor完整构造方法共有**7**个参数
+
+```java
+public ThreadPoolExecutor(int corePoolSize,
+                          int maximumPoolSize,
+                          long keepAliveTime,
+                          TimeUnit unit,
+                          BlockingQueue<Runnable> workQueue,
+                          ThreadFactory threadFactory,
+                          RejectedExecutionHandler handler
+)
+```
 
 - corePoolSize，**核心线程数**，正常状况下运行的线程数量，这些线程**创建后不会消除，是一种常驻线程**
+
+  > 默认情况下，在创建了线程池之后，线程池中的线程数为0，当有任务到来后就会创建一个线程去执行任务
+
 - maximumPoolSize，当队列中存放的任务达到容量时，**可运行的最大线程数**
+
+  > 当任务数量比corePoolSize大时，任务添加到workQueue，当workQueue满了，将继续创建线程以处理任务，maximumPoolSize表示的就是workQueue满了，线程池中最多可以创建的线程数量
+
 - keepAliveTime，**超出核心线程数的空闲线程存活时间**，超出核心线程数的线程在空闲超过一定时间会被消除。
+
+  > 只有当线程池中的线程数大于corePoolSize时，这个参数才会起作用
+
 - unit(TimeUnit)，keepAliveTime的单位
+
 - workQueue，**阻塞队列**，用来**存放待执行的任务**，假设当前核心线程都已被占用，新进来的任务被放入队列，直到队列被放满，还有任务进入，才会创建新的线程。
+
 - threadFactor，**线程工厂**，用来生产线程执行任务。可以使用默认的线程工厂DefaultThreadFactory，产生的线程都在同一个组内，同样的优先级，都是非守护线程。也可以自定义线程工厂。
+
 - handler，**任务拒绝策略**，有两种场景：
   - **调用shutdown()等方法关闭线程池后**，此时即使线程内部还有没执行完的任务，由于线程池已关闭，我们想继续提交任务会被拒绝
   - **当达到最大线程数**，线程池没有能力处理新提交的任务时，也会执行拒绝策略
@@ -553,6 +576,45 @@ ThreadPoolExecutor最长构造函数共有**7**个参数
 - **ThreadPoolExecutor.CallerRunsPolicy**，由**创建了线程池的线程**执行被拒绝的任务，该策略会**降低对新任务提交速度，影响程序整体性能**
 - **ThreadPoolExecutor.DiscardPolicy**，不处理新任务，**直接丢弃掉**
 - **ThreadPoolExecutor.DiscardOldestPolicy**，将最早的未处理的任务丢弃掉
+
+### workQueue解析
+
+工作队列用于任务较多时，**缓存待处理的任务**。常见的四种缓存队列：
+
+- **ArrayBlockingQueue**
+
+  1. 基于**数组结构**的**有界阻塞队列**
+  2. FIFO先进先出原则对元素排序
+  3. 因为是基于数组的有界阻塞队列，所以可以避免系统资源的耗尽
+
+- **LinkedBlockingQueue**
+
+  1. 基于**链表**结构的**无界**阻塞队列，默认最大容量为**Integer.MAX_VALUE()**，可以认为是无限队列
+  2. FIFO先进先出原则对元素排序
+  3. 吞吐量通常要高于ArrayBlockingQueue
+  4. 静态工厂方法Executors.newFixedThreadPool使用了这个队列
+
+- **SynchronousQueue**
+
+  1. 不缓存任务的阻塞队列，它不是真正队列，没有提供任何存储任务空间。每个插入操作必须等到另一个线程调用移除操作，否则插入操作一直处于阻塞状态
+
+  > 生产者一个任务请求到来，会直接执行，也就是说这种队列在消费者充足的情况下更加合适。
+
+- **PriorityBlockingQueue**
+
+  1. 优先级**无界阻塞**队列
+  2. 不按FIFO先进先出排序，除使用插入对象自身排序外，可以通过参数传入Comparator实现排序
+  3. 吞吐量通常要高于LinkedBlockinQueue
+  4. 静态工厂方法Excecutors.newCachedThreadPool使用了这个队列
+
+## 线程池关闭方法
+
+- shutdown，调用shutdown方法之后，线程池将不再接口新任务，内部会将所有**已提交的任务处理完毕**，处理完毕之后，工作线程自动退出。
+- shutdownNow，调用shutdownNow方法后，线程池会**将还未处理的（在队里等待处理的任务）任务移除**，将正在**处理中的处理完毕**之后，工作线程自动退出
+
+> 调用者两个方法中任意一个，线程池的**isShutdown**方法就会返回true，当**所有的任务线程都关闭之后**，才表示线程池关闭成功，这时调用**isTerminaed**方法会返回true
+>
+> 当调用者两个方法之后，线程池会遍历内部的工作线程，然后调用每个工作线程的**interrrupt**方法给线程发送中断信号
 
 ## 线程池中阻塞队列的作用？
 
