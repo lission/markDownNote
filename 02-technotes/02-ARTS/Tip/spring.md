@@ -554,14 +554,144 @@ aop通过运行时代理实现的。
 - spring MVC ，是spring对web框架的一个解决方案，提供了一个总的前端控制器Servlet，用来接收请求，然后定义了一套路由策略(url到handle的映射)及适配器执行handle，将handle结果使用视图解析技术生成视图展现给前端
 - spring boot，是spring提供的一个快速开发工具包，让程序员能够更方便、更快速开发spring+springMVC应用。简化了配置，整合了一系列解决方案(starter机制)，可以开箱即用
 
-## springboot的启动原理
+## SpringBoot 启动过程
 
-- 通过启动类的main()方法进入，内部是SpringApplication.run()方法，在run()方法中先用启动类的class对象创建SpringApplication对像。
+https://zhuanlan.zhihu.com/p/136469945
 
-- 在**SpringApplication的构造函数**中，先判断启动类的class文件是否为null，接着判断应用是否为web应用，然后执行getSpringFactoriesInstances()方法：从spring-boot包下的“META-INF/spring.factories”路径加载classLoader，只取类型是ApplicationContextInitializer的ClassLoader，返回一个set（ClassLoader的类全限定名），然后加载这些类（初始化上下文）。然后以同样方式初始化监听。接着调用deduceMainApplicationClass()方法遍历栈信息，找到调用main方法所在的类，将其加载，赋值给变量mainApplicationClass，至此SpringApplication对象创建完成。
-- 接着调用**run()方法**：加载监听器，从spring-boot包下“META-INF/spring.factories”路径下加载（SpringApplicationRunListener.class），然后调用starting方法，对之前加载的所有ApplicationListener根据事件类型进行广播事件（multicastEvent）。准备容器环境，会依据之前构造函数推断的应用类型返回对应的环境对象。创建容器上下文createApplicationContext()，也是依据之前的应用类型推断结果。准备容器上下文，首先将创建的context中的environment全部替换为springApplication中刚刚创建的environment，然后项context中注册beanfactory，接着所有的listener执行contextPrepared方法。之后向beanfactory中注册两个参数（spring启动类run方法的参数和banner），创建一个beanDefinitionLoader对象，该对象最主要支持了xml加载和annotated加载方式，加载所有source中的对象，这里只有一个主类，被@Component注解，将其注入到beanFactory中的beanDefinitionMap中。在refreshContext中会加载所有bean到beanFactory中。
+### 启动原理相关源码
 
-简易总结：
+- **创建SpringApplication对象**
+
+  ```java
+  public SpringApplication(ResourceLoader resourceLoader, Class... primarySources) { 
+  	this.sources = new LinkedHashSet(); 
+  	this.bannerMode = Mode.CONSOLE; 
+  	this.logStartupInfo = true; 
+  	this.addCommandLineProperties = true; 
+  	this.addConversionService = true; 
+  	this.headless = true; 
+  	this.registerShutdownHook = true; 
+  	this.additionalProfiles = new HashSet(); 
+  	this.isCustomEnvironment = false; 
+  	this.resourceLoader = resourceLoader; 
+  	Assert.notNull(primarySources, "PrimarySources must not be null"); 
+  	// 保存主配置类（这里是一个数组，说明可以有多个主配置类） 
+  	this.primarySources = new LinkedHashSet(Arrays.asList(primarySources)); 
+  	// 判断当前是否是一个 Web 应用 
+  	this.webApplicationType = WebApplicationType.deduceFromClasspath(); 
+  	// 从类路径下找到 META/INF/Spring.factories 配置的所有 ApplicationContextInitializer，然后保存起来 
+  	this.setInitializers(this.getSpringFactoriesInstances(ApplicationContextInitializer.class)); 
+  	// 从类路径下找到 META/INF/Spring.factories 配置的所有 ApplicationListener，然后保存起来 
+  	this.setListeners(this.getSpringFactoriesInstances(ApplicationListener.class)); 
+  	// 从多个配置类中找到有 main 方法的主配置类（只有一个） 
+  	this.mainApplicationClass = this.deduceMainApplicationClass(); 
+  }
+  ```
+
+- **运行run()方法**
+
+  ```java
+  public ConfigurableApplicationContext run(String... args) { 
+  
+  // 创建计时器 
+  StopWatch stopWatch = new StopWatch(); 
+  stopWatch.start(); 
+  // 声明 IOC 容器 
+  ConfigurableApplicationContext context = null; 
+  Collection<SpringBootExceptionReporter> exceptionReporters = new ArrayList(); 
+  this.configureHeadlessProperty(); 
+  // 从类路径下找到 META/INF/Spring.factories 获取 SpringApplicationRunListeners 
+  SpringApplicationRunListeners listeners = this.getRunListeners(args); 
+  // 回调所有 SpringApplicationRunListeners 的 starting() 方法 
+  listeners.starting(); 
+  Collection exceptionReporters; 
+  try { 
+  // 封装命令行参数 
+  ApplicationArguments applicationArguments = new DefaultApplicationArguments(args); 
+  // 准备环境，包括创建环境，创建环境完成后回调 SpringApplicationRunListeners#environmentPrepared()方法，表示环境准备完成 
+  ConfigurableEnvironment environment = this.prepareEnvironment(listeners, applicationArguments); 
+  this.configureIgnoreBeanInfo(environment); 
+  // 打印 Banner 
+  Banner printedBanner = this.printBanner(environment); 
+  // 创建 IOC 容器（决定创建 web 的 IOC 容器还是普通的 IOC 容器） 
+  context = this.createApplicationContext(); 
+  exceptionReporters = this.getSpringFactoriesInstances(SpringBootExceptionReporter.class, new Class[]{ConfigurableApplicationContext.class}, context); 
+  /*
+   * 准备上下文环境，将 environment 保存到 IOC 容器中，并且调用 applyInitializers() 方法
+   * applyInitializers() 方法回调之前保存的所有的 ApplicationContextInitializer 的 initialize() 方法
+   * 然后回调所有的 SpringApplicationRunListener#contextPrepared() 方法 
+   * 最后回调所有的 SpringApplicationRunListener#contextLoaded() 方法 
+   */
+  this.prepareContext(context, environment, listeners, applicationArguments, printedBanner); 
+  // 刷新容器，IOC 容器初始化（如果是 Web 应用还会创建嵌入式的 Tomcat），扫描、创建、加载所有组件的地方 
+  this.refreshContext(context); 
+  // 从 IOC 容器中获取所有的 ApplicationRunner 和 CommandLineRunner 进行回调 
+  this.afterRefresh(context, applicationArguments); 
+  stopWatch.stop(); 
+  if (this.logStartupInfo) { 
+  (new StartupInfoLogger(this.mainApplicationClass)).logStarted(this.getApplicationLog(), stopWatch); 
+  } 
+  // 调用 所有 SpringApplicationRunListeners#started()方法 
+  listeners.started(context); 
+  this.callRunners(context, applicationArguments); 
+  } catch (Throwable var10) { 
+  this.handleRunFailure(context, var10, exceptionReporters, listeners); 
+  throw new IllegalStateException(var10); 
+  } 
+  try { 
+  listeners.running(context); 
+  return context; 
+  } catch (Throwable var9) { 
+  this.handleRunFailure(context, var9, exceptionReporters, (SpringApplicationRunListeners)null); 
+  throw new IllegalStateException(var9); 
+  } 
+  }
+  ```
+
+  
+
+### 启动流程
+
+- 通过启动类的main()方法进入，内部是SpringApplication.run()方法，以下为调用链：
+
+  > `SpringApplication.run()` -> `run(new Class[]{primarySource}, args)` -> `(new SpringApplication(primarySources)).run(args)`
+
+- run()方法主要包括两大步骤：
+
+  - **创建SpringApplication对象**
+  - **运行run()方法**
+
+- **创建SpringApplication对象**，在**SpringApplication的构造函数**中：
+
+  - 先保存主配置类（这里是一个数组，说明可以有多个主配置类） 
+  - 接着判断应用是否为web应用
+  - 从类路径下找到 META/INF/Spring.factories 配置的所有 **ApplicationContextInitializer**，然后保存起来。（初始化上下文）
+  - 从类路径下找到 META/INF/Spring.factories 配置的所有 **ApplicationListener**，然后保存起来。（初始化监听）
+  - 从多个配置类中找到有 main 方法的主配置类（只有一个）
+
+- **运行run()方法**
+
+  - 声明 IOC 容器 
+  - 从类路径下找到 META/INF/Spring.factories 获取 **SpringApplicationRunListeners**
+  - 回调所有 SpringApplicationRunListeners 的 starting() 方法
+  - 封装命令行参数
+  - 准备环境，包括创建环境，创建环境完成后回调 SpringApplicationRunListeners#environmentPrepared()方法，表示环境准备完成 
+  - 创建 IOC 容器（决定创建 web 的 IOC 容器还是普通的 IOC 容器） 
+  -  准备上下文环境，将 environment 保存到 IOC 容器中，并且调用 applyInitializers() 方法。applyInitializers() 方法回调之前保存的所有的 ApplicationContextInitializer 的 initialize() 方法。然后回调所有的 SpringApplicationRunListener#contextPrepared() 方法 。最后回调所有的 SpringApplicationRunListener#contextLoaded() 方法   
+  - 刷新容器，IOC 容器初始化（如果是 Web 应用还会创建嵌入式的 Tomcat），扫描、创建、加载所有组件的地方 
+  - 从 IOC 容器中获取所有的 ApplicationRunner 和 CommandLineRunner 进行回调 
+  - 调用 所有 SpringApplicationRunListeners#started()方法 
+
+  > spring启动过程中主要相关的4个监听器：
+  >
+  > - ApplicationContextInitializer
+  > - ApplicationRunner
+  > - CommandLineRunner
+  > - SpringApplicationRunListener
+  >
+  > **run() 阶段主要就是回调4个监听器中的方法与加载项目中组件到 IOC 容器中**，而所有需要回调的监听器都是从类路径下的 `META/INF/Spring.factories` 中获取，从而达到启动前后的各种定制操作。
+
+### 简易总结
 
 1. 获取并启动监视器
 2. 构造应用上下文环境
@@ -570,7 +700,7 @@ aop通过运行时代理实现的。
 5. 刷新应用上下文
 6. 刷新应用上下文后的扩展接口
 
-## springboot starter的原理
+## SpringBoot starter的原理
 
 springboot starter是一个集成接合器，也叫做**场景启动器**。完成两件事：
 
