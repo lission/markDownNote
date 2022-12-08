@@ -33,17 +33,21 @@ sudo xattr -d com.apple.quarantine /Applications/Clipboard\ Center.app
 
 
 
-sudo xattr -d com.apple.quarantine /Applications/Ummy\ Video\ Downloader.app
+sudo xattr -d com.apple.quarantine /Applications/Navicat\ Premium.app
 
-sudo codesign --force --deep --sign - /Applications/Ummy\ Video\ Downloader.app
+
+
+sudo xattr -r -d com.apple.quarantine /Applications/Navicat\ Premium.app
+
+sudo codesign --force --deep --sign - /Applications/Navicat\ Premium.app
 
 
 
 sudo spctl --master-disable
 
-sudo xattr -r -d com.apple.quarantine /Applications/Paste.app
+sudo xattr -r -d com.apple.quarantine /Applications/Navicat\ Premium.app 
 
-sudo codesign --force --deep --sign - /Applications/Paste.app
+sudo codesign --force --deep --sign -/Applications/Navicat\ Premium.app 
 
 # 3、jd-gui class反编译工具启动方式
 
