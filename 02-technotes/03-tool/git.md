@@ -18,3 +18,22 @@
 
 !/node_modules/layer/
 
+## 1.3、Gitlab的用户名和邮箱的设置方法
+
+### idea修改gitLab用户名
+
+1、选择下方的Terminal
+
+2、在cmd中输入
+
+git config user.name可以以查看自己git名字
+
+git config user.email 可以以查看自己邮箱名字
+
+3、修改名字
+局部：
+git config --local user.name yourname
+git config --local user.email youremail
+全局：
+git config --global user.name liulili
+git config --global user.email liulili@cestc.cn
