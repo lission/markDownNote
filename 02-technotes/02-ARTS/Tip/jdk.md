@@ -873,6 +873,49 @@ synchronized底层是JVM中monitorenter和monitorexit字节码依赖于底层的
 
 # 零碎
 
+
+
+## 基础类型 VS 引用类型
+
+- **名词定义**：
+
+  - **基础类型**，java中内置8种类型
+
+    ```
+    boolean
+    char
+    byte
+    short
+    int
+    long
+    float
+    double
+    ```
+
+  - **引用类型**，通过new对象创建的类型。（基本都派生自Object）
+
+- 存储方式：
+
+  - 引用类型，如下StringBuffer【**对象**】存储在堆Heap上，需申请堆内存。变量 str是针对StringBuffr对象的一个引用。变量str的【**值**】（即StringBuffer对象的地址）存储在栈Stack上。
+
+    ```java
+    StringBuffer str = new StringBuffer();
+    ```
+
+  - 基础类型，变量n的【**值**】及123都是存储在栈上，无需申请堆内存
+
+    ```java
+    int n = 123;
+    ```
+
+    ![img](https://github.com/lission/markdownPics/blob/main/java/%E5%9F%BA%E7%A1%80%E7%B1%BB%E5%9E%8B%E5%8F%8A%E5%BC%95%E7%94%A8%E7%B1%BB%E5%9E%8B%E5%86%85%E5%AD%98%E5%AD%98%E5%82%A8.jpg?raw=true)
+
+
+
+- 堆和栈的性能差异，堆是所有线程共有的，从堆里面申请内存要进行相关的加锁操作，因此申请堆内存的复杂度和时间开销比栈要大很多；从栈里面申请内存，虽然又简单又快，但是栈的大小有限，分配不了太多内存
+
+
+
 ## String使用final修饰的好处，介绍一下字符串常量池
 
 String类型被final修饰，同时内部的字符数组也被private修饰，保证**字符串是不可变**的。
