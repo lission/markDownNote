@@ -697,6 +697,98 @@ springboot starter是一个集成接合器，也叫做**场景启动器**。完�
 1. **引入模块所需的相关jar包**
 2. **自动配置各自模块所需的属性**（springboot按照某种默认的规则替我们完成自动配置的工作，这个规则就是**约定大于配置**）
 
+## 创建一个SpringBoot starter
+
+1. 创建一个AutoConfiguration类，用于starter的初始化工作，以下几个注解解释一下：
+
+   - **@ConfigurationProperties** —— 读取 yml 文件中的配置设置到被此注解**标注**的类属性
+
+   - **@EnableConfigurationProperties** —— 让 Spring 扫描被 @ConfigurationProperties 标注的类
+
+   - **@ConditionalOnClass** —— 只有 IJobHandler 类存在时这个配置类才有效
+
+   - **@ConditionalOnMissingBean** —— 只有 Spring 中不存在 XxlJobExecutor 类型的 Bean 才会注入，也就是说如果在程序中开发者已经自己构建了 XxlJobExecutor 类型的 Bean ，那么我们这个 starter 中的将不会被注入到 Spring 容器
+
+   ```java
+   @Configuration(proxyBeanMethods = false)
+   @ConditionalOnClass(IJobHandler.class)
+   @EnableConfigurationProperties(XxlJobProperties.class)
+   public class XxlJobAutoConfiguration {
+   
+       /**
+        * 预留初始化和销毁方法
+        * */
+   
+       @Bean(initMethod = "start", destroyMethod = "destroy")
+   
+       /**
+        * 当程序中没有注入 XxlJobExecutor 时才会将我们这个注入到 Spring
+        * */
+       @ConditionalOnMissingBean
+       public XxlJobExecutor xxlJobExecutor(XxlJobProperties xxlJobProperties,
+                                            ObjectProvider<XxlJobExecutorCustomizer> customizers) {
+           XxlJobExecutor xxlJobExecutor = new XxlJobSpringExecutor();
+           // 调度中心配置
+           xxlJobExecutor.setAdminAddresses(xxlJobProperties.getAdmin().getAddresses());
+           // 执行器配置
+           xxlJobExecutor.setAppname(xxlJobProperties.getExecutor().getAppName());
+           xxlJobExecutor.setIp(xxlJobProperties.getExecutor().getIp());
+           xxlJobExecutor.setPort(xxlJobProperties.getExecutor().getPort());
+           xxlJobExecutor.setAccessToken(xxlJobProperties.getAccessToken());
+           xxlJobExecutor.setLogPath(xxlJobProperties.getExecutor().getLogPath());
+           xxlJobExecutor.setLogRetentionDays(xxlJobProperties.getExecutor().getLogRetentionDays());
+           // 预留的 customizer 配置
+           customizers.orderedStream().forEach(customizer -> customizer.customize(xxlJobExecutor));
+           return xxlJobExecutor;
+       }
+   }
+   ```
+
+   
+
+2. 添加属性配置类，用于获取application.properties中的配置
+
+   ```java
+   @ConfigurationProperties(prefix = XxlJobProperties.PREFIX)
+   @Data
+   public class XxlJobProperties {
+   
+       public static final String PREFIX = "xxl.job";
+   
+       /**
+        * 调度中心配置
+        */
+       private Admin admin = new Admin();
+   
+       /**
+        * 执行器配置
+        */
+       private Executor executor = new Executor();
+   
+       /**
+        * 执行器通讯TOKEN [选填]：非空时启用
+        */
+       private String accessToken;
+   }  
+   ```
+
+   
+
+3. 配置spring.properties文件或自定义Enable注解，让 SpringBoot 能扫描到我们的 starter 注入 Bean
+
+   ```properties
+     org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+       com.syc.xxljob.autoconfigure.XxlJobAutoConfiguration
+   ```
+
+4. 更细粒度的开关控制，本质上都是 @Conditional，可以自定义新的 @ConditionalXXX 注解，自定义的注解需要用 @Conditional 标记，并设置 value 属性
+
+   - @Conditional
+   - @ConditionalOnBean
+   - @ConditionalOnClass
+   - @ConditionalOnMissingBean
+   - @ConditionalOnMissingClass
+
 ## SpringBoot自动配置原理
 
 - SpringBoot的**自动配置在启动类的@SpringBootApplication注解中进行处理**

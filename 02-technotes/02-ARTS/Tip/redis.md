@@ -4,9 +4,9 @@
 
 [完善](https://gitee.com/pingWurth/study-notes/blob/master/redis/Redis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.md#lists)
 
-https://gitee.com/pingWurth/study-notes/blob/master/redis/Redis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.md#%E4%BD%BF%E7%94%A8-slowlog-%E4%BC%98%E5%8C%96%E8%80%97%E6%97%B6%E6%8C%87%E4%BB%A4
+# 一、Redis基础
 
-# 1、Redis是什么
+## 1.1、Redis是什么
 
 ==面试官：你先来说下redis是什么吧==
 
@@ -22,6 +22,585 @@ redis内存数据库的特点：
 - 主从复制，哨兵机制，高可用
 - 可以用作**分布式锁**
 - 可以用作消息中间件，支持发布订阅
+
+
+
+## 1.2、Redis各版本特性解读
+
+### 1.2.1、Redis 2.6.0
+
+Redis2.6 在 2012 年正是发布，经历了 17 个版本，到 2.6.17 版本，相对于 Redis2.4，主要特性如下：
+
+1）服务端支持 Lua 脚本。
+
+2）去掉虚拟内存相关功能。
+
+3）放开对客户端连接数的硬编码限制。
+
+4）键的过期时间支持毫秒。
+
+5）从节点支持只读功能。
+
+6）两个新的位图命令：bitcount 和 bitop。
+
+7）增强了 redis-benchmark 的功能：支持定制化的压测，CSV 输出等功能。
+
+8）基于浮点数自增命令：incrbyfloat 和 hincrbyfloat。
+
+9）redis-cli 可以使用 –eval 参数实现 Lua 脚本执行。
+
+10）shutdown 命令增强。
+
+11）重构了大量的核心代码，所有集群相关的代码都去掉了，cluster 功能将会是3.0版本最大的亮点。
+
+12）info 可以按照 section 输出，并且添加了一些统计项
+
+13）sort 命令优化
+
+### 1.2.2、Redis 2.8
+
+Redis2.8 在 2013 年 11 月 22 日正式发布，经历了 24 个版本，到 2.8.24 版本，相比于 Redis2.6，主要特性如下：
+
+1）添加部分主从复制的功能，在一定程度上降低了由于网络问题，造成频繁全量复制生成 RDB 对系统造成的压力。
+
+2）尝试性的支持 IPv6.
+
+3）可以通过 config set 命令设置 maxclients。
+
+4）可以用 bind 命令绑定多个 IP 地址。
+
+5）Redis 设置了明显的进程名，方便使用 ps 命令查看系统进程。
+
+6）config rewrite 命令可以将 config set 持久化到 Redis 配置文件中。
+
+7）发布订阅添加了 pubsub。
+
+8）Redis Sentinel 第二版，相比于 Redis2.6 的 Redis Sentinel，此版本已经变成生产可用。
+
+### 1.2.3、Redis 3.0 (里程碑)
+
+Redis3.0 在 2015 年 4 月 1 日正式发布，相比于 Redis2.8 主要特性如下：
+
+Redis 最大的改动就是添加 Redis 的分布式实现 Redis Cluster。
+
+1）Redis Cluster：Redis 的官方分布式实现。
+
+2）全新的 embedded string 对象编码结果，优化小对象内存访问，在特定的工作负载下载速度大幅提升。
+
+3）Iru 算法大幅提升。
+
+4）migrate 连接缓存，大幅提升键迁移的速度。
+
+5）migrate 命令两个新的参数 copy 和 replace。
+
+6）新的 client pause 命令，在指定时间内停止处理客户端请求。
+
+7）bitcount 命令性能提升。
+
+8）cinfig set 设置 maxmemory 时候可以设置不同的单位（之前只能是字节）。
+
+9）Redis 日志小做调整：日志中会反应当前实例的角色（master 或者 slave）。
+
+10）incr 命令性能提升。
+
+### 1.2.4、Redis 3.2
+
+Redis3.2 在 2016 年 5 月 6 日正式发布，相比于 Redis3.0 主要特征如下：
+
+1）添加 GEO 相关功能。
+
+2）SDS 在速度和节省空间上都做了优化。
+
+3）支持用 upstart 或者 systemd 管理 Redis 进程。
+
+4）新的 List 编码类型：quicklist。
+
+5）从节点读取过期数据保证一致性。
+
+6）添加了 hstrlen 命令。
+
+7）增强了 debug 命令，支持了更多的参数。
+
+8）Lua 脚本功能增强。
+
+9）添加了 Lua Debugger。
+
+10）config set 支持更多的配置参数。
+
+11）优化了 Redis 崩溃后的相关报告。
+
+12）新的 RDB 格式，但是仍然兼容旧的 RDB。
+
+13）加速 RDB 的加载速度。
+
+14）spop 命令支持个数参数。
+
+15）cluster nodes 命令得到加速。
+
+16）Jemalloc 更新到 4.0.3 版本。
+
+### 1.2.5、Redis 4.0
+
+Redis4.0 的新特性：
+
+1）提供了模块系统，方便第三方开发者拓展 Redis 的功能。
+
+2）PSYNC2.0：优化了之前版本中，主从节点切换必然引起全量复制的问题。
+
+3）提供了新的缓存剔除算法：LFU（Last Frequently Used），并对已有算法进行了优化。
+
+4）提供了非阻塞 del 和 flushall/flushdb 功能，有效解决删除了 bigkey 可能造成的 Redis 阻塞。
+
+5）提供了 memory 命令，实现对内存更为全面的监控统计。
+
+6）提供了交互数据库功能，实现 Redis 内部数据库的数据置换。
+
+7）提供了 RDB-AOF 混合持久化格式，充分利用了 AOF 和 RDB 各自优势。
+
+8）Redis Cluster **兼容 NAT 和 Docker**。
+
+### 1.2.6、Redis 5.0
+
+1）新的 Stream 数据类型。
+
+2）新的 Redis 模块API：Timers and Cluster API。
+
+3）RDB 现在存储 LFU 和 LRU 信息。
+
+4）集群管理器从 Ruby（redis-trib.rb）移植到 C 代码。可以在 redis-cli 中。查看`redis-cli —cluster help`了解更多信息。
+
+5）新 sorted set 命令：ZPOPMIN / MAX 和阻塞变量。
+
+6）主动碎片整理 V2。
+
+7）增强 HyperLogLog 实现。
+
+8）更好的内存统计报告。
+
+9）许多带有子命令的命令现在都有一个 HELP 子命令。
+
+10）客户经常连接和断开连接时性能更好。
+
+11）错误修复和改进。
+
+12）Jemalloc 升级到 5.1 版
+
+### 1.2.7、Redis 6.0
+
+1）**多线程IO**。Redis 6 引入多线程 IO。但**多线程部分只是用来处理网络数据的读写和协议解析**，**执行命令仍然是单线程**。之所以这么设计是不想因为多线程而变得复杂，需要去控制 key、lua、事务，LPUSH/LPOP 等等的并发问题。
+
+2）重新设计了客户端缓存功能。实现了 Client-side-caching（客户端缓存）功能。放弃了caching slot，而只使用 key names。
+
+*Redis server-assisted client side caching*
+
+3）RESP3 协议。RESP（Redis Serialization Protocol）是 Redis 服务端与客户端之间通信的协议。Redis 5 使用的是 RESP2，而 Redis 6 开始在兼容 RESP2 的基础上，开始支持 RESP3。
+
+推出 RESP3 的目的：一是因为希望能为客户端提供更多的语义化响应，以开发使用旧协议难以实现的功能；另一个原因是实现 Client-side-caching（客户端缓存）功能。
+
+4）支持 SSL。连接支持 SSL，更加安全。
+
+5）ACL 权限控制
+
+- 支持对客户端的权限控制，实现对不同的 key 授予不同的操作权限。
+
+- 有一个新的 ACL 日志命令，允许查看所有违反 ACL 的客户机、访问不应该访问的命令、访问不应该访问的密钥，或者验证尝试失败。这对于调试 ACL 问题非常有用。
+
+  6）提升了 RDB 日志加载速度。根据文件的实际组成（较大或较小的值），可以预期 20/30% 的改进。当有很多客户机连接时，信息也更快了，这是一个老问题，现在终于解决了。
+
+  7）发布官方的 Redis 集群代理模块 Redis Cluster proxy。在 Redis 集群中，客户端会非常分散，现在为此引入了一个集群代理，可以为客户端抽象 Redis 群集，使其像正在与单个实例进行对话一样。同时在简单且客户端仅使用简单命令和功能时执行多路复用。
+
+  8）提供了众多的新模块（modules）API
+
+### 1.2.8、Redis 7.0
+
+…… https://raw.githubusercontent.com/redis/redis/7.0/00-RELEASENOTES
+
+
+
+## 1.3、Redis 客户端使用(java)
+
+- Jedis 在实现上是直接连接的 redis server，如果在多线程环境下是非线程安全的，这个时候只有使用连接池，为每个 Jedis 实例增加物理连接。
+- Lettuce 的连接是基于Netty的，连接实例（StatefulRedisConnection）可以在多个线程间并发访问，因为 StatefulRedisConnection 是线程安全的，所以一个连接实例（StatefulRedisConnection）就可以满足多线程环境下的并发访问，当然这个也是可伸缩的设计，一个连接实例不够的情况也可以按需增加连接实例。
+- 在 SpringBoot Data Redis 1.X 之前默认使用的是 Jedis，但目前最新版的修改成了 Lettuce。
+- 之前公司使用 Jedis 居多，Lettuce 近两年在逐步上升，总的来讲 Jedis 的性能会优于 Lettuce（因为它是直接操作 Redis）。
+
+### 1.3.1、Redis 常用客户端—Jedis
+
+- **第1步：导入 Jedis 依赖**
+
+```xml
+<dependency>
+    <groupId>redis.clients</groupId>
+    <artifactId>jedis</artifactId>
+    <version>3.3.0</version>
+</dependency>
+```
+
+- **第2步：连接测试**
+
+```java
+public class ConnectionToRedis {
+    /**
+     * 连接Redis
+     */
+    public static void main() {
+        // 创建jedis对象，连接redis服务，其中Jedis(host, port)
+        Jedis jedis = new Jedis("127.0.0.1", 6379);
+
+        // 设置认证密码，如果没有可以设置为空
+        jedis.auth("jasdklfj%*@#&$EHkfjsdha");
+
+        // 指定数据库 默认是0
+        jedis.select(1);
+
+        // 使用 ping 命令，测试连接是否成功
+        String result = jedis.ping();
+        System.out.println(result);// 返回PONG
+
+        // 添加一条数据
+        jedis.set("username", "zhangsan");
+
+        // 获取一条数据
+        String username = jedis.get("username");
+        System.out.println(username);
+
+        // 释放资源
+        if (jedis != null)
+            jedis.close();
+    }
+}
+```
+
+- **第3步：使用连接池**
+
+```java
+public class JedisPoolConnectRedis {
+
+    private static JedisPool jedisPool;
+
+    static {
+        // 创建连接池配置对象
+        JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
+        // 设置最大连接数
+        jedisPoolConfig.setMaxTotal(5);
+        // 设置等待时间ms(当资源池连接用尽后，调用者最大等待时间)
+        jedisPoolConfig.setMaxWaitMillis(100);
+        // 其中JedisPool(jedisPoolConfig, host, port, connectionTimeout, password, db)
+        jedisPool = new JedisPool(jedisPoolConfig, "127.0.0.1", 6379, 100, "root", 0);
+    }
+
+    /*获取jedis*/
+    public static Jedis getJedis() {
+        return jedisPool.getResource();
+    }
+    /**
+     * 连接Redis
+     */
+    public static void main() {
+        Jedis jedis = getJedis();
+
+        // 使用ping命令，测试连接是否成功
+        String result = jedis.ping();
+        System.out.println(result);// 返回PONG
+
+        // 添加一条数据
+        jedis.set("username", "zhangsan");
+
+        // 获取一条数据
+        String username = jedis.get("username");
+        System.out.println(username);
+
+        // 释放资源
+        if (jedis != null)
+            jedis.close();
+    }
+}
+```
+
+### 1.3.2、Redis 常用客户端—RedisTemplate
+
+Spring 封装了 RedisTemplate 来操作 Redis，它支持所有的 Redis 原生的 API。在RedisTemplate 中定义了对 5 种数据结构的操作方法。
+
+- opsForValue()
+- opsForHash()
+- opsForList()
+- opsForSet()
+- opsForZSet()
+
+**还可以使用 `execute` 方法，`opsForXXX` 底层就是通过调用 execute 来实现的。**
+
+- **第一步：Spring Boot 配置 Redis**
+
+**添加 Spring Data Redis 依赖**
+
+```
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-redis</artifactId>
+</dependency>
+```
+
+- **第二步：添加配置**
+
+```yaml
+spring:
+  redis:
+    host: 127.0.0.1     # redis 服务器地址
+    port: 6379          # 端口
+    timeout: 6000       # 连接超时时间（毫秒）
+    pool:
+      max-active: 8     # 连接池的配置，最大连接激活数
+      max-idle: 8       # 连接池配置，最大空闲数
+      max-wait: -1      # 连接池配置，最大等待时间
+      min-idle: 0       # 连接池配置，最小空闲活动连接数
+```
+
+- **第三步：注入使用的方式**
+
+```java
+@Resource(name = "redisTemplate")
+private RedisTemplate<String, String> template;
+
+@Resource(name = "redisTemplate")
+private ValueOperations<String, Object> vOps;
+
+@Resource(name = "redisTemplate")
+private HashOperations<String, String, Object> hashOps;
+
+@Resource(name = "redisTemplate")
+private RedisTemplate<String, String> template;
+```
+
+
+
+### 1.3.3、Redis 常用客户端—Redission
+
+wiki 文档：[https://github.com/redisson/redisson/wiki](https://gitee.com/link?target=https%3A%2F%2Fgithub.com%2Fredisson%2Fredisson%2Fwiki)
+
+ springboot starter https://github.com/redisson/redisson/tree/master/redisson-spring-boot-starter#spring-boot-starter
+
+- **第一步：添加依赖**
+
+```xml
+<dependency>
+    <groupId>org.redisson</groupId>
+    <artifactId>redisson-spring-data-21</artifactId>
+    <version>3.13.6</version>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-redis</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.redisson</groupId>
+    <artifactId>redisson-spring-boot-starter</artifactId>
+    <version>3.13.6</version>
+    <exclusions>
+        <exclusion>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson-spring-data-23</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
+```
+
+- **第二步：添加配置 application.yml**
+
+```yaml
+spring: 
+  redis:
+    database: 0
+    host: localhost
+    port: 6379
+    password: 123456
+    redisson:
+      file: classpath:redisson.yml
+    jedis:
+      max-active: 20     # 连接池最大连接数（使用负值表示没有限制）
+      max-wait: 20000ms  # 连接池最大阻塞等待时间（使用负值表示没有限制）
+      max-idle: 20       # 连接池中的最大空闲连接
+      min-idle: 20       # 连接池中的最小空闲连接
+```
+
+- **第三步：添加配置 redisson.yml**
+
+```yaml
+# 单节点配置
+singleServerConfig:
+  # 连接空闲超时，单位：毫秒
+  idleConnectionTimeout: 10000
+  # 连接超时，单位：毫秒
+  connectTimeout: 10000
+  # 命令等待超时，单位：毫秒
+  timeout: 3000
+  # 命令失败重试次数,如果尝试达到 retryAttempts（命令失败重试次数） 仍然不能将命令发送至某个指定的节点时，将抛出错误。
+  # 如果尝试在此限制之内发送成功，则开始启用 timeout（命令等待超时） 计时。
+  retryAttempts: 3
+  # 命令重试发送时间间隔，单位：毫秒
+  retryInterval: 1500
+  # 密码
+  password: 123456
+  # 单个连接最大订阅数量
+  subscriptionsPerConnection: 5
+  # 客户端名称
+  clientName: axin
+  # 节点地址
+  address: redis://localhost:6379
+  # 发布和订阅连接的最小空闲连接数
+  subscriptionConnectionMinimumIdleSize: 1
+  # 发布和订阅连接池大小
+  subscriptionConnectionPoolSize: 50
+  # 最小空闲连接数
+  connectionMinimumIdleSize: 32
+  # 连接池大小
+  connectionPoolSize: 64
+  # 数据库编号
+  database: 0
+  # DNS监测时间间隔，单位：毫秒
+  dnsMonitoringInterval: 5000
+
+
+# 线程池数量,默认值: 当前处理核数量 * 2
+#threads: 0
+
+# Netty线程池数量,默认值: 当前处理核数量 * 2
+#nettyThreads: 0
+
+# 编码
+codec: !<org.redisson.codec.JsonJacksonCodec> {}
+# 传输模式
+transportMode: "NIO"
+```
+
+- **第四步：根据 profile 加载 `redisson-${profile}.yaml`**
+
+```java
+/**
+ * Redisson 配置.
+ * <p>
+ *
+ * @author Ping Wurth
+ * @date 2021/6/6 22:48
+ */
+@Component
+public class RedissonConfig {
+    @Autowired
+    private Environment env;
+
+    /**
+     * 加载 redisson.yaml 配置，创建 RedissonClient 实例
+     *
+     * @return
+     * @throws IOException
+     */
+    @ConditionalOnMissingBean(RedissonClient.class)
+    @Bean(destroyMethod = "shutdown")
+    public RedissonClient redissonClient() throws IOException {
+        String[] profiles = env.getActiveProfiles();
+        ClassPathResource yamlConfigFile;
+
+        // 设置了 profile，加载 redisson-${profile}.yml
+        if (profiles.length > 0) {
+            yamlConfigFile = new ClassPathResource("redisson-" + profiles[0] + ".yaml");
+            if (yamlConfigFile.exists()) {
+                return Redisson.create(Config.fromYAML(yamlConfigFile.getInputStream()));
+            }
+        }
+
+        // 加载 redisson.yaml 创建 Redisson 实例
+        yamlConfigFile = new ClassPathResource("redisson.yaml");
+        if (yamlConfigFile.exists()) {
+            return Redisson.create(Config.fromYAML(yamlConfigFile.getInputStream()));
+        }
+
+        // 没有 redisson.yaml 配置文件
+        return null;
+    }
+}
+```
+
+- **第五步：启动类添加注解 `@EnableCaching`**
+
+
+
+### 1.3.4、SpringBoot集成Redis
+
+- **第1步：引入依赖**
+
+```xml
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.junit.vintage</groupId>
+                    <artifactId>junit-vintage-engine</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+```
+
+- **第2步：配置Redis**
+
+  在 **application.properties** 中添加 Redis 相关配置
+
+  - **单实例 Redis**
+  
+    ```properties
+    # 主机
+    spring.redis.host=127.0.0.1
+    # 端口
+    spring.redis.port=6379
+    # 密码
+    spring.redis.password=jsklajfoI^&(%Y#hsakfakfyq)
+    # 数据库，默认第 0 个
+    spring.redis.database=0
+    
+    # 最大连接数量 = maxTotal
+    spring.redis.jedis.pool.max-active=8
+    # 资源池允许最大空闲数
+    spring.redis.jedis.pool.max-idle=8
+    # 资源池确保最少空闲连接数
+    spring.redis.jedis.pool.min-idle=2
+    # 连接超时时间
+    spring.redis.jedis.pool.max-wait=1000
+    ```
+  
+  - **哨兵模式（一主二从）**
+  
+    ```yaml
+    spring:
+      redis:
+        database: 1
+        password: pingwurth
+        sentinel:
+          master: pingwurth-master
+          nodes: 192.168.1.191:26379,192.168.1.192:26379,192.168.1.193:26379
+    ```
+  
+  - **集群模式（三主三从）**
+  
+    ```yaml
+    spring:
+      password: pingwurth
+      cluster:
+        nodes: 192.168.1.201:6379,192.168.1.202:6379,192.168.1.203:6379,192.168.1.204:6379,192.168.1.205:6379,192.168.1.206:6379
+    ```
+  
+    
+
 
 # 2、五种数据类型+redis 5.0新增的stream类型
 
