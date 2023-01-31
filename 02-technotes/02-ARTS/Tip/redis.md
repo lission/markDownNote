@@ -319,6 +319,8 @@ public class JedisPoolConnectRedis {
 
 ### 1.3.2、Redis 常用客户端—RedisTemplate
 
+是Spring框架对jedis和lettuce的封装。让Spring框架体系能够更加方便的接入redis的功能。 SpringBoot Data Redis 1.X 之前默认使用的是 Jedis，但目前最新版的修改成了 Lettuce。
+
 Spring 封装了 RedisTemplate 来操作 Redis，它支持所有的 Redis 原生的 API。在RedisTemplate 中定义了对 5 种数据结构的操作方法。
 
 - opsForValue()
@@ -371,9 +373,9 @@ private HashOperations<String, String, Object> hashOps;
 private RedisTemplate<String, String> template;
 ```
 
-
-
 ### 1.3.3、Redis 常用客户端—Redission
+
+Redisson是一个在Redis的基础上实现的Java驻内存数据网格（In-Memory Data Grid）。它不仅提供了一系列的分布式的Java常用对象，还提供了许多分布式服务。**Redission作为redis的分布式客户端使用。**
 
 wiki 文档：[https://github.com/redisson/redisson/wiki](https://gitee.com/link?target=https%3A%2F%2Fgithub.com%2Fredisson%2Fredisson%2Fwiki)
 
@@ -521,9 +523,9 @@ public class RedissonConfig {
 
 - **第五步：启动类添加注解 `@EnableCaching`**
 
-
-
 ### 1.3.4、SpringBoot集成Redis
+
+https://juejin.cn/s/redisson%20vs%20spring%20data%20redis
 
 - **第1步：引入依赖**
 
@@ -631,7 +633,7 @@ public class RedissonConfig {
     }
 ```
 
-- ** 第4步：测试 Redis**
+- **第4步：测试 Redis**
 
 ```java
 @SpringBootTest
@@ -659,7 +661,27 @@ public class ConnectionRedisTest {
 }
 ```
 
+## 1.4、Redis和Memcached区别
 
+==面试官：为何选择redis而不用memcached==
+
+- 存储方式上，memcached会把数据全部放在内存中，不会持久化到磁盘，断电或重启后数据小时，数据不能超过内存大小。**redis会支持数据持久化**
+- 数据支持类型上：memcached对数据类型支持简单，只支持简单的key-value，**redis支持五(6)种数据类型**
+- 底层模型不同，他们之间底层实现方式以及客户端之间的通信应用协议不一样，redis直接自己构建了VM机制，因为一般的系统调用系统函数，会浪费一定时间去移动和请求
+- value的上限，redis可以达到1GB，memcache只有1MB
+
+## 1.5、Redis的高并发(Redis为什么这么快)
+
+官方的 bench-mark 数据：测试完成了 50 个并发执行 100000个请求。设置和获取的值是一个 256 字节字符串。结果：读的速度是110000次/s,写的速度是 81000次/s。**redis 尽量少写多读**，符合缓存的适用要求。单机 redis 支撑万级，如果 10万+ 可以采用主从复制的模式。
+
+==面试官：redis是单线程的，为什么还能这么快==
+
+redis是**单进程单线程模型**
+
+- redis**完全基于内存**，绝大部分请求是纯粹的内存操作
+- 数据结构简单，对数据操作也简单，数据存在内存中类似于HashMap，**查找和操作的时间复杂度是O(1)**
+- 采用单线程，**避免了不必要的上下文切换和竞争条件**，不存在多线程导致的**cpu切换**，无需考虑各种锁的问题，**不存在加锁释放锁操作，没有死锁问题导致的性能消耗**
+- 采用**IO多路复用模型，非阻塞IO**，(**一个线程，通过记录I/O流的状态来同时管理多个I/O，可以提高服务器的吞吐能力**)[参考](https://mp.weixin.qq.com/s?__biz=MzU2MTI4MjI0MQ==&mid=2247488306&idx=1&sn=8497ae941b5a13de03e9b94451770a0d&chksm=fc7a7e9ccb0df78a265c3fddc417bba21a76da913e45d1173a6a670156e868f96022935f3d9c&scene=21#wechat_redirect)
 
 
 # 2、五种数据类型+redis 5.0新增的stream类型
@@ -747,25 +769,7 @@ redis内部使用redisObject来表示所有的key和value，redisObject主要信
 
 缓存击穿，可以**对热点数据设置永不过期，或者加上互斥锁**
 
-# 5、redis为什么这么快
 
-==面试官：redis是单线程的，为什么还能这么快==
-
-redis是**单进程单线程模型**
-
-- redis**完全基于内存**，绝大部分请求是纯粹的内存操作
-- 数据结构简单，对数据操作也简单，数据存在内存中类似于HashMap，**查找和操作的时间复杂度是O(1)**
-- 采用单线程，**避免了不必要的上下文切换和竞争条件**，不存在多线程导致的**cpu切换**，无需考虑各种锁的问题，**不存在加锁释放锁操作，没有死锁问题导致的性能消耗**
-- 采用**IO多路复用模型，非阻塞IO**，(**一个线程，通过记录I/O流的状态来同时管理多个I/O，可以提高服务器的吞吐能力**)[参考](https://mp.weixin.qq.com/s?__biz=MzU2MTI4MjI0MQ==&mid=2247488306&idx=1&sn=8497ae941b5a13de03e9b94451770a0d&chksm=fc7a7e9ccb0df78a265c3fddc417bba21a76da913e45d1173a6a670156e868f96022935f3d9c&scene=21#wechat_redirect)
-
-# 6、redis和Memcached区别
-
-==面试官：为何选择redis而不用memcached==
-
-- 存储方式上，memcached会把数据全部放在内存中，不会持久化到磁盘，断电或重启后数据小时，数据不能超过内存大小。**redis会支持数据持久化**
-- 数据支持类型上：memcached对数据类型支持简单，只支持简单的key-value，**redis支持五(6)种数据类型**
-- 底层模型不同，他们之间底层实现方式以及客户端之间的通信应用协议不一样，redis直接自己构建了VM机制，因为一般的系统调用系统函数，会浪费一定时间去移动和请求
-- value的上限，redis可以达到1GB，memcache只有1MB
 
 # 7、淘汰策略
 
