@@ -599,7 +599,67 @@ public class RedissonConfig {
         nodes: 192.168.1.201:6379,192.168.1.202:6379,192.168.1.203:6379,192.168.1.204:6379,192.168.1.205:6379,192.168.1.206:6379
     ```
   
-    
+- ** 第3步：添加 Redis 序列化方法**
+
+```java
+/**
+     * redisTemplate 序列化使用的jdkSerializeable, 存储二进制字节码, 所以自定义序列化类
+     * @param redisConnectionFactory
+     * @return
+     */
+    @Bean
+    public RedisTemplate<Object, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<Object, Object> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(redisConnectionFactory);
+
+        // 使用Jackson2JsonRedisSerialize 替换默认序列化
+        Jackson2JsonRedisSerializer jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer(Object.class);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+        jackson2JsonRedisSerializer.setObjectMapper(objectMapper);
+
+        // 设置key和value的序列化规则
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(jackson2JsonRedisSerializer);
+
+        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+        redisTemplate.setHashValueSerializer(jackson2JsonRedisSerializer);
+
+        redisTemplate.afterPropertiesSet();
+        return redisTemplate;
+    }
+```
+
+- ** 第4步：测试 Redis**
+
+```java
+@SpringBootTest
+public class ConnectionRedisTest {
+
+    @Resource
+    private RedisTemplate redisTemplate;
+
+    @Test
+    void testConnection() {
+        String result = redisTemplate.getConnectionFactory().getConnection().ping();
+        // 验证
+        assertEquals("PONG", result);
+    }
+
+    @Test
+    void testOptString() {
+        // 写入数据
+        redisTemplate.opsForValue().set("username", "Hello Redis!");
+        // 读取数据
+        String result = (String)redisTemplate.opsForValue().get("username");
+        // 验证
+        assertEquals("Hello Redis!", result);
+    }
+}
+```
+
+
 
 
 # 2、五种数据类型+redis 5.0新增的stream类型
