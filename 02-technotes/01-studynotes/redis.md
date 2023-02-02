@@ -665,10 +665,22 @@ public class ConnectionRedisTest {
 
 ==面试官：为何选择redis而不用memcached==
 
-- 存储方式上，memcached会把数据全部放在内存中，不会持久化到磁盘，断电或重启后数据小时，数据不能超过内存大小。**redis会支持数据持久化**
-- 数据支持类型上：memcached对数据类型支持简单，只支持简单的key-value，**redis支持五(6)种数据类型**
+- 存储方式上
+  - memcached会把数据全部放在内存中，不会持久化到磁盘，断电或重启后数据小时，数据不能超过内存大小。
+  - **redis会支持数据持久化**
+
+- 数据支持类型
+  - memcached对数据类型支持简单，只支持简单的key-value
+  - **redis支持五(6)种数据类型**
+
 - 底层模型不同，他们之间底层实现方式以及客户端之间的通信应用协议不一样，redis直接自己构建了VM机制，因为一般的系统调用系统函数，会浪费一定时间去移动和请求
-- value的上限，redis可以达到1GB，memcache只有1MB
+- value的上限
+  - redis可以达到1GB
+  - memcache只有1MB
+
+- 数据一致性（事务支持）
+  - Memcached 在并发场景下用 CAS 保证一致性。
+  - Redis 对事务支持比较弱，只能保证事务中的每个操作连续执行。
 
 ## 1.5、Redis的高并发(Redis为什么这么快)
 
@@ -676,49 +688,160 @@ public class ConnectionRedisTest {
 
 ==面试官：redis是单线程的，为什么还能这么快==
 
-
-
-redis是**单进程单线程模型**
+### 1.5.1、**Redis高并发原理**
 
 - redis**完全基于内存**，绝大部分请求是纯粹的内存操作
-- 数据结构简单，对数据操作也简单，数据存在内存中类似于HashMap，**查找和操作的时间复杂度是O(1)**
-- 采用单线程，**避免了不必要的上下文切换和竞争条件**，不存在多线程导致的**cpu切换**，无需考虑各种锁的问题，**不存在加锁释放锁操作，没有死锁问题导致的性能消耗**
 - 采用**IO多路复用模型，非阻塞IO**，(**一个线程，通过记录I/O流的状态来同时管理多个I/O，可以提高服务器的吞吐能力**)[参考](https://mp.weixin.qq.com/s?__biz=MzU2MTI4MjI0MQ==&mid=2247488306&idx=1&sn=8497ae941b5a13de03e9b94451770a0d&chksm=fc7a7e9ccb0df78a265c3fddc417bba21a76da913e45d1173a6a670156e868f96022935f3d9c&scene=21#wechat_redirect)
+- 采用单线程模型，**避免了不必要的上下文切换和竞争条件**，不存在多线程导致的**cpu切换**，无需考虑各种锁的问题，**不存在加锁释放锁操作，没有死锁问题导致的性能消耗**
+- Redis 存储结构多样化，不同的数据结构对数据存储进行了优化，如压缩表，对短数据进行压缩存储，再如，跳表，使用有序的数据结构加快读取的速度。~~（数据结构简单，对数据操作也简单，数据存在内存中类似于HashMap，**查找和操作的时间复杂度是O(1)**）~~
+- Redis 采用自己实现的事件分离器，效率比较高，内部采用非阻塞的执行方式，吞吐能力比较大。==**（还不理解）**==
+
+### 1.5.2、Redis的单线程
+
+**原因**：
+
+- **无需各种锁的消耗**
+- **单线程多进程集群方案**，单机多线程虽然可以比单线程提供更高的性能上限，但是在当下计算环境中，即使是单机多线程的上限往往也不能满足需要，因此需要进一步探索多服务器集群化的方案，在这些方案中多线程技术照样用不上。
+- **CPU消耗**，避免不必要的上下文切换和竞争条件，也不存在多进程或多线程导致的切换而消耗CPU。
+
+**优势**：
+
+- 代码更清晰，处理逻辑更简单
+- 不用去考虑各种锁的问题，不存在加锁释放锁操作，没有因为可能出现死锁而导致的性能消耗
+- 不存在多进程或者多线程导致的切换而消耗CPU
+
+**劣势**：
+
+- 无法发挥多核 CPU 性能，不过可以通过在单机开多个 Redis 实例来完善
+
+### 1.5.3、IO多路复用技术
+
+redis采用网络IO多路复用技术保证多连接的时候，系统的高吞吐量。
+
+**多路**—指的是多个socket连接，**复用**—指的是复用一个线程。多路复用主要有三种技术：select、poll、epoll。epoll是最新的也是最好的多路复用技术。
+
+采用多路 I/O 复用技术可以让单个线程高效的处理多个连接请求（尽量减少网络IO的时间消耗），且Redis在内存中操作数据的速度非常快（内存内的操作不会成为这里的性能瓶颈），主要以上两点造就了 Redis 具有很高的吞吐量。
 
 
-# 2、五种数据类型+redis 5.0新增的stream类型
+
+5种IO模型：
+
+https://gitee.com/pingWurth/study-notes/blob/master/redis/5%E7%A7%8DIO%E6%A8%A1%E5%9E%8B.md
+
+
+
+# 二、Redis数据结构
+
+redis内部使用redisObject来表示所有的key和value。
+
+```c
+/* server.h/redisObject 
+ * 是 Redis 对内部存储的数据定义的抽象类型 */
+typedef struct redisObject {
+    unsigned type:4; /* 数据类型 */
+    
+    unsigned encoding:4; /* 编码格式，存储数据使用的数据结构。
+                          * 同一类型的数据，Redis 会根据数据量、占用内存等情况
+                          * 使用不同的编码，最大限度地节省内存。 */
+    
+    unsigned lru:LRU_BITS; /* LRU(Least Recently Used) 时间戳
+                            * 或 LFU(Least Frequently Used) 计数 */
+    int refcount; /* 引用计数，为了节省内存，Redis 会在多出引用同一个 redisObject */
+    
+    void *ptr; /* 指向实际的数据结构，如 sds，真正的数据存储在该数据结构中 */
+    
+} robj;
+```
+
+**Redis 中的基本数据结构：**
+
+|            |      |                    |                        |                 |                                          |
+| ---------- | ---- | ------------------ | ---------------------- | --------------- | ---------------------------------------- |
+| 数据结构   |      | 说明               | 编码                   | 使用的数据类型  | 其他详解                                 |
+| OBJ_STRING | 0    | 字符串             | OBJ_ENCODING_INT       | long long、long | 将字符串转换为整型，大幅降低内存占用空间 |
+|            |      |                    | OBJ_ENCODING_EMBSTR    | string          | 长度小于等于 44 字节的字符串             |
+|            |      |                    | OBJ_ENCODING_RAW       | string          | 长度大于 44 字节的字符串                 |
+|            |      |                    |                        |                 |                                          |
+| OBJ_LIST   | 1    | 列表               | OBJ_ENCODING_QUICKLIST | quicklist       |                                          |
+|            |      |                    |                        |                 |                                          |
+| OBJ_SET    | 2    | 集合               | OBJ_ENCODING_HT        | dict            |                                          |
+|            |      |                    | OBJ_ENCODING_INTSET    | intset          |                                          |
+|            |      |                    |                        |                 |                                          |
+| OBJ_ZSET   | 3    | 有序集合           | OBJ_ENCODING_ZIPLIST   | ziplist         |                                          |
+|            |      |                    | OBJ_ENCODING_SKIPLIST  | skiplist        |                                          |
+|            |      |                    |                        |                 |                                          |
+| OBJ_HASH   | 4    | 散列               | OBJ_ENCODING_HT        | dict            |                                          |
+|            |      |                    | OBJ_ENCODING_ZIPLIST   | ziplist         |                                          |
+|            |      |                    |                        |                 |                                          |
+| OBJ_MODULE | 5    | 模块（自定义类型） | OBJ_ENCODING_RAW       | Module 自定义   |                                          |
+|            |      |                    |                        |                 |                                          |
+| OBJ_STREAM | 6    | 消息流             | OBJ_ENCODING_STREAM    | rax             |                                          |
+
+
+
+
+## 2.1、五种数据类型+redis 5.0新增的stream类型
 
 ==面试官：总结的不错，看来是早有准备啊。刚来听你提到redis支持五种数据类型，那你能简单说下这五种数据类型吗？==
 
 ![img](https://raw.githubusercontent.com/lission/markdownPics/main/redisPic/redisObject.png)
 
-redis内部使用redisObject来表示所有的key和value，redisObject主要信息如上，**type表示value对象具体是何种数据类型**，encoding是不同数据类型在redis内部的存储方式。比如：type=string表示value存储的是一个普通字符串，那么encoding可以是raw或者int。
+，redisObject主要信息如上，**type表示value对象具体是何种数据类型**，encoding是不同数据类型在redis内部的存储方式。比如：type=string表示value存储的是一个普通字符串，那么encoding可以是raw或者int。
 
 简单说一下5种数据类型：
 
-- **string是redis基本数据类型**，一个key对应一个value，**==value不仅可以是字符串也以是数字==**。string类型是二进制全的，==redis的string可以包含任何数据，比如jpg图片或者序列化的对象==。string类型的值最大能存储512M。
+### 2.1.1、Strings
+
+- **string是redis基本数据类型**，一个key对应一个value，**==value不仅可以是字符串也以是数字==**。string类型是二进制全的，==redis的string可以包含任何数据，比如jpg图片或者序列化的对象==。string类型的值最大能存储==**512M**==。
+
+  ![img](https://github.com/lission/markdownPics/blob/main/redisPic/Redis%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-%E5%AD%97%E7%AC%A6%E4%B8%B2.png?raw=true)
+
+### 2.1.2、Hashes
 
 - **hash是一个键值（key-value）的集合**。redis的hash是一个string的key和value的映射表，hash特别适合存储对象。
 
   - 常用命令hget,hset,hgetall等
 
+  ![img](https://github.com/lission/markdownPics/blob/main/redisPic/Redis%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-%E6%95%A3%E5%88%97.png?raw=true)
+
+### 2.1.3、Lists
+
 - **list列表是简单的字符串列表，按照插入顺序排序**，可以添加一个元素到列表的头部(左边)或尾部(右边)，常用命令：lpush、rpush、lpop、rpop、lrange(获取列表片段等)
+
   - 应用场景：list应用场景非常多，比如twitter的关注列表，粉丝列表等都可以用list结构实现
   - 数据结构：list就是链表，redis提供了List的push和pop操作
   - 实现方式：redis list的实现是一个**双向链表**，支持反向查找和遍历，方便操作，但是带来了额外内存开销
+
+  ![img](https://github.com/lission/markdownPics/blob/main/redisPic/Redis%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-%E5%88%97%E8%A1%A8.png?raw=true)
+
+### 2.1.4、Sets
 
 - **set是string类型的无序集合**，集合通过hashtable实现，set中元素无序，且没有重复的
 
   - 常用命令：sdd、spop、smembers、sunion等
   - 应用场景：redis set对外提供功能与list一样是一个列表，特殊在于set自动去重，set提供判断某个成员是否在一个set集合中
 
-- **zset和set一样是string类型元素的集合，不允许重复元素**。
+  ![img](https://github.com/lission/markdownPics/blob/main/redisPic/Redis%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-%E9%9B%86%E5%90%88.png?raw=true)
+
+### 2.1.5、Sorted Sets
+
+- **sorted set和set一样是string类型元素的集合，不允许重复元素**。
 
   - 常用命令：zadd，zrange、zrem、zcard
   - 使用场景：sorted set可以通过用户额外提供一个优先级(score)的参数来为成员排序，且插入是有序的。和set相比，sorted set**关联了一个double类型权重的参数score**，使集合中的元素能够按照score进行有序排序，redis是通过分数为集合中的成员进行从小到大的排序
   - 实现方式：sorted set内部使用hashMap和跳跃表skipList保证数据存储和有序，HashMap里存放的是成员到score的映射，而跳跃表存放的是所有成员，排序依据HashMap里存的score，跳跃表的结构可以或得较高的查找效率
 
-  数据类型应用场景总结
+  ![img](https://github.com/lission/markdownPics/blob/main/redisPic/Redis%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-%E6%9C%89%E5%BA%8F%E9%9B%86%E5%90%88.png?raw=true)
+
+![img](https://github.com/lission/markdownPics/blob/main/redisPic/redis-skiplist%E8%AE%BE%E8%AE%A1.png?raw=true)
+
+### 2.1.6、Stream
+
+- stream，redis 5.0添加的一种新的数据类型，它是一个新的强大的支持多播的**可持久化的消息队列**。[参考](https://www.zhihu.com/question/279540635/answer/409746087)，stream借鉴了kafka设计。它有一个**消息链表，将所有加入的消息都串起来，每个消息都有一个唯一的ID和对应的内容**。消息是持久化的，Redis重启后，内容还在
+
+
+
+### 2.1.7、数据类型应用场景总结
 
   | 类型       | 简介                                                    | 特性                                                         | 场景                     |
   | ---------- | ------------------------------------------------------- | ------------------------------------------------------------ | ------------------------ |
@@ -728,7 +851,9 @@ redis内部使用redisObject来表示所有的key和value，redisObject主要信
   | set        | hash表实现，元素不重复                                  | 添加、删除、查找的复杂度都是O(1)，提供求交际、冰机】差集操作 | 共同好友；利用唯一性     |
   | sorted set | 将set中的元素增加一个权重参数score，元素按score有序排列 | 数据插入集合时，进行了天然排序                               | 排行榜，带权重的消息队列 |
 
-- stream，redis 5.0添加的一种新的数据类型，它是一个新的强大的支持多播的**可持久化的消息队列**。[参考](https://www.zhihu.com/question/279540635/answer/409746087)，stream借鉴了kafka设计。它有一个**消息链表，将所有加入的消息都串起来，每个消息都有一个唯一的ID和对应的内容**。消息是持久化的，Redis重启后，内容还在
+
+
+
 
 # 3、redis缓存
 
