@@ -22,7 +22,9 @@ https://gitee.com/pingWurth/study-notes
 
 RabbitMQ基础博客：https://juejin.cn/post/7054448694321479711
 
+## 2、Redission
 
+redission wiki 目录：https://github.com/redisson/redisson/wiki/%E7%9B%AE%E5%BD%95
 
 # 四、github 资源
 
