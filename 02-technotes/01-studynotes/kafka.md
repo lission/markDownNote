@@ -262,3 +262,88 @@ kafka中使用**pull模式，consumer主动pull**。
 缺点：速率固定，忽略了consumer的消费能力，可能导致拒绝服务或者网络阻塞等情况。
 
 kafka producer客户端执行流程
+
+
+
+
+
+## 消息中间件中RocketMQ与Kafka的存储区别
+
+**存储**
+
+说到存储，其实效率才是最主要的，容量不是我们关心的，但是说到存储，不只是mq，所有需要高效率的存储其实最后利用的核心都是一样的。
+
+1. 随机写转换成顺序写
+2. 集中刷盘
+
+**为什么随机写要转换为顺序写？**
+
+1.现在主流的硬盘是机械硬盘
+
+2.机械硬盘的机械结构一次读写时间 = 寻道时间 + 旋转延迟 + 读取数据时间
+
+那么寻道时间比较长，如果是顺序写，只需要一次寻道时间，关于机械硬盘整个过程，读者可自行google。
+
+**为什么集中刷盘？**
+
+因为每次刷盘都会进行系统调用，第二还是跟硬盘的本身属性有关，无论是机械硬盘还是ssd按照一定块刷盘会比小数据刷盘效率更好
+
+**kafka**
+
+为什么先说kafka的存储，因为kafka是第一个高性能的消息中间件，其中rocketmq也是借鉴于它，所以我们先说
+
+​    ![0](https://note.youdao.com/yws/res/1056/EFBEA5B15E964516AAEDD6F1E47C45E3)
+
+模型变化图
+
+​    为什么引入消费组概念？
+
+​    上一次模型图我们还没有消费组，那么引入消费组，是因为现在一个服务都有很多实例在运行，消费组是对这群一群机器的一个划分，他还是一个概念而已。
+
+​    mq内部也发生了变化，一个topic后面又对应了很多partition，partition也是一个概念，他只不过是把一个topic分成了很多份，每一份叫一个partition，你高兴也可以叫他xxx,那么我们来说说为什么要分成很多份，一份不行吗？
+
+​    因为现在一个服务有很多实例在运行，如果topic只有一份的话，那么所有的实例都会来消费消息，并且都是抢占我们一个topic，这不可避免引入了多实例竞争，以及他们之间怎么协调，一堆问题需要关注解决，现在我把topic分成了很多份，每一份只给一个实例，那么就不会引入各实例之间的竞争问题了，简化了mq的问题。
+
+​    生产组的引入也是一样的，只不过是一组机器的一个概念，一个逻辑的划分，生产者发送消息原先是发往topic，那么现在topic分成了很多份，生产者发送消息，需要说明发往哪个partition或者随意分配都可以，只不过最终发送的消息，会到一个topic下的一份里面。无论使用哪种映射方式都可以。
+
+那么模型出来了，我们说说存储的问题。
+
+对于kafka，一个partition对应一个文件，每次消息来都是顺序写这个文件。并且是定时刷盘，而不是每次写都刷盘，所以kafka的写非常高效。
+
+**RocketMQ**
+
+​    ![0](https://note.youdao.com/yws/res/1054/4B1EF02E508F473EA043A2E63ACE13CA)
+
+**rocketmq借鉴于kafka，所以存储借鉴了kafka，但是rocketmq不是仅仅把partition改成了ConsumeQueue，原先kafka，里面partition存储的是整个消息，但是现在ConsumeQueue里面是存储消息的存储地址，但是不存储消息了；**
+
+​    ![0](https://note.youdao.com/yws/res/1057/6FDB5768ED344F6880BEA952CB44FFFF)
+
+**现在每个ConsumeQueue存储的是每个消息在commitlog这个文件的地址，但是消息存在于commitlog中**
+
+**也就是所有的消息体都写在了一个文件里面，每个ConsumeQueue只是存储这个消息在commitlog中地址**
+
+**存储对比**
+
+消息体存储的变化
+
+那么我们先来看看kafka，假设partition有1000个，一个partition是顺序写一个文件，总体上就是1000个文件的顺序写，是不是就变成了随机写，所以当partition增加到一定数目后，kafka性能就会下降。而rocketmq是把消息都写到一个CommitLog文件中，所以相当于一个文件的顺序写;
+
+为什么索引文件(ConsumeQueue)的增加对性能影响没有那么partition大？
+
+(kafka也有索引文件，在这里只是想说明索引文件的增加跟partition增加的区别)
+
+虽然rocketmq是把消息都写到一个CommitLog文件中，但是按照上面的实例会有1000个ConsumeQueue，也就是一千个文件，那么为什么就没有把顺序写变成随机写，带来性能的下降呢？首先就要介绍linux的pagecache
+
+​    ![0](https://note.youdao.com/yws/res/1055/5DC71EF20825498EA76E8C4A9C9E3D56)
+
+我们平常调用write或者fwrite的时候，数据还没有写到磁盘上，只是写到一个内核的缓存(pagecache)，只有当我们主动调用flush的时候才会写到硬盘中。或者需要回写的pagecache占总内存一定比例的时候或者一个应该回写的page超过一定时间还没有写磁盘的时候，内核会将这些数据通过后台进程写到磁盘中(总结就是达到一定比例，或者多长时间还没有回写，会被内核自动回写)。
+
+然后我们现在来看看为什么大量索引文件的顺序写没有像partition一样导致性能明显下降。ConsumeQueue只存储了（CommitLog Offet + Size + Message Tag Hashcode），一共20个字节，那么当commitlog定时任务刷盘之后，应该回写的pagecache的比例就会下降很多，那么ConsumeQueue的部分可以不用刷盘，就相当于ConsumeQueue的内容会等待比较长的时间聚合批量写入，而kafka每个partition都是存储的消息体，因为消息体都相对较大，基本在kb之上。
+
+当一个partition刷盘的时候，应该回写的pagecache的比例降低的并不多，不能阻止其他partition的刷盘，所以会大量存在多个partition同时刷盘的场景，变成随机写。但是rocketmq消息都会写入一个commitLog，也就是顺序写。
+
+**总结**：
+
+1、consumerQueue消息格式大小固定（20字节），写入pagecache之后被触发刷盘频率相对较低。就是因为每次写入的消息小，造成他占用的pagecache少，主要占用方一旦被清理，那么他就可以不用清理了;
+
+2、kafka中多partition会存在随机写的可能性，partition之间刷盘的冲撞率会高，但是rocketmq中commitLog都是顺序写。
