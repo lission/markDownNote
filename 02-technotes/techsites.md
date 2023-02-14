@@ -16,7 +16,7 @@ https://www.pdai.tech/
 
 https://www.topgoer.com/
 
-https://gobyexample.com/errors
+https://gobyexample.com/
 
 # 二、网络
 
