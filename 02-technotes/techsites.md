@@ -70,3 +70,12 @@ https://github.com/lib-pku/libpku
 
 lission@foxmail.com
 
+
+
+## 2、个人头像
+
+logo制作：https://www.designevo.com/cn/apps/logo/
+
+图片转素描：https://javier.xyz/pintr/
+
+图片像素化：https://pixel-me.tokyo/en/
