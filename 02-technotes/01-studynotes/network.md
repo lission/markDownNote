@@ -77,8 +77,10 @@ UDP 相对来说就很简单，简单到只负责发送数据包，不保证数�
 
 - **交互流程**
 
-  1. **建立连接，三次握手**，客户端-服务器模式
+##### 1.2.2.2.1、三次握手
 
+  1. **建立连接，三次握手**，客户端-服务器模式
+  
      > 客户端-服务端模式：
      >
      > - 主动发起建立连接的应用进程叫客户端
@@ -87,12 +89,14 @@ UDP 相对来说就很简单，简单到只负责发送数据包，不保证数�
      > 三次握手过程：
      >
      > 1. 客户端向服务端发送一个SYN
-     > 2. 服务端接收到SYN后，向客户端发送一个SYN_ACK
+   > 2. 服务端接收到SYN后，向客户端发送一个SYN_ACK
      > 3. 客户端接收到SYN_ACK后，再给服务端发送一个ACK
 
   2. 数据传输
 
   3. **连接释放，四次挥手**
+
+##### 1.2.2.2.2、四次挥手
 
      > 四次挥手过程：
      >
@@ -362,7 +366,115 @@ IP 下面的网卡驱动程序负责控制网卡硬件，而最下面的网卡�
 
 **HTTP 是基于 TCP 协议传输的**，所以在这我们先了解下 TCP 协议。
 
+![img](https://raw.githubusercontent.com/lission/markdownPics/main/network/tcp%E6%8A%A5%E6%96%87%E5%A4%B4.webp)
 
+首先，**源端口号**和**目标端口**号是不可少的，如果没有这两个端口号，数据就不知道应该发给哪个应用。
+
+接下来有包的**序**号，这个是为了解决包乱序的问题。
+
+还有应该有的是**确认号**，目的是确认发出去对方是否有收到。如果没有收到就应该重新发送，直到送达，这个是为了解决丢包的问题。
+
+接下来还有一些**状态位**。例如 `SYN` 是发起一个连接，`ACK` 是回复，`RST` 是重新连接，`FIN` 是结束连接等。TCP 是面向连接的，因而双方要维护连接的状态，这些带状态位的包的发送，会引起双方的状态变更。
+
+**窗口大小**。TCP 要做**流量控制**，通信双方各声明一个窗口（缓存大小），标识自己当前能够的处理能力，别发送的太快，撑死我，也别发的太慢，饿死我。
+
+除了做流量控制以外，TCP还会做**拥塞控制**，对于真正的通路堵车不堵车，它无能为力，唯一能做的就是控制自己，也即控制发送的速度。不能改变世界，就改变自己嘛。
+
+在 HTTP 传输数据之前，首先需要 TCP 建立连接，TCP 连接的建立，通常称为**三次握手**。
+
+这个所谓的「连接」，只是双方计算机里维护一个状态机，在连接建立的过程中，双方的状态变化时序图就像这样。
+
+![img](https://raw.githubusercontent.com/lission/markdownPics/main/network/TCP%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B.webp)
+
+三次握手目的是**保证双方都有发送和接收的能力**。
+
+> 如何查看 TCP 的连接状态？
+
+TCP 的连接状态查看，在 Linux 可以通过 `netstat -napt` 命令查看。
+
+![tcp连接状态](https://raw.githubusercontent.com/lission/markdownPics/main/network/tcp%E8%BF%9E%E6%8E%A5%E7%8A%B6%E6%80%81.webp)
+
+
+
+> TCP 分割数据
+
+如果 HTTP 请求消息比较长，超过了 `MSS` 的长度，这时 TCP 就需要把 HTTP 的数据拆解成一块块的数据发送，而不是一次性发送所有数据。
+
+![tcp分割数据](https://raw.githubusercontent.com/lission/markdownPics/main/network/tcp%E5%88%86%E5%89%B2%E6%95%B0%E6%8D%AE.webp)
+
+- `MTU`：一个网络包的最大长度，以太网中一般为 `1500` 字节。
+- `MSS`：除去 IP 和 TCP 头部之后，一个网络包所能容纳的 TCP 数据的最大长度。
+
+数据会被以 `MSS` 的长度为单位进行拆分，拆分出来的每一块数据都会被放进单独的网络包中。也就是在每个被拆分的数据加上 TCP 头信息，然后交给 IP 模块来发送数据。
+
+![tcpmutmss](https://raw.githubusercontent.com/lission/markdownPics/main/network/tcpmtumss.webp)
+
+> TCP 报文生成
+
+TCP 协议里面会有两个端口，一个是浏览器监听的端口（通常是随机生成的），一个是 Web 服务器监听的端口（HTTP 默认端口号是 `80`， HTTPS 默认端口号是 `443`）。
+
+在双方建立了连接后，TCP 报文中的数据部分就是存放 HTTP 头部 + 数据，组装好 TCP 报文之后，就需交给下面的网络层处理。
+
+至此，网络包的报文如下图。
+
+![tcphttp](https://raw.githubusercontent.com/lission/markdownPics/main/network/tcp%E5%A4%B4%E9%83%A8http%E6%8A%A5%E6%96%87.webp)
+
+## 远程定位 —— IP
+
+TCP 模块在执行**连接、收发、断开**等各阶段操作时，都需要委托 IP 模块将数据封装成**网络包**发送给通信对象。
+
+> IP 包头格式
+
+![ip报文头](https://raw.githubusercontent.com/lission/markdownPics/main/network/ip%E6%8A%A5%E6%96%87%E5%A4%B4.webp)
+
+在 IP 协议里面需要有**源地址 IP** 和 **目标地址 IP**：
+
+- 源地址IP，即是客户端输出的 IP 地址；
+- 目标地址，即通过 DNS 域名解析得到的 Web 服务器 IP。
+
+因为 HTTP 是经过 TCP 传输的，所以在 IP 包头的**协议号**，要填写为 `06`（十六进制），表示协议为 TCP。
+
+> 假设客户端有多个网卡，就会有多个 IP 地址，那 IP 头部的源地址应该选择哪个 IP 呢？
+
+当存在多个网卡时，在填写源地址 IP 时，就需要判断到底应该填写哪个地址。这个判断相当于在多块网卡中判断应该使用哪个一块网卡来发送包。
+
+这个时候就需要根据**路由表**规则，来判断哪一个网卡作为源地址 IP。
+
+在 Linux 操作系统，我们可以使用 `route -n` 命令查看当前系统的路由表。
+
+![路由表](https://raw.githubusercontent.com/lission/markdownPics/main/network/linux%E8%B7%AF%E7%94%B1%E8%A1%A8.webp)
+
+根据上面的路由表，我们假设 Web 服务器的目标地址是 `192.168.10.200`。
+
+![路由表匹配](https://raw.githubusercontent.com/lission/markdownPics/main/network/%E8%B7%AF%E7%94%B1%E8%A1%A8%E5%8C%B9%E9%85%8D.webp)
+
+1. 首先先和第一条目的子网掩码（`Genmask`）进行 **与运算**，得到结果为 `192.168.10.0`，但是第一个条目的 `Destination` 是 `192.168.3.0`，两者不一致所以匹配失败。
+2. 再与第二条目的子网掩码进行 **与运算**，得到的结果为 `192.168.10.0`，与第二条目的 `Destination 192.168.10.0` 匹配成功，所以将使用 `eth1` 网卡的 IP 地址作为 IP 包头的源地址。
+
+那么假设 Web 服务器的目标地址是 `10.100.20.100`，那么依然依照上面的路由表规则判断，判断后的结果是和第三条目匹配。
+
+第三条目比较特殊，它目标地址和子网掩码都是 `0.0.0.0`，这表示**默认网关**，如果其他所有条目都无法匹配，就会自动匹配这一行。并且后续就把包发给路由器，`Gateway` 即是路由器的 IP 地址。
+
+> IP 报文生成
+
+![ip报文](https://raw.githubusercontent.com/lission/markdownPics/main/network/ip%E6%8A%A5%E6%96%87.webp)
+
+## 两点传输 —— MAC
+
+生成了 IP 头部之后，接下来网络包还需要在 IP 头部的前面加上 **MAC 头部**。
+
+> MAC 包头格式
+
+MAC 头部是以太网使用的头部，它包含了接收方和发送方的 MAC 地址等信息。
+
+![mac包头格式](https://raw.githubusercontent.com/lission/markdownPics/main/network/mac%E5%8C%85%E5%A4%B4%E6%A0%BC%E5%BC%8F.webp)
+
+在 MAC 包头里需要**发送方 MAC 地址**和**接收方目标 MAC 地址**，用于**两点之间的传输**。
+
+一般在 TCP/IP 通信里，MAC 包头的**协议类型**只使用：
+
+- `0800` ： IP 协议
+- `0806` ： ARP 协议
 
 
 
