@@ -18,6 +18,10 @@ https://www.topgoer.com/
 
 https://gobyexample.com/
 
+## 4、通用测试用例大全
+
+https://www.cnblogs.com/wysk/archive/2018/01/05/8193091.html
+
 # 二、网络
 
 ## 1、图解网络
@@ -70,3 +74,11 @@ lission@foxmail.com
 
 https://www.ppzhilian.com/
 
+
+## 3、个人头像
+
+logo制作：https://www.designevo.com/cn/apps/logo/
+
+图片转素描：https://javier.xyz/pintr/
+
+图片像素化：https://pixel-me.tokyo/en/
