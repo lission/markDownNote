@@ -4,18 +4,16 @@
 
 https://blog.51cto.com/u_15127695/2829829
 
+很多 C 语言或者 Unix 开发者听到 `select` 想到的都是系统调用，而谈到 I/O 模型时最终大都会提到基于 `select`、`poll` 和 `epoll` 等函数构建的 IO 多路复用模型。 Go 语言中的 select 关键字其实就与 C 语言中的`select `有比较相似的功能。
 
+这一节会介绍 Go 语言中的 `select `的实现原理，包括 `select` 的结构和常见问题、编译期间的多种优化以及运行时的执行过程。
 
-很多 C 语言或者 Unix 开发者听到 select 想到的都是系统调用，而谈到 I/O 模型时最终大都会提到基于 select、poll 和 epoll 等函数构建的 IO 多路复用模型，我们在这一节中即将介绍的 Go 语言中的 select 关键字其实就与 C 语言中的select 有比较相似的功能。
+### 概述
+C 语言中的 `select `关键字可以同时监听多个文件描述符的可读或者可写的状态，**在文件描述符发生状态改变之前，`select` 会一直阻塞当前的线程**，Go 语言中的` select `关键字与 C 语言中的有些类似，只是它能够**让一个 Goroutine 同时等待多个 Channel 达到准备状态**。
 
-这一节会介绍 Go 语言中的 select 的实现原理，包括 select 的结构和常见问题、编译期间的多种优化以及运行时的执行过程。
+![selectgoroutinechannel](https://raw.githubusercontent.com/lission/markdownPics/main/go/select-goroutine-channel.webp)￼
 
-概述
-C 语言中的 select 关键字可以同时监听多个文件描述符的可读或者可写的状态，在文件描述符发生状态改变之前，select 会一直阻塞当前的线程，Go 语言中的 select 关键字与 C 语言中的有些类似，只是它能够让一个 Goroutine 同时等待多个 Channel 达到准备状态。
-
-￼
-
-select 是一种与 switch 非常相似的控制结构，与switch 不同的是，select 中虽然也有多个 case，但是这些 case 中的表达式都必须与 Channel 的操作有关，也就是 Channel 的读写操作，下面的函数就展示了一个包含从 Channel 中读取数据和向 Channel 发送数据的 select 结构：
+`select` 是一种与 switch 非常相似的控制结构，与switch 不同的是，select 中虽然也有多个 case，但是这些 case 中的表达式都必须与 Channel 的操作有关，也就是 Channel 的读写操作，下面的函数就展示了一个包含从 Channel 中读取数据和向 Channel 发送数据的 select 结构：
 
 func fibonacci(c, quit chan int) {    x, y := 0, 1    for {        select {        case c <- x:            x, y = y, x+y        case <-quit:            fmt.Println("quit")            return        }    }}
 1.
