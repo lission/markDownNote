@@ -64,6 +64,12 @@ https://github.com/tongtzeho/PKUCourse
 
 https://github.com/lib-pku/libpku
 
+## ansj分词
+
+真正java实现.分词效果速度都超过开源版的ict. 中文分词,人名识别,词性标注,用户自定义词典
+
+https://github.com/NLPchina/ansj_seg
+
 # 五、工具
 
 ## 1、showdoc
