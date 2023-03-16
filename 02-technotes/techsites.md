@@ -44,6 +44,18 @@ RabbitMQ基础博客：https://juejin.cn/post/7054448694321479711
 
 redission wiki 目录：https://github.com/redisson/redisson/wiki/%E7%9B%AE%E5%BD%95
 
+## 3、kafka Tool
+
+offset explore下载地址：
+
+https://www.kafkatool.com/download.html
+
+使用教程：
+
+https://blog.csdn.net/m0_67400972/article/details/126074724
+
+https://www.cnblogs.com/xingxia/p/kafka_tool.html
+
 # 四、github 资源
 
 todo 待整理
@@ -97,7 +109,11 @@ logo制作：https://www.designevo.com/cn/apps/logo/
 
 https://www.zhihu.com/question/24958060/answer/1491000411
 
+## 5、clash for windows
 
+https://clashforwindows.org/
+
+https://github.com/Fndroid/clash_for_windows_pkg/releases
 
 # 六、生活
 
