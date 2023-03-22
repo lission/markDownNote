@@ -14,9 +14,9 @@ https://www.pdai.tech/
 
 官网博客：https://go.dev/blog/
 
-https://www.topgoer.com/
+中文文档：https://www.topgoer.com/
 
-https://gobyexample.com/
+代码实践：https://gobyexample.com/
 
 go组件：https://github.com/avelino/awesome-go
 
