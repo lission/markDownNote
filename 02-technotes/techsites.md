@@ -121,6 +121,18 @@ https://clashforwindows.org/
 
 https://github.com/Fndroid/clash_for_windows_pkg/releases
 
+## 6、cursor 代码生成工具
+
+https://www.cursor.so/
+
+## 7、GPT
+
+https://study.zwjjiaozhu.top/posts/chatgpt-mirror-sites.html
+
+https://chat.yougan.cc/
+
+
+
 # 六、生活
 
 ## 1、12315投诉平台
