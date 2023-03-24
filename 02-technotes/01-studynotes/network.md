@@ -1345,6 +1345,8 @@ TLS 协议建立的详细流程：
 
 **服务器和客户端有了这三个随机数（Client Random、Server Random、pre-master key），接着就用双方协商的加密算法，各自生成本次通信的「会话秘钥」**。
 
+*4. 服务器的最后回应*
+
 服务器收到客户端的第三个随机数（`pre-master key`）之后，通过协商的加密算法，计算出本次通信的「会话秘钥」。
 
 然后，向客户端发送最后的信息：
@@ -1360,3 +1362,112 @@ TLS 协议建立的详细流程：
 >基于 RSA 算法的 HTTPS 存在「前向安全」的问题：如果服务端的私钥泄漏了，过去被第三方截获的所有 TLS 通讯密文都会被破解。
 >
 >为了解决这个问题，后面就出现了 ECDHE 密钥协商算法，我们现在大多数网站使用的正是 ECDHE 密钥协商算法，关于 ECDHE 握手的过程可以看这篇文章：[HTTPS ECDHE 握手解析](https://xiaolincoding.com/network/2_http/https_ecdhe.html#离散对数)
+
+#### 客户端校验数字证书的流程是怎样的？
+
+数字证书签发和验证流程：
+
+![img](https://raw.githubusercontent.com/lission/markdownPics/main/network/%E8%AF%81%E4%B9%A6%E7%9A%84%E6%A0%A1%E9%AA%8C.webp)
+
+CA 签发证书的过程，如上图左边部分：
+
+- 首先 CA 会把持有者的公钥、用途、颁发者、有效时间等信息打成一个包，然后对这些信息进行 Hash 计算，得到一个 Hash 值；
+- 然后 CA 会使用自己的私钥将该 Hash 值加密，生成 Certificate Signature，也就是 CA 对证书做了签名；
+- 最后将 Certificate Signature 添加在文件证书上，形成数字证书；
+
+客户端校验服务端的数字证书的过程，如上图右边部分：
+
+- 首先客户端会使用同样的 Hash 算法获取该证书的 Hash 值 H1；
+- 通常浏览器和操作系统中集成了 CA 的公钥信息，浏览器收到证书后可以使用 CA 的公钥解密 Certificate Signature 内容，得到一个 Hash 值 H2 ；
+- 最后比较 H1 和 H2，如果值相同，则为可信赖的证书，否则则认为证书不可信。
+
+但事实上，证书的验证过程中**还存在一个证书信任链的问题**，因为我们向 CA 申请的证书一般不是根证书签发的，而是由中间证书签发的，比如百度的证书，从下图你可以看到，证书的层级有三级：
+
+![img](https://raw.githubusercontent.com/lission/markdownPics/main/network/baidu%E8%AF%81%E4%B9%A6.webp)
+
+对于这种三级层级关系的证书的验证过程如下：
+
+- 客户端收到 baidu.com 的证书后，发现这个证书的签发者不是根证书，就无法根据本地已有的根证书中的公钥去验证 baidu.com 证书是否可信。于是，客户端根据 baidu.com 证书中的签发者，找到该证书的颁发机构是 “GlobalSign Organization Validation CA - SHA256 - G2”，然后向 CA 请求该中间证书。
+- 请求到证书后发现 “GlobalSign Organization Validation CA - SHA256 - G2” 证书是由 “GlobalSign Root CA” 签发的，由于 “GlobalSign Root CA” 没有再上级签发机构，说明它是根证书，也就是自签证书。应用软件会检查此证书有否已预载于根证书清单上，如果有，则可以利用根证书中的公钥去验证 “GlobalSign Organization Validation CA - SHA256 - G2” 证书，如果发现验证通过，就认为该中间证书是可信的。
+- “GlobalSign Organization Validation CA - SHA256 - G2” 证书被信任后，可以使用 “GlobalSign Organization Validation CA - SHA256 - G2” 证书中的公钥去验证 baidu.com 证书的可信性，如果验证通过，就可以信任 baidu.com 证书。
+
+在这四个步骤中，最开始客户端只信任根证书 GlobalSign Root CA 证书的，然后 “GlobalSign Root CA” 证书信任 “GlobalSign Organization Validation CA - SHA256 - G2” 证书，而 “GlobalSign Organization Validation CA - SHA256 - G2” 证书又信任 baidu.com 证书，于是客户端也信任 baidu.com 证书。
+
+总括来说，由于用户信任 GlobalSign，所以由 GlobalSign 所担保的 baidu.com 可以被信任，另外由于用户信任操作系统或浏览器的软件商，所以由**软件商预载了根证书**的 GlobalSign 都可被信任。
+
+![img](https://raw.githubusercontent.com/lission/markdownPics/main/network/%E7%94%A8%E6%88%B7%E4%BF%A1%E4%BB%BB.webp)
+
+操作系统里一般都会内置一些根证书，比如我的 MAC 电脑里内置的根证书有这么多：
+
+![img](https://raw.githubusercontent.com/lission/markdownPics/main/network/%E7%B3%BB%E7%BB%9F%E6%A0%B9%E8%AF%81%E4%B9%A6.webp)
+
+
+
+这样的一层层地验证就构成了一条信任链路，整个证书信任链验证流程如下图所示：
+
+![img](https://raw.githubusercontent.com/lission/markdownPics/main/network/%E8%AF%81%E4%B9%A6%E9%93%BE.webp)
+
+最后一个问题，为什么需要证书链这么麻烦的流程？Root CA 为什么不直接颁发证书，而是要搞那么多中间层级呢？
+
+**这是为了确保根证书的绝对安全性，将根证书隔离地越严格越好，不然根证书如果失守了，那么整个信任链都会有问题。**
+
+#### HTTPS 的应用数据是如何保证完整性的？
+
+TLS 在实现上分为**握手协议**和**记录协议**两层：
+
+- TLS 握手协议就是我们前面说的 TLS 四次握手的过程，负责**协商加密算法和生成对称密钥**，后续**用此密钥来保护应用程序数据**（即 HTTP 数据）；
+- TLS 记录协议负责保护应用程序数据并验证其完整性和来源，所以对 HTTP 数据加密是使用记录协议；
+
+TLS 记录协议主要负责消息（HTTP 数据）的压缩，加密及数据的认证，过程如下图：
+
+![img](https://raw.githubusercontent.com/lission/markdownPics/main/network/%E8%AE%B0%E5%BD%95%E5%8D%8F%E8%AE%AE.webp)
+
+具体过程如下：
+
+- 首先，消息被分割成多个较短的片段,然后分别对每个片段进行压缩。
+- 接下来，经过压缩的片段会被**加上消息认证码（MAC 值，这个是通过哈希算法生成的），这是为了保证完整性，并进行数据的认证**。通过附加消息认证码的 MAC 值，可以识别出篡改。与此同时，为了防止重放攻击，在计算消息认证码时，还加上了片段的编码。
+- 再接下来，经过压缩的片段再加上消息认证码会一起通过对称密码进行加密。
+- 最后，上述经过加密的数据再加上由数据类型、版本号、压缩后的长度组成的报头就是最终的报文数据。
+
+记录协议完成后，最终的报文数据将传递到传输控制协议 (TCP) 层进行传输。
+
+#### HTTPS 一定安全可靠吗？
+
+存在这种场景：客户端通过浏览器向服务端发起 HTTPS 请求时，被「假基站」转发到了一个「中间人服务器」，于是客户端是和「中间人服务器」完成了 TLS 握手，然后这个「中间人服务器」再与真正的服务端完成 TLS 握手。
+
+
+
+**HTTPS 协议本身到目前为止还是没有任何漏洞的，即使你成功进行中间人攻击，本质上是利用了客户端的漏洞（用户点击继续访问或者被恶意导入伪造的根证书），并不是 HTTPS 不够安全**。
+
+> 为什么抓包工具能截取 HTTPS 数据？
+
+很多抓包工具 之所以可以明文看到 HTTPS 数据，工作原理与中间人一致的。
+
+对于 HTTPS 连接来说，中间人要满足以下两点，才能实现真正的明文代理:
+
+1. 中间人，作为客户端与真实服务端建立连接这一步不会有问题，因为服务端不会校验客户端的身份；
+2. 中间人，作为服务端与真实客户端建立连接，这里会有客户端信任服务端的问题，也就是服务端必须有对应域名的私钥；
+
+中间人要拿到私钥只能通过如下方式：
+
+1. 去网站服务端拿到私钥；
+2. 去CA处拿域名签发私钥；
+3. **自己签发证书，且要被浏览器信任**；
+
+不用解释，抓包工具只能使用第三种方式取得中间人的身份。
+
+使用抓包工具进行 HTTPS 抓包的时候，需要在客户端安装 Fiddler 的根证书，这里实际上起认证中心（CA）的作用。
+
+抓包工具能够抓包的关键是**客户端会往系统受信任的根证书列表中导入抓包工具生成的证书，而这个证书会被浏览器信任**，也就是抓包工具给自己创建了一个认证中心 CA，客户端拿着中间人签发的证书去中间人自己的 CA 去认证，当然认为这个证书是有效的。
+
+> 如何避免被中间人抓取数据？
+
+可以通过 **HTTPS 双向认证**来避免这种问题。
+
+一般我们的 HTTPS 是单向认证，客户端只会验证了服务端的身份，但是服务端并不会验证客户端的身份。
+
+![img](https://raw.githubusercontent.com/lission/markdownPics/main/network/%E5%8F%8C%E5%90%91%E8%AE%A4%E8%AF%81.webp)
+
+如果用了**双向认证方式，不仅客户端会验证服务端的身份，而且服务端也会验证客户端的身份**。服务端一旦验证到请求自己的客户端为不可信任的，服务端就拒绝继续通信，客户端如果发现服务端为不可信任的，那么也中止通信。
+
+### 2.1.6、HTTP/1.1、HTTP/2、HTTP/3 演变
