@@ -1561,3 +1561,66 @@ HTTP/2 通过 Stream 的并发能力，解决了 HTTP/1 队头阻塞的问题，
 图中发送方发送了很多个 packet，每个 packet 都有自己的序号，你可以认为是 TCP 的序列号，其中 packet 3 在网络中丢失了，即使 packet 4-6 被接收方收到后，**由于内核中的 TCP 数据不是连续的，于是接收方的应用层就无法从内核中读取到**，只有等到 packet 3 重传后，接收方的应用层才可以从内核中读取到数据，这就是 HTTP/2 的队头阻塞问题，是在 TCP 层面发生的。
 
 一旦发生了**丢包现象**，就会**触发 TCP 的重传机制**，这样在一个 TCP 连接中的**所有的 HTTP 请求都必须等待这个丢了的包被重传回来**。
+
+
+
+#### HTTP/3 做了哪些优化？
+
+ HTTP/1.1 和 HTTP/2 都有队头阻塞的问题：
+
+- HTTP/1.1 中的管道（ pipeline）虽然解决了请求的队头阻塞，但是**没有解决响应的队头阻塞**，因为**服务端**需要**按顺序响应收到的请求**，如果服务端处理某个请求消耗的时间比较长，那么只能等响应完这个请求后， 才能处理下一个请求，这属于 **HTTP 层队头阻塞**。
+- HTTP/2 虽然通过**多个请求复用一个 TCP 连接**解决了 HTTP 的队头阻塞 ，但是**一旦发生丢包，就会阻塞住所有的 HTTP 请求**，这属于 **TCP 层队头阻塞**。
+
+HTTP/2 队头阻塞的问题是因为 TCP，所以 **HTTP/3 把 HTTP 下层的 TCP 协议改成了 UDP！**
+
+![img](https://raw.githubusercontent.com/lission/markdownPics/main/network/HTTP3.webp)
+
+UDP 发送是不管顺序，也不管丢包的，所以不会出现像 HTTP/2 队头阻塞的问题。大家都知道 **UDP 是不可靠传输**的，但基于 UDP 的 **QUIC 协议** 可以实现类似 TCP 的可靠性传输。
+
+QUIC 有以下 3 个特点。
+
+- 无队头阻塞
+- 更快的连接建立
+- 连接迁移
+
+*1、无队头阻塞*
+
+QUIC 协议也有类似 HTTP/2 Stream 与多路复用的概念，也是可以在同一条连接上并发传输多个 Stream，Stream 可以认为就是一条 HTTP 请求。
+
+QUIC 有自己的一套机制可以保证传输的可靠性的。**当某个流发生丢包时，只会阻塞这个流，其他流不会受到影响，因此不存在队头阻塞问题**。这与 HTTP/2 不同，HTTP/2 只要某个流中的数据包丢失了，其他流也会因此受影响。
+
+所以，**QUIC 连接上的多个 Stream 之间并没有依赖**，都是独立的，某个流发生丢包了，只会影响该流，其他流不受影响。
+
+![img](https://raw.githubusercontent.com/lission/markdownPics/main/network/quic%E6%97%A0%E9%98%BB%E5%A1%9E.webp)
+
+*2、更快的连接建立*
+
+对于 HTTP/1 和 HTTP/2 协议，TCP 和 TLS 是分层的，分别属于内核实现的传输层、openssl 库实现的表示层，因此它们难以合并在一起，需要分批次来握手，先 TCP 握手，再 TLS 握手。
+
+HTTP/3 在传输数据前虽然需要 QUIC 协议握手，但是这个握手过程只需要 1 RTT，握手的目的是为确认双方的「连接 ID」，连接迁移就是基于连接 ID 实现的。
+
+但是 HTTP/3 的 QUIC 协议并不是与 TLS 分层，而是 QUIC 内部包含了 TLS，它在自己的帧会携带 TLS 里的“记录”，再加上 QUIC 使用的是 TLS/1.3，因此仅需 1 个 RTT 就可以「同时」完成建立连接与密钥协商，如下图：
+
+![img](https://raw.githubusercontent.com/lission/markdownPics/main/network/HTTP3%E4%BA%A4%E4%BA%92%E6%AC%A1%E6%95%B0.webp)
+
+在第二次连接的时候，应用数据包可以和 QUIC 握手信息（连接信息 + TLS 信息）一起发送，达到 0-RTT 的效果。
+
+如下图右边部分，HTTP/3 当会话恢复时，有效负载数据与第一个数据包一起发送，可以做到 0-RTT（下图的右下角）：
+
+![img](https://raw.githubusercontent.com/lission/markdownPics/main/network/quic1RTT.webp)
+
+*3、连接迁移*
+
+基于 TCP 传输协议的 HTTP 协议，由于是通过四元组（源 IP、源端口、目的 IP、目的端口）确定一条 TCP 连接。
+
+![img](https://raw.githubusercontent.com/lission/markdownPics/main/network/TCP%E5%9B%9B%E5%85%83%E7%BB%84.webp)
+
+**当移动设备的网络从 4G 切换到 WIFI 时，意味着 IP 地址变化了，那么就必须要断开连接，然后重新建立连接**。而建立连接的过程包含 TCP 三次握手和 TLS 四次握手的时延，以及 TCP 慢启动的减速过程，给用户的感觉就是网络突然卡顿了一下，因此连接的迁移成本是很高的。
+
+而 QUIC 协议没有用四元组的方式来“绑定”连接，而是通过**连接 ID** 来标记通信的两个端点，客户端和服务器可以各自选择一组 ID 来标记自己，因此即使移动设备的网络变化后，导致 IP 地址变化了，只要仍保有上下文信息（比如连接 ID、TLS 密钥等），就可以“无缝”地复用原连接，消除重连的成本，没有丝毫卡顿感，达到了**连接迁移**的功能。
+
+所以， QUIC 是一个在 UDP 之上的**伪** TCP + TLS + HTTP/2 的多路复用的协议。
+
+QUIC 是新协议，对于很多网络设备，根本不知道什么是 QUIC，只会当做 UDP，这样会出现新的问题，因为有的网络设备是会丢掉 UDP 包的，而 QUIC 是基于 UDP 实现的，那么如果网络设备无法识别这个是 QUIC 包，那么就会当作 UDP包，然后被丢弃。
+
+**HTTP/3 现在普及的进度非常的缓慢**，不知道未来 UDP 是否能够逆袭 TCP。
