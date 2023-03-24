@@ -127,6 +127,12 @@ https://www.cursor.so/
 
 ## 7、GPT
 
+https://chat.openai.com/
+
+接码平台：https://sms-activate.org/
+
+注册教程：https://intercom.help/letsvpn-world/en/articles/6973491-%E7%83%AD%E9%97%A8%E4%B8%93%E9%A2%98chatgpt-%E4%BF%9D%E5%A7%86%E7%BA%A7%E6%B3%A8%E5%86%8C%E6%95%99%E7%A8%8B
+
 https://study.zwjjiaozhu.top/posts/chatgpt-mirror-sites.html
 
 https://chat.yougan.cc/
