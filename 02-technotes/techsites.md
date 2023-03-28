@@ -62,6 +62,32 @@ https://blog.csdn.net/m0_67400972/article/details/126074724
 
 https://www.cnblogs.com/xingxia/p/kafka_tool.html
 
+## jsonPath
+github地址：https://github.com/json-path/JsonPath
+```xml
+<dependency>
+    <groupId>com.jayway.jsonpath</groupId>
+    <artifactId>json-path</artifactId>
+    <version>2.7.0</version>
+</dependency>
+```
+使用简介：https://blog.csdn.net/weixin_44150794/article/details/111560428
+```java
+    public static void jsonPathTest(){
+        String msg = "{\"name\":\"赵仲\",\"mobile\":\"13522002789\",\"info\":{\"address\":\"test\"},\"gender\":\"male\"}";
+        String relation = "{\"username\":\"$.name\",\"sex\":\"$.gender\",\"location\":\"$.info.address\"}";
+        JSONObject jsonObject = JSONObject.parseObject(relation);
+        String username = jsonObject.getString("username");
+        String location = jsonObject.getString("location");
+        Object document = Configuration.defaultConfiguration().jsonProvider().parse(msg);
+        String usernameVal = JsonPath.read(document,username);
+        String locationVal = JsonPath.read(document,location);
+        System.out.println(usernameVal);
+        System.out.println(locationVal);
+    }
+```
+
+
 # 四、github 资源
 
 todo 待整理
