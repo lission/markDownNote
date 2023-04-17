@@ -62,7 +62,7 @@ https://blog.csdn.net/m0_67400972/article/details/126074724
 
 https://www.cnblogs.com/xingxia/p/kafka_tool.html
 
-## jsonPath
+## 4、jsonPath
 github地址：https://github.com/json-path/JsonPath
 ```xml
 <dependency>
@@ -87,6 +87,11 @@ github地址：https://github.com/json-path/JsonPath
     }
 ```
 
+## 5、springdoc中文文档
+
+https://springdoc.cn/
+
+https://springboot.io/
 
 # 四、github 资源
 
