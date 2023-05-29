@@ -168,7 +168,9 @@ https://study.zwjjiaozhu.top/posts/chatgpt-mirror-sites.html
 
 https://chat.yougan.cc/
 
+## 8、识屏 · 搜索·截屏
 
+https://esearch.vercel.app/#download
 
 # 六、生活
 
