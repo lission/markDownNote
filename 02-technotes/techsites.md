@@ -32,6 +32,14 @@ https://www.freecodecamp.org/learn/
 
 https://forum.freecodecamp.org/
 
+## 6、面试之彻底击碎行为问题
+
+[彻底击碎行为问题](https://docs.google.com/document/d/112HBiMNvu6TYbDUOfVRe_MS4A-fKaWYrpMlmnsiMNiA/edit)
+
+## 7、面试之系统设计面试题精选
+
+[系统设计面试题精选](https://soulmachine.gitbooks.io/system-design/content/cn/)
+
 # 二、网络
 
 ## 1、图解网络
@@ -171,6 +179,10 @@ https://chat.yougan.cc/
 ## 8、识屏 · 搜索·截屏
 
 https://esearch.vercel.app/#download
+
+## 9、markdown工具
+
+https://miaoyan.app/
 
 # 六、生活
 

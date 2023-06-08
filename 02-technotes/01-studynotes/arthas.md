@@ -46,6 +46,8 @@ watch com.swan.smartcity.etc.pre.warning.business.service.MonitorStrategyService
 
 ```shel
 trace com.swan.smartcity.etc.pre.warning.business.service.MonitorStrategyServiceImpl findMonitorStrategyPage
+
+trace com.swan.smartcity.warning.business.biz.AlarmServiceImpl findAlarmLogPage
 ```
 
 ### 3.3、stack
