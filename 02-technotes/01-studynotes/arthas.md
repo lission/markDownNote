@@ -48,6 +48,8 @@ watch com.swan.smartcity.etc.pre.warning.business.service.MonitorStrategyService
 trace com.swan.smartcity.etc.pre.warning.business.service.MonitorStrategyServiceImpl findMonitorStrategyPage
 
 trace com.swan.smartcity.warning.business.biz.AlarmServiceImpl findAlarmLogPage
+
+trace com.swan.smartcity.warning.web.service.MonitorRegionService getRegionMonitorUnitTree
 ```
 
 ### 3.3、stack
