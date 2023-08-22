@@ -2,6 +2,25 @@
 
 
 
+# 牛仔裤尺码
+
+| 品牌/型号                               | 裤型     | 尺码 | 腰围(平铺) | 腰围(拉直) | 前裆 | 大腿 | 裤脚 | 裤长     |
+| --------------------------------------- | -------- | ---- | ---------- | ---------- | ---- | ---- | ---- | -------- |
+| Nudie lean dean <br />dry japan selvage | 修身小脚 | W31  | 41         | 42         | 26.5 | 28   | 17   | L32(106) |
+|                                         |          |      |            |            |      |      |      |          |
+|                                         |          |      |            |            |      |      |      |          |
+|                                         |          |      |            |            |      |      |      |          |
+|                                         |          |      |            |            |      |      |      |          |
+|                                         |          |      |            |            |      |      |      |          |
+|                                         |          |      |            |            |      |      |      |          |
+|                                         |          |      |            |            |      |      |      |          |
+
+![jeans1](https://github.com/lission/markdownPics/blob/main/jeans/%E7%89%9B%E4%BB%94%E8%A3%A4%E5%90%84%E9%83%A8%E4%BD%8D%E5%B0%BA%E7%A0%81%E8%AF%B4%E6%98%8E.jpg?raw=true)
+
+![参考](https://github.com/lission/markdownPics/blob/main/jeans/%E8%B4%B4%E5%90%A7%E5%B0%BA%E7%A0%81%E8%AF%B4%E6%98%8E.jpg?raw=true)
+
+
+
 # 修身直筒原牛
 
 **小猪103 铁心666 武士710 鬼245 tcbs50s**
