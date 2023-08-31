@@ -166,6 +166,11 @@ https://www.cursor.so/
 
 ## 7、GPT
 
+- https://c.binjie.fun/#/chat/1693451554887
+- https://yiyan.baidu.com/
+
+
+
 https://chat.openai.com/
 
 接码平台：https://sms-activate.org/
