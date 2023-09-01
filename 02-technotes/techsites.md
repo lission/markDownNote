@@ -183,7 +183,10 @@ https://chat.yougan.cc/
 
 ## 8、识屏 · 搜索·截屏
 
-https://esearch.vercel.app/#download
+- https://esearch.vercel.app/#download
+- shareX
+
+
 
 ## 9、markdown工具
 
