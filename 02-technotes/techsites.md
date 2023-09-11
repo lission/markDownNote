@@ -101,6 +101,10 @@ https://springdoc.cn/
 
 https://springboot.io/
 
+## 6、分布式定时任务轻量级解决方案ShedLock
+
+https://www.modb.pro/db/212154
+
 # 四、github 资源
 
 todo 待整理
