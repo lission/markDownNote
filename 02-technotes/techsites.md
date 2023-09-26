@@ -105,6 +105,26 @@ https://springboot.io/
 
 https://www.modb.pro/db/212154
 
+## 7、redis连接工具
+
+### 7.1、tiny-craft
+
+- https://github.com/tiny-craft/tiny-rdm
+
+- https://redis.tinycraft.cc/
+
+
+
+## 8、git
+
+### 8.1、git命令练习工具
+
+- https://learngitbranching.js.org/?locale=zh_CN
+
+
+
+
+
 # 四、github 资源
 
 todo 待整理
@@ -206,6 +226,10 @@ https://miaoyan.app/
 ## 11、个人博客
 
 - https://halo.run/
+
+## 12、wsl
+
+- https://zhuanlan.zhihu.com/p/386590591
 
 
 
