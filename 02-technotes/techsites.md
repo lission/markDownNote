@@ -121,9 +121,16 @@ https://www.modb.pro/db/212154
 
 - https://learngitbranching.js.org/?locale=zh_CN
 
+## 9、正则表达式
+
+- https://wangwl.net/static/projects/visualRegex#
+- https://regex.ai/
 
 
 
+## 10、markdown
+
+- 教程：https://markdown.com.cn/
 
 # 四、github 资源
 
@@ -145,11 +152,45 @@ https://github.com/tongtzeho/PKUCourse
 
 https://github.com/lib-pku/libpku
 
-## ansj分词
+https://github.com/OpenBMB/ChatDev/blob/main/README-Chinese.md
+
+https://github.com/Liubsyy/HotSecondsIDEA/blob/master/install/%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3.md
+
+https://github.com/nl8590687/ASRT_SpeechRecognition
+https://github.com/yeyupiaoling/PPASR
+https://github.com/k2-fsa/sherpa-onnx
+
+https://gitee.com/dotnetchina/SmartSQL
+
+https://github.com/dunwu/linux-tutorial
+https://github.com/imthenachoman/How-To-Secure-A-Linux-Server
+
+https://github.com/webp-sh/webp_server_go
+
+https://github.com/facebookresearch/seamless_communication
+
+https://github.com/lucasg/Dependencies
+
+https://lbs.amap.com/demo/javascript-api-v2/example/marker/replaying-historical-running-data
+
+https://github.com/ismartcoding/plain-app
+
+
+
+
+
+https://github.com/dotnet-easy/easy-kit/issues/1
+
+- https://github.com/xiangyuecn/AreaCity-JsSpider-StatsGov  省市区数据采集并标注拼音、坐标和边界范围
+
+- https://github.com/open-telemetry/opentelemetry-java-instrumentation  类似于arthas的java进程诊断工具
+- https://github.com/bzsome/idcard_generator  身份证图片构造
+
+## 1、ansj分词
 
 真正java实现.分词效果速度都超过开源版的ict. 中文分词,人名识别,词性标注,用户自定义词典
 
-https://github.com/NLPchina/ansj_seg
+- https://github.com/NLPchina/ansj_seg
 
 # 五、工具
 
