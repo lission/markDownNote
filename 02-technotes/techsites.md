@@ -262,7 +262,7 @@ https://miaoyan.app/
 -  https://docusaurus.io/zh-CN/docs
 
 - vuepress-theme-vdoing
--  docsify
+-  https://github.com/docsifyjs/docsify
 
 ## 11、个人博客
 
