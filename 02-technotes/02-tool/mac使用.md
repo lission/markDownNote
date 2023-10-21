@@ -31,7 +31,7 @@ xxx.app是出问题的APP名称，有时候app的名字难以输入正确，这�
 
 sudo xattr -d com.apple.quarantine /Applications/XMind\ ZEN.app
 
-
+sudo xattr -d com.apple.quarantine /Applications/Infuse.app
 
 sudo xattr -d com.apple.quarantine /Applications/Navicat\ Premium.app
 
@@ -41,7 +41,9 @@ sudo xattr -r -d com.apple.quarantine /Applications/Navicat\ Premium.app
 
 sudo codesign --force --deep --sign - /Applications/Navicat\ Premium.app
 
+sudo xattr -d com.apple.quarantine  /Applications/Infuse.app 
 
+sudo codesign --force --deep --sign - /Applications/Infuse.app 
 
 sudo spctl --master-disable
 
