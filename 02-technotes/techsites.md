@@ -22,6 +22,10 @@ go组件：https://github.com/avelino/awesome-go
 
 go框架：https://github.com/avelino/awesome-go#web-frameworks
 
+###  基于Go+Vue实现的openLDAP后台管理项目
+
+基于Go+Vue实现的openLDAP后台管理项目：http://ldapdoc.eryajf.net/
+
 ## 4、通用测试用例大全
 
 https://www.cnblogs.com/wysk/archive/2018/01/05/8193091.html
