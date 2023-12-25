@@ -27,11 +27,11 @@ mac系统中Java默认目录：`/Library/Java/JavaVirtualMachines/`
 终端中输入命令 sudo xattr -d com.apple.quarantine /Applications/xxx.app解决
 xxx.app是出问题的APP名称，有时候app的名字难以输入正确，这个时候只要在应用列表中将该应用拖到终端中，会自动显示该app的名字
 
-/Applications/XMind\ ZEN.app
+/Applications/Z-Library.app
 
-sudo xattr -d com.apple.quarantine /Applications/XMind\ ZEN.app
+sudo xattr -d com.apple.quarantine /Applications/Z-Library.app
 
-sudo xattr -d com.apple.quarantine /Applications/Infuse.app
+sudo codesign --force --deep --sign - /Applications/Z-Library.app
 
 sudo xattr -d com.apple.quarantine /Applications/Navicat\ Premium.app
 
