@@ -1,4 +1,4 @@
-[TOC]
+[toc]
 
 # 一、综合类
 
@@ -10,7 +10,7 @@ https://gitee.com/pingWurth/study-notes
 
 https://www.pdai.tech/
 
-## 3、go 
+## 3、go
 
 官网博客：https://go.dev/blog/
 
@@ -22,7 +22,7 @@ go组件：https://github.com/avelino/awesome-go
 
 go框架：https://github.com/avelino/awesome-go#web-frameworks
 
-###  基于Go+Vue实现的openLDAP后台管理项目
+### 基于Go+Vue实现的openLDAP后台管理项目
 
 基于Go+Vue实现的openLDAP后台管理项目：http://ldapdoc.eryajf.net/
 
@@ -50,8 +50,6 @@ https://forum.freecodecamp.org/
 
 图解网络作者博客：https://xiaolincoding.com/network/1_base/tcp_ip_model.html#%E5%BA%94%E7%94%A8%E5%B1%82
 
-
-
 # 三、专项类
 
 ## 1、RabbitMQ
@@ -75,7 +73,9 @@ https://blog.csdn.net/m0_67400972/article/details/126074724
 https://www.cnblogs.com/xingxia/p/kafka_tool.html
 
 ## 4、jsonPath
+
 github地址：https://github.com/json-path/JsonPath
+
 ```xml
 <dependency>
     <groupId>com.jayway.jsonpath</groupId>
@@ -83,7 +83,9 @@ github地址：https://github.com/json-path/JsonPath
     <version>2.7.0</version>
 </dependency>
 ```
+
 使用简介：https://blog.csdn.net/weixin_44150794/article/details/111560428
+
 ```java
     public static void jsonPathTest(){
         String msg = "{\"name\":\"赵仲\",\"mobile\":\"13522002789\",\"info\":{\"address\":\"test\"},\"gender\":\"male\"}";
@@ -114,10 +116,7 @@ https://www.modb.pro/db/212154
 ### 7.1、tiny-craft
 
 - https://github.com/tiny-craft/tiny-rdm
-
 - https://redis.tinycraft.cc/
-
-
 
 ## 8、git
 
@@ -129,8 +128,6 @@ https://www.modb.pro/db/212154
 
 - https://wangwl.net/static/projects/visualRegex#
 - https://regex.ai/
-
-
 
 ## 10、markdown
 
@@ -179,14 +176,9 @@ https://lbs.amap.com/demo/javascript-api-v2/example/marker/replaying-historical-
 
 https://github.com/ismartcoding/plain-app
 
-
-
-
-
 https://github.com/dotnet-easy/easy-kit/issues/1
 
 - https://github.com/xiangyuecn/AreaCity-JsSpider-StatsGov  省市区数据采集并标注拼音、坐标和边界范围
-
 - https://github.com/open-telemetry/opentelemetry-java-instrumentation  类似于arthas的java进程诊断工具
 - https://github.com/bzsome/idcard_generator  身份证图片构造
 
@@ -209,7 +201,6 @@ lission@foxmail.com
 ## 2、ppzhilian
 
 https://www.ppzhilian.com/
-
 
 ## 3、个人头像
 
@@ -238,8 +229,6 @@ https://www.cursor.so/
 - https://c.binjie.fun/#/chat/1693451554887
 - https://yiyan.baidu.com/
 
-
-
 https://chat.openai.com/
 
 接码平台：https://sms-activate.org/
@@ -255,8 +244,6 @@ https://chat.yougan.cc/
 - https://esearch.vercel.app/#download
 - shareX
 
-
-
 ## 9、markdown工具
 
 https://miaoyan.app/
@@ -264,9 +251,8 @@ https://miaoyan.app/
 ## 10、文档网站工具
 
 -  https://docusaurus.io/zh-CN/docs
-
 - vuepress-theme-vdoing
--  https://github.com/docsifyjs/docsify
+- https://github.com/docsifyjs/docsify
 
 ## 11、个人博客
 
@@ -276,11 +262,16 @@ https://miaoyan.app/
 
 - https://zhuanlan.zhihu.com/p/386590591
 
+## 13、openWrt-家庭路由配置，全局翻墙
 
+家庭路由配置，全局翻墙
+
+https://xtrojan.pro/client/openwrt-openclash-tutorial.html
+
+https://xtrojan.pro/client/openwrt-passwall-tutorial.html
 
 # 六、生活
 
 ## 1、12315投诉平台
 
 https://www.12315.cn/
-
