@@ -270,6 +270,8 @@ https://xtrojan.pro/client/openwrt-openclash-tutorial.html
 
 https://xtrojan.pro/client/openwrt-passwall-tutorial.html
 
+https://openwrt.org/zh/docs/guide-quick-start/start
+
 # 六、生活
 
 ## 1、12315投诉平台
