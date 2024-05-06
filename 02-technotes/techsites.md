@@ -272,6 +272,9 @@ https://xtrojan.pro/client/openwrt-passwall-tutorial.html
 
 https://openwrt.org/zh/docs/guide-quick-start/start
 
+旁路由配置：https://blog.csdn.net/kangzeru/article/details/115373587
+
+
 # 六、生活
 
 ## 1、12315投诉平台
