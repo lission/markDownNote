@@ -1,4 +1,4 @@
-[TOC]
+[toc]
 
 # 1、git忽略文件设置
 
@@ -18,20 +18,17 @@
 
 !/node_modules/layer/
 
-
-
 # 2、git 命令
-
-
 
 ## 2.1、git log 提交记录
 
 ### 2.1.1、某段时间内提交的行数
+
 git log --since="2022-10-01" --before="2022-12-31" --author="username" --pretty=tformat: --numstat |awk '{add += $1; subs += $2; loc += $1 - $2 } END {printf "新增行数：%s\n删除行数:%s\n总行数:%s\n", add, subs,loc}'
+
 ### 2.1.2、全部
+
 git log  --author="username" --pretty=tformat: --numstat |awk '{add += $1; subs += $2; loc += $1 - $2 } END {printf "新增行数：%s\n删除行数:%s\n总行数:%s\n", add, subs,loc}'
-
-
 
 ## 2.2、Gitlab的用户名和邮箱的设置方法
 
@@ -50,10 +47,8 @@ git config user.email 可以以查看自己邮箱名字
 git config --local user.name yourname
 git config --local user.email youremail
 全局：
-git config --global user.name liulili
+git config --global user.name null
 git config --global user.email null
-
-
 
   git config --global user.email "lission@fxmail.com"
   git config --global user.name "lission"
@@ -98,8 +93,6 @@ mZ+AW4OZPnTPI89ZPmVMLuayrD2cE86Z/il8b+gw3r3+1nKatmIkjn2so1d01QraTlMqVSsbx
 NrRFi9wrf+M7Q== schacon@mylaptop.local
 ```
 
-
-
 ## 2.4、git上传代码报错ssh: connect to host github.com port 22: Connection timed out解决办法
 
 当在远程库上设置了SSH 之后还是报错连接超时，问题如下
@@ -124,7 +117,7 @@ ssh: connect to host github.com port 22: Connection timed out
 
 打开存放ssh的目录
 
-cd ~/.ssh 
+cd ~/.ssh
 
 ls
 
