@@ -51,7 +51,7 @@ git config --local user.name yourname
 git config --local user.email youremail
 全局：
 git config --global user.name liulili
-git config --global user.email liulili@cestc.cn
+git config --global user.email null
 
 
 
