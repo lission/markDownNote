@@ -1,3 +1,3 @@
 - homePage：https://lission.github.io/
-- logo链接：https://ibb.co/1zkHsDs
+- logo链接：https://i.ibb.co/41HBs6s/Wechat-IMG192.jpg
 - 图片在线托管网站：https://zh-cn.imgbb.com/
