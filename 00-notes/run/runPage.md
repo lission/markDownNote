@@ -1,3 +1,3 @@
 - homePage：https://lission.github.io/
-- logo链接：https://postimg.cc/34JqcL24
-- 图片在线托管网站：https://postimages.org/
+- logo链接：https://ibb.co/1zkHsDs
+- 图片在线托管网站：https://zh-cn.imgbb.com/
