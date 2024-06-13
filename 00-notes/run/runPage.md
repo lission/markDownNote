@@ -1,3 +1,5 @@
 - homePage：https://lission.github.io/
 - logo链接：https://i.ibb.co/41HBs6s/Wechat-IMG192.jpg
 - 图片在线托管网站：https://zh-cn.imgbb.com/
+- react中文网站：https://react.docschina.org
+- 配色网站：https://flatuicolors.com/
