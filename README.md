@@ -1,6 +1,6 @@
-Lission Note `<a name="TOP"></a>`
-=============
-
+Lission Note
+`<a name="TOP"></a>`
+===
 
 - **慎言语以养其德，节饮食以养其体**
 - **反躬修己**
