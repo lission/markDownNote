@@ -15,6 +15,7 @@ Table of Contents
 * [ReadNote](#ReadNote)
   * [历史](#历史)
   * [人生](#人生)
+  * [小说](#小说)
 
 ## Note
 
@@ -58,3 +59,5 @@ run
 - [这个世界会好吗](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E4%BA%BA%E7%94%9F/%E8%BF%99%E4%B8%AA%E4%B8%96%E7%95%8C%E4%BC%9A%E5%A5%BD%E5%90%97-%E6%A2%81%E6%BC%B1%E6%BA%9F.md)
 - [王蒙写给年轻人的中国智慧](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E4%BA%BA%E7%94%9F/%E7%8E%8B%E8%92%99%E5%86%99%E7%BB%99%E5%B9%B4%E8%BD%BB%E4%BA%BA%E7%9A%84%E4%B8%AD%E5%9B%BD%E6%99%BA%E6%85%A7.md)
 - [荒野寒山](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E4%BA%BA%E7%94%9F/%E8%8D%92%E9%87%8E%E5%AF%92%E5%B1%B1.md)
+
+### 小说
