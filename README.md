@@ -60,6 +60,6 @@ run
 - [荒野寒山](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E4%BA%BA%E7%94%9F/%E8%8D%92%E9%87%8E%E5%AF%92%E5%B1%B1.md)
 
 ### 小说
-- [悉达多](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E4%BA%BA%E7%94%9F/%E6%82%89%E8%BE%BE%E5%A4%9A.md)
-- [荒原狼](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E4%BA%BA%E7%94%9F/%E8%8D%92%E5%8E%9F%E7%8B%BC.md)
+- [悉达多](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E5%B0%8F%E8%AF%B4/%E6%82%89%E8%BE%BE%E5%A4%9A.md)
+- [荒原狼](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E5%B0%8F%E8%AF%B4/%E8%8D%92%E5%8E%9F%E7%8B%BC.md)
 - [契诃夫戏剧](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E5%B0%8F%E8%AF%B4/%E5%A5%91%E8%AF%83%E5%A4%AB%E6%88%8F%E5%89%A7.md)
