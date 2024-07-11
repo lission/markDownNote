@@ -50,7 +50,7 @@ run
 
 ***[Go To TOP](#TOP)***
 
-- [`<ruby><rb>`论`</rb><rt>`lún`</rt></ruby>`语](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E4%BA%BA%E7%94%9F/%E8%AE%BA%E8%AF%AD.md)
+- [<ruby><rb>论</rb><rt>lún</rt></ruby>语](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E4%BA%BA%E7%94%9F/%E8%AE%BA%E8%AF%AD.md)
 - [东方学术概观](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E4%BA%BA%E7%94%9F/%E4%B8%9C%E6%96%B9%E5%AD%A6%E6%9C%AF%E6%A6%82%E8%A7%82.md)
 - [宋明理学概述](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E4%BA%BA%E7%94%9F/%E5%AE%8B%E6%98%8E%E7%90%86%E5%AD%A6%E6%A6%82%E8%BF%B0.md)
 - [近思录](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E4%BA%BA%E7%94%9F/%E8%BF%91%E6%80%9D%E5%BD%95.md)
