@@ -45,6 +45,7 @@ run
 - [三民主义](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E5%8E%86%E5%8F%B2/%E4%B8%89%E6%B0%91%E4%B8%BB%E4%B9%89.md)
 - [全球通史](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E5%8E%86%E5%8F%B2/%E5%85%A8%E7%90%83%E9%80%9A%E5%8F%B2.md)
 - [先秦史](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E5%8E%86%E5%8F%B2/%E5%85%88%E7%A7%A6%E5%8F%B2.md)
+- [乡土中国](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E5%8E%86%E5%8F%B2/%E5%85%88%E7%A7%A6%E5%8F%B2.md)
 
 ### 人生
 
