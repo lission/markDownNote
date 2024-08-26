@@ -54,6 +54,7 @@ run
 - [`<ruby><rb>`论 `</rb><rt>`lún `</rt></ruby>`语](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E4%BA%BA%E7%94%9F/%E8%AE%BA%E8%AF%AD.md)
 - [东方学术概观](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E4%BA%BA%E7%94%9F/%E4%B8%9C%E6%96%B9%E5%AD%A6%E6%9C%AF%E6%A6%82%E8%A7%82.md)
 - [宋明理学概述](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E4%BA%BA%E7%94%9F/%E5%AE%8B%E6%98%8E%E7%90%86%E5%AD%A6%E6%A6%82%E8%BF%B0.md)
+- [佛陀和原始佛教思想](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E4%BA%BA%E7%94%9F/%E4%BD%9B%E9%99%80%E5%92%8C%E5%8E%9F%E5%A7%8B%E4%BD%9B%E6%95%99%E6%80%9D%E6%83%B3.md)
 - [近思录](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E4%BA%BA%E7%94%9F/%E8%BF%91%E6%80%9D%E5%BD%95.md)
 - [二程遗书](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E4%BA%BA%E7%94%9F/%E4%BA%8C%E7%A8%8B%E9%81%97%E4%B9%A6.md)
 - [康斋集·日录](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E4%BA%BA%E7%94%9F/%E5%BA%B7%E6%96%8B%E9%9B%86%C2%B7%E6%97%A5%E5%BD%95.md)
