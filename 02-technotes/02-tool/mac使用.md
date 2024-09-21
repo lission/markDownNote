@@ -47,6 +47,12 @@ sudo xattr -r -d com.apple.quarantine /Applications/Navicat\ Premium.app
 
 sudo codesign --force --deep --sign -/Applications/Navicat\ Premium.app
 
+
+sudo xattr -d com.apple.quarantine /Applications/Music\ Tag\ Editor\ Pro.app
+
+sudo codesign --force --deep --sign -/Applications/Music\ Tag\ Editor\ Pro.app
+
+
 # 3、jd-gui class反编译工具启动方式
 
 https://github.com/java-decompiler/jd-gui/releases
