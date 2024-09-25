@@ -1,6 +1,17 @@
 Lission Note `<a name="TOP"></a>`
 
-## `<ruby><rb>`箴 `</rb><rt>`zhēn `</rt></ruby>`言
+
+Table of Contents
+-----------------
+- [箴言](#箴言)
+- [Directory](#directory)
+  - [run](#run)
+- [ReadNote](#readnote)
+  - [历史](#历史)
+  - [人生](#人生)
+  - [小说](#小说)
+
+# 箴言
 
 - **以責人之心責己，則盡道也**
 - **慎言语以养其德，节饮食以养其体**
@@ -9,19 +20,8 @@ Lission Note `<a name="TOP"></a>`
 - **凡人所以立身行己，应事接物，莫大乎诚敬。诚者何？不自欺不妄之谓也；敬者何？不怠慢不放荡之谓也**
 - **反躬修己**
 
-Table of Contents
------------------
 
-* [Note](#Note)
-  * [阅读清单](https://github.com/lission/markDownNote/blob/master/00-notes/01-%E9%98%85%E8%AF%BB%E6%B8%85%E5%8D%95.md)
-  * [run](#run)
-    * [runPage](https://github.com/lission/markDownNote/blob/master/00-notes/run/runPage.md)
-* [ReadNote](#ReadNote)
-  * [历史](#历史)
-  * [人生](#人生)
-  * [小说](#小说)
-
-## Note
+# Directory
 
 ***[Go To TOP](#TOP)***
 
@@ -35,9 +35,9 @@ run
 - [runSite](https://github.com/lission/markDownNote/blob/master/00-notes/run/runPage.md)
 - [runPage](https://lission.github.io/)
 
-## ReadNote
+# ReadNote
 
-### 历史
+## 历史
 
 ***[Go To TOP](#TOP)***
 
@@ -48,7 +48,7 @@ run
 - [先秦史](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E5%8E%86%E5%8F%B2/%E5%85%88%E7%A7%A6%E5%8F%B2.md)
 - [乡土中国](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E5%8E%86%E5%8F%B2/%E4%B9%A1%E5%9C%9F%E4%B8%AD%E5%9B%BD.md)
 
-### 人生
+## 人生
 
 ***[Go To TOP](#TOP)***
 
@@ -66,10 +66,11 @@ run
 - [王蒙写给年轻人的中国智慧](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E4%BA%BA%E7%94%9F/%E7%8E%8B%E8%92%99%E5%86%99%E7%BB%99%E5%B9%B4%E8%BD%BB%E4%BA%BA%E7%9A%84%E4%B8%AD%E5%9B%BD%E6%99%BA%E6%85%A7.md)
 - [荒野寒山](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E4%BA%BA%E7%94%9F/%E8%8D%92%E9%87%8E%E5%AF%92%E5%B1%B1.md)
 
-### 小说
+## 小说
 
 ***[Go To TOP](#TOP)***
 
 - [悉达多](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E5%B0%8F%E8%AF%B4/%E6%82%89%E8%BE%BE%E5%A4%9A.md)
+- [马丁·伊登](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E5%B0%8F%E8%AF%B4/%E9%A9%AC%E4%B8%81%C2%B7%E4%BC%8A%E7%99%BB.md)
 - [荒原狼](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E5%B0%8F%E8%AF%B4/%E8%8D%92%E5%8E%9F%E7%8B%BC.md)
 - [契诃夫戏剧](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E5%B0%8F%E8%AF%B4/%E5%A5%91%E8%AF%83%E5%A4%AB%E6%88%8F%E5%89%A7.md)
