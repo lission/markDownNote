@@ -1,11 +1,11 @@
 Lission Note `<a name="TOP"></a>`
 
-
 Table of Contents
 -----------------
+
 - [箴言](#箴言)
 - [Directory](#directory)
-  - [run](#run)
+  - [Run](#run)
 - [ReadNote](#readnote)
   - [历史](#历史)
   - [人生](#人生)
@@ -20,14 +20,13 @@ Table of Contents
 - **凡人所以立身行己，应事接物，莫大乎诚敬。诚者何？不自欺不妄之谓也；敬者何？不怠慢不放荡之谓也**
 - **反躬修己**
 
-
 # Directory
 
 ***[Go To TOP](#TOP)***
 
 [阅读清单](https://github.com/lission/markDownNote/blob/master/00-notes/01-%E9%98%85%E8%AF%BB%E6%B8%85%E5%8D%95.md)
 
-run
+Run
 ---
 
 ***[Go To TOP](#TOP)***
@@ -52,7 +51,7 @@ run
 
 ***[Go To TOP](#TOP)***
 
-- [`<ruby><rb>`论 `</rb><rt>`lún `</rt></ruby>`语](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E4%BA%BA%E7%94%9F/%E8%AE%BA%E8%AF%AD.md)
+- [论(lún)语](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E4%BA%BA%E7%94%9F/%E8%AE%BA%E8%AF%AD.md)
 - [东方学术概观](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E4%BA%BA%E7%94%9F/%E4%B8%9C%E6%96%B9%E5%AD%A6%E6%9C%AF%E6%A6%82%E8%A7%82.md)
 - [宋明理学概述](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E4%BA%BA%E7%94%9F/%E5%AE%8B%E6%98%8E%E7%90%86%E5%AD%A6%E6%A6%82%E8%BF%B0.md)
 - [佛陀和原始佛教思想](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E4%BA%BA%E7%94%9F/%E4%BD%9B%E9%99%80%E5%92%8C%E5%8E%9F%E5%A7%8B%E4%BD%9B%E6%95%99%E6%80%9D%E6%83%B3.md)
