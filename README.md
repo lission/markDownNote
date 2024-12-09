@@ -79,3 +79,4 @@ Run
 - [马丁·伊登](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E5%B0%8F%E8%AF%B4/%E9%A9%AC%E4%B8%81%C2%B7%E4%BC%8A%E7%99%BB.md)
 - [荒原狼](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E5%B0%8F%E8%AF%B4/%E8%8D%92%E5%8E%9F%E7%8B%BC.md)
 - [契诃夫戏剧](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E5%B0%8F%E8%AF%B4/%E5%A5%91%E8%AF%83%E5%A4%AB%E6%88%8F%E5%89%A7.md)
+- [十八岁出门远行](https://github.com/lission/markDownNote/blob/master/01-readnotes/%E5%B0%8F%E8%AF%B4/%E5%8D%81%E5%85%AB%E5%B2%81%E5%87%BA%E9%97%A8%E8%BF%9C%E8%A1%8C.md)
