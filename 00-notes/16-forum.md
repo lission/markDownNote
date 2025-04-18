@@ -1,0 +1,10 @@
+- https://www.v2ex.com/    知名技术社区
+- https://www.chongbuluo.com/    虫部落,可能偏搜索技巧，软件、课程资源分享。
+- https://linux.do/
+- https://www.nodeseek.com/
+- https://www.1point3acres.com/    一亩三分地是在海外华人论坛，专注于留学和移民
+- https://bbs.nga.cn/?rand=560  游戏论坛
+- https://indienova.com/ 独立游戏论坛
+- https://www.1000qm.vip/ 电子书
+- wnflb    福利吧
+- javdb    色花堂
