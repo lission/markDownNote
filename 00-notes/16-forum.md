@@ -6,5 +6,9 @@
 - https://bbs.nga.cn/?rand=560  游戏论坛
 - https://indienova.com/ 独立游戏论坛
 - https://www.1000qm.vip/ 电子书
+- https://996.ninja/
 - wnflb    福利吧
 - javdb    色花堂
+- chaturbate.com NSFW
+- https://hanime1.me/search?genre=%E8%A3%8F%E7%95%AA
+- av.jkforum.net nsfw
