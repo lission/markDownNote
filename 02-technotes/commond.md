@@ -1,5 +1,45 @@
 [toc]
 
+# Maven 常用命令如下：
+
+## 基础构建命令
+
+* `mvn clean` - 清理项目，删除 target 目录
+* `mvn compile` - 编译项目源代码
+* `mvn test` - 运行测试用例
+* `mvn package` - 打包项目，生成 jar/war 文件
+* `mvn install` - 安装项目到本地仓库
+* `mvn deploy` - 部署项目到远程仓库
+
+## 依赖相关命令
+
+* `mvn dependency:tree` - 查看依赖树
+* `mvn dependency:resolve` - 解析依赖
+* `mvn dependency:copy-dependencies` - 复制依赖到指定目录
+* `mvn dependency:analyze` - 分析依赖使用情况
+
+## 强制更新命令
+
+* `mvn dependency:resolve -U` - 强制更新依赖
+* `mvn clean install -U` - 清理并强制更新安装
+
+## 其他常用命令
+
+* `mvn help:effective-pom` - 查看有效的 POM 信息
+* `mvn archetype:generate` - 生成项目骨架
+* `mvn site` - 生成项目站点
+* `mvn jetty:run` - 运行项目（需要 jetty 插件）
+* `mvn exec:java` - 执行主类
+
+## 命令参数说明
+
+* `-DskipTests` - 跳过测试执行
+* `-Dmaven.test.failure.ignore=true` - 忽略测试失败
+* `-PprofileName` - 指定激活的 profile
+* `-X` - 显示详细日志信息
+
+
+
 # Docker-oracle
 
 ```
