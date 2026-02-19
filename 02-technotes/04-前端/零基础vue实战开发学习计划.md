@@ -7,30 +7,31 @@
 ### **必学基础**
 
 1. **HTML/CSS** - [MDN Web Docs](https://developer.mozilla.org/zh-CN/)
-   * 重点：语义化标签、Flex布局、Grid布局
-   * 练习：制作3-5个静态页面
+   - 网站地址：https://developer.mozilla.org/zh-CN/docs/Web
+   - 重点：语义化标签、Flex布局、Grid布局
+   - 练习：制作3-5个静态页面
 2. **JavaScript基础** - 推荐资源：
-   * **视频** ：[黑马程序员JavaScript入门](https://www.bilibili.com/video/BV1Sy4y1C7ha) - 适合零基础
-   * **书籍** ：《JavaScript DOM编程艺术》
-   * **网站** ：[现代 JavaScript 教程](https://zh.javascript.info/)
+   - **视频** ：[黑马程序员JavaScript入门](https://www.bilibili.com/video/BV1Sy4y1C7ha) - 适合零基础
+   - **书籍** ：《JavaScript DOM编程艺术》
+   - **网站** ：[现代 JavaScript 教程](https://zh.javascript.info/)
 
 ## 🎯 **第二阶段：Vue 3入门（2-3周）**
 
 ### **最佳入门课程** 🌟
 
 1. **【首推】Vue 3官方教程**
-   * [Vue.js 官方教程](https://cn.vuejs.org/tutorial/)
-   * **特点** ：边学边练，官方出品，质量保证
+   - [Vue.js 官方教程](https://cn.vuejs.org/tutorial/)
+   - **特点** ：边学边练，官方出品，质量保证
 2. **免费视频课程**
-   * **入门必看** ：
-   * [尚硅谷Vue3快速上手](https://www.bilibili.com/video/BV1Za4y1r7KE) - 全网最详细
-   * [Vue3 + TypeScript 完整教程](https://www.bilibili.com/video/BV1Zf4y1s7Z9) - 李立超老师
-   * **实战项目** ：
-   * [Vue3 + Element Plus 实战商城](https://www.bilibili.com/video/BV1R34y1W7CQ)
-   * [Vue3 实战小兔鲜电商项目](https://www.bilibili.com/video/BV1PS4y1F7wV)
+   - **入门必看** ：
+   - [尚硅谷Vue3快速上手](https://www.bilibili.com/video/BV1Za4y1r7KE) - 全网最详细
+   - [Vue3 + TypeScript 完整教程](https://www.bilibili.com/video/BV1Zf4y1s7Z9) - 李立超老师
+   - **实战项目** ：
+   - [Vue3 + Element Plus 实战商城](https://www.bilibili.com/video/BV1R34y1W7CQ)
+   - [Vue3 实战小兔鲜电商项目](https://www.bilibili.com/video/BV1PS4y1F7wV)
 3. **付费精品课（性价比高）**
-   * 慕课网：[Vue3 + TypeScript 实战](https://coding.imooc.com/class/449.html) - ¥299
-   * 极客时间：[Vue 3 企业级项目实战课](https://time.geekbang.org/course/intro/100096601) - ¥299
+   - 慕课网：[Vue3 + TypeScript 实战](https://coding.imooc.com/class/449.html) - ¥299
+   - 极客时间：[Vue 3 企业级项目实战课](https://time.geekbang.org/course/intro/100096601) - ¥299
 
 ## 💻 **第三阶段：项目实战（4-6周）**
 
@@ -52,13 +53,13 @@
 
 1. **Ruoyi-Vue3** （您正在用的）
 
-* 文档：[http://doc.ruoyi.vip/](http://doc.ruoyi.vip/)
-* 重点学习：Layout布局、权限管理、表格组件
+- 文档：[http://doc.ruoyi.vip/](http://doc.ruoyi.vip/)
+- 重点学习：Layout布局、权限管理、表格组件
 
 1. **其他优秀模板**
-   * [vue-element-admin](https://github.com/PanJiaChen/vue-element-admin)
-   * [vue-vben-admin](https://github.com/vbenjs/vue-vben-admin) - Vue3版本
-   * [Arco Design Pro](https://github.com/arco-design/arco-design-pro-vue)
+   - [vue-element-admin](https://github.com/PanJiaChen/vue-element-admin)
+   - [vue-vben-admin](https://github.com/vbenjs/vue-vben-admin) - Vue3版本
+   - [Arco Design Pro](https://github.com/arco-design/arco-design-pro-vue)
 
 ## 📖 **学习资料分类推荐**
 
@@ -66,33 +67,33 @@
 
 1. **入门级** ：
 
-* 《Vue.js设计与实现》- 霍春阳 👍
-* 《Vue.js 3.x 从入门到实战》- 孙鑫
+- 《Vue.js设计与实现》- 霍春阳 👍
+- 《Vue.js 3.x 从入门到实战》- 孙鑫
 
 1. **进阶** ：
 
-* 《Vue.js 3.x + Vite 快速入门与实战》
-* 《深入浅出Vue.js 2》- 刘博文
+- 《Vue.js 3.x + Vite 快速入门与实战》
+- 《深入浅出Vue.js 2》- 刘博文
 
 ### **优质博客/网站**
 
 1. **官方资源** ：
 
-* [Vue.js 官方文档](https://cn.vuejs.org/)
-* [Vue Router](https://router.vuejs.org/zh/)
-* [Pinia（状态管理）](https://pinia.vuejs.org/zh/)
+- [Vue.js 官方文档](https://cn.vuejs.org/)
+- [Vue Router](https://router.vuejs.org/zh/)
+- [Pinia（状态管理）](https://pinia.vuejs.org/zh/)
 
 1. **技术社区** ：
 
-* [掘金 Vue 专栏](https://juejin.cn/tag/Vue.js)
-* [思否 Vue 标签](https://segmentfault.com/t/vue.js)
-* [CSDN Vue3](https://blog.csdn.net/nav/ai/vue3)
+- [掘金 Vue 专栏](https://juejin.cn/tag/Vue.js)
+- [思否 Vue 标签](https://segmentfault.com/t/vue.js)
+- [CSDN Vue3](https://blog.csdn.net/nav/ai/vue3)
 
 1. **UI组件库文档** ：
 
-* [Element Plus](https://element-plus.org/zh-CN/) - 最流行
-* [Ant Design Vue](https://www.antdv.com/docs/vue/introduce-cn)
-* [Vant](https://vant-ui.github.io/vant/#/zh-CN) - 移动端首选
+- [Element Plus](https://element-plus.org/zh-CN/) - 最流行
+- [Ant Design Vue](https://www.antdv.com/docs/vue/introduce-cn)
+- [Vant](https://vant-ui.github.io/vant/#/zh-CN) - 移动端首选
 
 ## 🛠️ **开发工具与环境**
 
@@ -191,7 +192,7 @@ npm run dev
 3. **保持好奇** ：每遇到一个不懂的概念，就深入了解一下
 4. **建立作品集** ：GitHub上创建自己的项目仓库
 
- **最有效的学习方法** ： **用Ruoyi项目作为学习平台** ，尝试：
+**最有效的学习方法** ： **用Ruoyi项目作为学习平台** ，尝试：
 
 1. 修改现有页面的样式
 2. 添加一个新的简单页面

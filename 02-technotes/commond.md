@@ -4,41 +4,47 @@
 
 ## 基础构建命令
 
-* `mvn clean` - 清理项目，删除 target 目录
-* `mvn compile` - 编译项目源代码
-* `mvn test` - 运行测试用例
-* `mvn package` - 打包项目，生成 jar/war 文件
-* `mvn install` - 安装项目到本地仓库
-* `mvn deploy` - 部署项目到远程仓库
+- `mvn clean` - 清理项目，删除 target 目录
+- `mvn compile` - 编译项目源代码
+- `mvn test` - 运行测试用例
+- `mvn package` - 打包项目，生成 jar/war 文件
+- `mvn install` - 安装项目到本地仓库
+- `mvn deploy` - 部署项目到远程仓库
 
 ## 依赖相关命令
 
-* `mvn dependency:tree` - 查看依赖树
-* `mvn dependency:resolve` - 解析依赖
-* `mvn dependency:copy-dependencies` - 复制依赖到指定目录
-* `mvn dependency:analyze` - 分析依赖使用情况
+- `mvn dependency:tree` - 查看依赖树
+- `mvn dependency:resolve` - 解析依赖
+- `mvn dependency:copy-dependencies` - 复制依赖到指定目录
+- `mvn dependency:analyze` - 分析依赖使用情况
 
 ## 强制更新命令
 
-* `mvn dependency:resolve -U` - 强制更新依赖
-* `mvn clean install -U` - 清理并强制更新安装
+- `mvn dependency:resolve -U` - 强制更新依赖
+- `mvn clean install -U` - 清理并强制更新安装
 
 ## 其他常用命令
 
-* `mvn help:effective-pom` - 查看有效的 POM 信息
-* `mvn archetype:generate` - 生成项目骨架
-* `mvn site` - 生成项目站点
-* `mvn jetty:run` - 运行项目（需要 jetty 插件）
-* `mvn exec:java` - 执行主类
+- `mvn help:effective-pom` - 查看有效的 POM 信息
+- `mvn archetype:generate` - 生成项目骨架
+- `mvn site` - 生成项目站点
+- `mvn jetty:run` - 运行项目（需要 jetty 插件）
+- `mvn exec:java` - 执行主类
 
 ## 命令参数说明
 
-* `-DskipTests` - 跳过测试执行
-* `-Dmaven.test.failure.ignore=true` - 忽略测试失败
-* `-PprofileName` - 指定激活的 profile
-* `-X` - 显示详细日志信息
+- `-DskipTests` - 跳过测试执行
+- `-Dmaven.test.failure.ignore=true` - 忽略测试失败
+- `-PprofileName` - 指定激活的 profile
+- `-X` - 显示详细日志信息
 
+# ddddocr OCR 识别服务启动
 
+**/Users/lission**/**ocr_server.py**
+
+运行脚本:python3 ocr_server.py
+
+成功标志：🚀ddddocr 服务已启动，监听 http://localhost:9898
 
 # Docker-oracle
 
@@ -102,11 +108,11 @@ GRANT CREATE SESSION TO LSDATA;
 
 -- 5. 验证
 SELECT
-    username,
-    default_tablespace,
-    temporary_tablespace,
-    account_status,
-    created
+username,
+default_tablespace,
+temporary_tablespace,
+account_status,
+created
 FROM dba_users
 WHERE username = 'LSDATA';
 
@@ -118,21 +124,21 @@ WHERE username = 'LSDATA';
 -- ============================================
 
 CREATE SEQUENCE ORACLE_HISTORY_TABLE_SEQ
-    START WITH 1
-    INCREMENT BY 1
-    NOMINVALUE
-    NOMAXVALUE
-    NOCYCLE
-    NOCACHE
-    NOORDER;
+START WITH 1
+INCREMENT BY 1
+NOMINVALUE
+NOMAXVALUE
+NOCYCLE
+NOCACHE
+NOORDER;
 
 -- 验证序列创建
 SELECT
-    sequence_name,
-    last_number,
-    increment_by,
-    min_value,
-    max_value
+sequence_name,
+last_number,
+increment_by,
+min_value,
+max_value
 FROM user_sequences
 WHERE sequence_name = 'ORACLE_HISTORY_TABLE_SEQ';
 
@@ -143,8 +149,8 @@ sql
 -- ============================================
 
 CREATE TABLE ORACLE_HISTORY_TABLE (
-    -- 主键ID - 对应 @TableId(type = IdType.INPUT)
-    ID NUMBER(19) NOT NULL,
+-- 主键ID - 对应 @TableId(type = IdType.INPUT)
+ID NUMBER(19) NOT NULL,
 
     -- 数据内容 - 对应 private String dataContent;
     DATA_CONTENT VARCHAR2(4000),
@@ -170,6 +176,7 @@ CREATE TABLE ORACLE_HISTORY_TABLE (
 
     -- 逻辑删除检查约束
     CONSTRAINT CHK_IS_DELETED CHECK (IS_DELETED IN (0, 1))
+
 );
 
 -- ============================================
@@ -208,10 +215,10 @@ sql
 -- ============================================
 
 CREATE OR REPLACE TRIGGER TRG_ORACLE_HISTORY_UPDATE
-    BEFORE UPDATE ON ORACLE_HISTORY_TABLE
-    FOR EACH ROW
+BEFORE UPDATE ON ORACLE_HISTORY_TABLE
+FOR EACH ROW
 BEGIN
-    :NEW.UPDATE_TIME := SYSTIMESTAMP;
+:NEW.UPDATE_TIME := SYSTIMESTAMP;
 END;
 /
 
@@ -220,15 +227,15 @@ END;
 -- ============================================
 
 CREATE OR REPLACE TRIGGER TRG_ORACLE_HISTORY_ID
-    BEFORE INSERT ON ORACLE_HISTORY_TABLE
-    FOR EACH ROW
+BEFORE INSERT ON ORACLE_HISTORY_TABLE
+FOR EACH ROW
 DECLARE
-    v_next_id NUMBER;
+v_next_id NUMBER;
 BEGIN
-    IF :NEW.ID IS NULL OR :NEW.ID = 0 THEN
-        SELECT ORACLE_HISTORY_TABLE_SEQ.NEXTVAL INTO v_next_id FROM DUAL;
-        :NEW.ID := v_next_id;
-    END IF;
+IF :NEW.ID IS NULL OR :NEW.ID = 0 THEN
+SELECT ORACLE_HISTORY_TABLE_SEQ.NEXTVAL INTO v_next_id FROM DUAL;
+:NEW.ID := v_next_id;
+END IF;
 
     -- 确保CREATE_TIME有默认值
     IF :NEW.CREATE_TIME IS NULL THEN
@@ -239,6 +246,7 @@ BEGIN
     IF :NEW.UPDATE_TIME IS NULL THEN
         :NEW.UPDATE_TIME := SYSTIMESTAMP;
     END IF;
+
 END;
 /
 第六步：验证创建结果
@@ -249,51 +257,51 @@ sql
 
 -- 1. 查看表信息
 SELECT
-    table_name,
-    tablespace_name,
-    status,
-    num_rows
+table_name,
+tablespace_name,
+status,
+num_rows
 FROM user_tables
 WHERE table_name = 'ORACLE_HISTORY_TABLE';
 
 -- 2. 查看字段信息
 SELECT
-    column_id AS "序号",
-    column_name AS "字段名",
-    data_type AS "数据类型",
-    data_length AS "长度",
-    data_precision AS "精度",
-    data_scale AS "小数位",
-    nullable AS "可空",
-    data_default AS "默认值"
+column_id AS "序号",
+column_name AS "字段名",
+data_type AS "数据类型",
+data_length AS "长度",
+data_precision AS "精度",
+data_scale AS "小数位",
+nullable AS "可空",
+data_default AS "默认值"
 FROM user_tab_columns
 WHERE table_name = 'ORACLE_HISTORY_TABLE'
 ORDER BY column_id;
 
 -- 3. 查看约束
 SELECT
-    constraint_name AS "约束名",
-    constraint_type AS "类型",
-    search_condition AS "检查条件",
-    status AS "状态"
+constraint_name AS "约束名",
+constraint_type AS "类型",
+search_condition AS "检查条件",
+status AS "状态"
 FROM user_constraints
 WHERE table_name = 'ORACLE_HISTORY_TABLE';
 
 -- 4. 查看索引
 SELECT
-    index_name AS "索引名",
-    index_type AS "索引类型",
-    uniqueness AS "唯一性",
-    status AS "状态"
+index_name AS "索引名",
+index_type AS "索引类型",
+uniqueness AS "唯一性",
+status AS "状态"
 FROM user_indexes
 WHERE table_name = 'ORACLE_HISTORY_TABLE';
 
 -- 5. 查看触发器
 SELECT
-    trigger_name AS "触发器名",
-    trigger_type AS "类型",
-    triggering_event AS "触发事件",
-    status AS "状态"
+trigger_name AS "触发器名",
+trigger_type AS "类型",
+triggering_event AS "触发事件",
+status AS "状态"
 FROM user_triggers
 WHERE table_name = 'ORACLE_HISTORY_TABLE';
 
@@ -305,45 +313,45 @@ sql
 
 -- 测试数据1：使用序列（触发器的ID为NULL时会自动生成）
 INSERT INTO ORACLE_HISTORY_TABLE (
-    DATA_CONTENT,
-    LARGE_CONTENT,
-    BIZ_CREATE_DATE,
-    IS_DELETED
+DATA_CONTENT,
+LARGE_CONTENT,
+BIZ_CREATE_DATE,
+IS_DELETED
 ) VALUES (
-    '第一条测试数据',
-    '这是一个CLOB字段的测试内容。CLOB可以存储大量文本数据，最大4GB。',
-    SYSTIMESTAMP - INTERVAL '2' DAY,
-    0
+'第一条测试数据',
+'这是一个CLOB字段的测试内容。CLOB可以存储大量文本数据，最大4GB。',
+SYSTIMESTAMP - INTERVAL '2' DAY,
+0
 );
 
 -- 测试数据2：显式指定ID（MyBatis Plus会这样操作）
 INSERT INTO ORACLE_HISTORY_TABLE (
-    ID,
-    DATA_CONTENT,
-    LARGE_CONTENT,
-    BIZ_CREATE_DATE,
-    IS_DELETED
+ID,
+DATA_CONTENT,
+LARGE_CONTENT,
+BIZ_CREATE_DATE,
+IS_DELETED
 ) VALUES (
-    ORACLE_HISTORY_TABLE_SEQ.NEXTVAL,
-    '第二条测试数据',
-    EMPTY_CLOB(),
-    SYSTIMESTAMP - INTERVAL '1' DAY,
-    0
+ORACLE_HISTORY_TABLE_SEQ.NEXTVAL,
+'第二条测试数据',
+EMPTY_CLOB(),
+SYSTIMESTAMP - INTERVAL '1' DAY,
+0
 );
 
 -- 测试数据3：逻辑删除的数据
 INSERT INTO ORACLE_HISTORY_TABLE (
-    ID,
-    DATA_CONTENT,
-    LARGE_CONTENT,
-    BIZ_CREATE_DATE,
-    IS_DELETED
+ID,
+DATA_CONTENT,
+LARGE_CONTENT,
+BIZ_CREATE_DATE,
+IS_DELETED
 ) VALUES (
-    ORACLE_HISTORY_TABLE_SEQ.NEXTVAL,
-    '已删除的数据',
-    '这条数据将被逻辑删除',
-    SYSTIMESTAMP,
-    1
+ORACLE_HISTORY_TABLE_SEQ.NEXTVAL,
+'已删除的数据',
+'这条数据将被逻辑删除',
+SYSTIMESTAMP,
+1
 );
 
 COMMIT;
@@ -354,18 +362,18 @@ COMMIT;
 
 -- 查询所有数据（包含已删除的）
 SELECT
-    ID,
-    DATA_CONTENT,
-    DBMS_LOB.GETLENGTH(LARGE_CONTENT) AS CLOB_LENGTH,
-    TO_CHAR(BIZ_CREATE_DATE, 'YYYY-MM-DD HH24:MI:SS') AS BIZ_DATE,
-    IS_DELETED,
-    TO_CHAR(CREATE_TIME, 'YYYY-MM-DD HH24:MI:SS') AS CREATE_TIME,
-    TO_CHAR(UPDATE_TIME, 'YYYY-MM-DD HH24:MI:SS') AS UPDATE_TIME
+ID,
+DATA_CONTENT,
+DBMS_LOB.GETLENGTH(LARGE_CONTENT) AS CLOB_LENGTH,
+TO_CHAR(BIZ_CREATE_DATE, 'YYYY-MM-DD HH24:MI:SS') AS BIZ_DATE,
+IS_DELETED,
+TO_CHAR(CREATE_TIME, 'YYYY-MM-DD HH24:MI:SS') AS CREATE_TIME,
+TO_CHAR(UPDATE_TIME, 'YYYY-MM-DD HH24:MI:SS') AS UPDATE_TIME
 FROM ORACLE_HISTORY_TABLE
 ORDER BY ID;
 
 -- 查询未删除的数据（MyBatis Plus逻辑删除查询）
-SELECT COUNT(*) AS ACTIVE_RECORDS
+SELECT COUNT(\*) AS ACTIVE_RECORDS
 FROM ORACLE_HISTORY_TABLE
 WHERE IS_DELETED = 0;
 
@@ -378,9 +386,9 @@ COMMIT;
 
 -- 查看更新后的数据
 SELECT
-    ID,
-    DATA_CONTENT,
-    TO_CHAR(UPDATE_TIME, 'YYYY-MM-DD HH24:MI:SS.FF3') AS UPDATE_TIME
+ID,
+DATA_CONTENT,
+TO_CHAR(UPDATE_TIME, 'YYYY-MM-DD HH24:MI:SS.FF3') AS UPDATE_TIME
 FROM ORACLE_HISTORY_TABLE
 WHERE ID = 1;
 
