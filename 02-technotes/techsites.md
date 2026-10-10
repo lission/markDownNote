@@ -26,6 +26,11 @@ go框架：https://github.com/avelino/awesome-go#web-frameworks
 
 基于Go+Vue实现的openLDAP后台管理项目：http://ldapdoc.eryajf.net/
 
+## python
+Python官方教程：docs.python.org/zh-cn
+互动学习网站（可以在浏览器里直接写代码验证）：https://learn-py.org/
+廖雪峰的Python教程：https://liaoxuefeng.com/books/python/introduction/index.html
+
 ## 4、通用测试用例大全
 
 https://www.cnblogs.com/wysk/archive/2018/01/05/8193091.html
