@@ -1,0 +1,11 @@
+.gitignore
+/03-cestc/*
+# 04-note 随笔：允许提交（2026-11-05 起），提交前请人工确认内容
+/05-local/*
+.DS_Store
+
+# 存量隐私文件：已停止跟踪，仅保留本地（A3 方案 B，2026-11-06）
+/00-notes/05-家庭笔记.md
+/00-notes/10-vpn.md
+/00-notes/15-一一.md
+/00-notes/16-forum.md
